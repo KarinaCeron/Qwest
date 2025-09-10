@@ -12,6 +12,7 @@ import { Plus, Briefcase, TrendingUp, Clock, CheckCircle, LogOut } from 'lucide-
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import emptyStateImage from '@/assets/empty-state.jpg';
+import qwestLogo from '@/assets/qwest-logo.png';
 
 interface FiltersState {
   search: string;
@@ -211,9 +212,16 @@ const Index = () => {
       <header className="border-b bg-gradient-card">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">JobTracker</h1>
-              <p className="text-muted-foreground">Gestiona todas tus postulaciones de empleo</p>
+            <div className="flex items-center gap-4">
+              <img 
+                src={qwestLogo} 
+                alt="Qwest" 
+                className="w-12 h-12 rounded-lg shadow-lg"
+              />
+              <div>
+                <h1 className="text-3xl font-bold text-foreground">Qwest</h1>
+                <p className="text-muted-foreground">Gestiona todas tus postulaciones de empleo</p>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <Button 

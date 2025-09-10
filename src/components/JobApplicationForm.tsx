@@ -95,7 +95,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="salary">Salario</Label>
+                <Label htmlFor="salary">Salario (USD)</Label>
                 <Input
                   id="salary"
                   type="number"

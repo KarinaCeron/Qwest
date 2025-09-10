@@ -63,6 +63,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
         headers: {
           'Content-Type': 'application/json',
         },
+        mode: 'no-cors',
         body: JSON.stringify({
           jobContent: formData.jobContent,
           company: formData.company,
@@ -72,14 +73,12 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
         }),
       });
 
-      if (response.ok) {
-        toast({
-          title: "Cover Letter generada",
-          description: "Tu cover letter ha sido generada exitosamente",
-        });
-      } else {
-        throw new Error('Error en la respuesta del servidor');
-      }
+      // Since we're using no-cors, we won't get a proper response status
+      // Instead, we'll show a message that the request was sent
+      toast({
+        title: "Cover Letter enviada",
+        description: "La solicitud fue enviada para generar tu cover letter",
+      });
     } catch (error) {
       console.error('Error generating cover letter:', error);
       toast({

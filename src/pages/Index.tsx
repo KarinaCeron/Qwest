@@ -5,10 +5,12 @@ import { JobApplicationCard } from '@/components/JobApplicationCard';
 import { JobApplicationForm } from '@/components/JobApplicationForm';
 import { JobApplicationFilters } from '@/components/JobApplicationFilters';
 import { PasswordGate } from '@/components/PasswordGate';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, Briefcase, TrendingUp, Clock, CheckCircle } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { Plus, Briefcase, TrendingUp, Clock, CheckCircle, LogOut } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 import emptyStateImage from '@/assets/empty-state.jpg';
 
 interface FiltersState {
@@ -19,9 +21,13 @@ interface FiltersState {
 }
 
 const Index = () => {
+  const { user, loading, signOut } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingApplication, setEditingApplication] = useState<JobApplication | null>(null);
+  const [loadingData, setLoadingData] = useState(true);
   const [filters, setFilters] = useState<FiltersState>({
     search: '',
     status: 'all',
@@ -29,11 +35,26 @@ const Index = () => {
     company: '',
   });
 
-  // Load applications on mount
+  // Redirect to auth if not logged in
   useEffect(() => {
-    const loadedApplications = jobApplicationStorage.getAll();
-    setApplications(loadedApplications);
-  }, []);
+    if (!loading && !user) {
+      navigate('/auth');
+    }
+  }, [user, loading, navigate]);
+
+  // Load applications from Supabase when user is authenticated
+  useEffect(() => {
+    const loadApplications = async () => {
+      if (user) {
+        setLoadingData(true);
+        const apps = await jobApplicationStorage.getAll();
+        setApplications(apps);
+        setLoadingData(false);
+      }
+    };
+    
+    loadApplications();
+  }, [user]);
 
   // Filter applications
   const filteredApplications = useMemo(() => {
@@ -66,14 +87,22 @@ const Index = () => {
     return { total, inProgress, responses, offers };
   }, [applications]);
 
-  const handleAddApplication = (formData: JobApplicationFormData) => {
-    const newApp = jobApplicationStorage.add(formData);
-    setApplications(prev => [newApp, ...prev]);
-    setShowForm(false);
-    toast({
-      title: "✅ Postulación agregada",
-      description: `Se agregó la postulación para ${formData.role} en ${formData.company}`,
-    });
+  const handleAddApplication = async (formData: JobApplicationFormData) => {
+    const newApp = await jobApplicationStorage.add(formData);
+    if (newApp) {
+      setApplications(prev => [newApp, ...prev]);
+      setShowForm(false);
+      toast({
+        title: "✅ Postulación agregada",
+        description: `Se agregó la postulación para ${formData.role} en ${formData.company}`,
+      });
+    } else {
+      toast({
+        title: "❌ Error",
+        description: "No se pudo agregar la postulación",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleEditApplication = (application: JobApplication) => {
@@ -81,10 +110,10 @@ const Index = () => {
     setShowForm(true);
   };
 
-  const handleUpdateApplication = (formData: JobApplicationFormData) => {
+  const handleUpdateApplication = async (formData: JobApplicationFormData) => {
     if (!editingApplication) return;
     
-    const updated = jobApplicationStorage.update(editingApplication.id, formData);
+    const updated = await jobApplicationStorage.update(editingApplication.id, formData);
     if (updated) {
       setApplications(prev => prev.map(app => app.id === updated.id ? updated : app));
       setShowForm(false);
@@ -93,24 +122,36 @@ const Index = () => {
         title: "✅ Postulación actualizada",
         description: `Se actualizó la postulación para ${formData.role} en ${formData.company}`,
       });
+    } else {
+      toast({
+        title: "❌ Error",
+        description: "No se pudo actualizar la postulación",
+        variant: "destructive",
+      });
     }
   };
 
-  const handleDeleteApplication = (id: string) => {
+  const handleDeleteApplication = async (id: string) => {
     if (confirm('¿Estás seguro de que quieres eliminar esta postulación?')) {
-      const success = jobApplicationStorage.delete(id);
+      const success = await jobApplicationStorage.delete(id);
       if (success) {
         setApplications(prev => prev.filter(app => app.id !== id));
         toast({
           title: "🗑️ Postulación eliminada",
           description: "La postulación se eliminó correctamente",
         });
+      } else {
+        toast({
+          title: "❌ Error",
+          description: "No se pudo eliminar la postulación",
+          variant: "destructive",
+        });
       }
     }
   };
 
-  const handleExport = () => {
-    const csv = jobApplicationStorage.exportToCSV();
+  const handleExport = async () => {
+    const csv = await jobApplicationStorage.exportToCSV();
     if (!csv) {
       toast({
         title: "⚠️ Sin datos para exportar",
@@ -145,6 +186,25 @@ const Index = () => {
     setEditingApplication(null);
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+  };
+
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-muted-foreground">Cargando...</p>
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated (will redirect)
+  if (!user) {
+    return null;
+  }
+
   return (
     <PasswordGate>
       <div className="min-h-screen bg-background">
@@ -156,107 +216,126 @@ const Index = () => {
                 <h1 className="text-3xl font-bold text-foreground">JobTracker</h1>
                 <p className="text-muted-foreground">Gestiona todas tus postulaciones de empleo</p>
               </div>
-              <Button 
-                onClick={() => setShowForm(true)} 
-                size="lg"
-                className="bg-gradient-primary shadow-card"
-              >
-                <Plus className="mr-2 h-5 w-5" />
-                Nueva Postulación
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button 
+                  onClick={() => setShowForm(true)} 
+                  size="lg"
+                  className="bg-gradient-primary shadow-card"
+                >
+                  <Plus className="mr-2 h-5 w-5" />
+                  Nueva Postulación
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleSignOut}
+                  className="flex items-center gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Cerrar Sesión
+                </Button>
+              </div>
             </div>
           </div>
         </header>
 
         <main className="container mx-auto px-4 py-8">
-          {/* Stats */}
-          {applications.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-              <Card className="bg-gradient-card">
-                <CardContent className="p-4 text-center">
-                  <Briefcase className="h-8 w-8 mx-auto mb-2 text-primary" />
-                  <p className="text-2xl font-bold text-foreground">{stats.total}</p>
-                  <p className="text-sm text-muted-foreground">Total</p>
-                </CardContent>
-              </Card>
-              <Card className="bg-gradient-card">
-                <CardContent className="p-4 text-center">
-                  <Clock className="h-8 w-8 mx-auto mb-2 text-warning" />
-                  <p className="text-2xl font-bold text-foreground">{stats.inProgress}</p>
-                  <p className="text-sm text-muted-foreground">En Proceso</p>
-                </CardContent>
-              </Card>
-              <Card className="bg-gradient-card">
-                <CardContent className="p-4 text-center">
-                  <TrendingUp className="h-8 w-8 mx-auto mb-2 text-success" />
-                  <p className="text-2xl font-bold text-foreground">{stats.responses}</p>
-                  <p className="text-sm text-muted-foreground">Con Respuesta</p>
-                </CardContent>
-              </Card>
-              <Card className="bg-gradient-card">
-                <CardContent className="p-4 text-center">
-                  <CheckCircle className="h-8 w-8 mx-auto mb-2 text-success" />
-                  <p className="text-2xl font-bold text-foreground">{stats.offers}</p>
-                  <p className="text-sm text-muted-foreground">Ofertas</p>
-                </CardContent>
-              </Card>
+          {/* Loading state */}
+          {loadingData ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Cargando postulaciones...</p>
             </div>
-          )}
-
-          {/* Filters */}
-          {applications.length > 0 && (
-            <div className="mb-8">
-              <JobApplicationFilters
-                onFiltersChange={setFilters}
-                onExport={handleExport}
-                companies={companies}
-              />
-            </div>
-          )}
-
-          {/* Applications Grid */}
-          {filteredApplications.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredApplications.map((application) => (
-                <JobApplicationCard
-                  key={application.id}
-                  application={application}
-                  onEdit={handleEditApplication}
-                  onDelete={handleDeleteApplication}
-                />
-              ))}
-            </div>
-          ) : applications.length > 0 ? (
-            <Card className="bg-gradient-card">
-              <CardContent className="p-8 text-center">
-                <h3 className="text-lg font-semibold mb-2">No se encontraron postulaciones</h3>
-                <p className="text-muted-foreground">Intenta ajustar los filtros de búsqueda</p>
-              </CardContent>
-            </Card>
           ) : (
-            <Card className="bg-gradient-card max-w-2xl mx-auto">
-              <CardContent className="p-8 text-center">
-                <div className="mb-6">
-                  <img 
-                    src={emptyStateImage} 
-                    alt="Comienza tu búsqueda de empleo" 
-                    className="w-48 h-48 mx-auto rounded-lg object-cover shadow-md"
+            <>
+              {/* Stats */}
+              {applications.length > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                  <Card className="bg-gradient-card">
+                    <CardContent className="p-4 text-center">
+                      <Briefcase className="h-8 w-8 mx-auto mb-2 text-primary" />
+                      <p className="text-2xl font-bold text-foreground">{stats.total}</p>
+                      <p className="text-sm text-muted-foreground">Total</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-gradient-card">
+                    <CardContent className="p-4 text-center">
+                      <Clock className="h-8 w-8 mx-auto mb-2 text-warning" />
+                      <p className="text-2xl font-bold text-foreground">{stats.inProgress}</p>
+                      <p className="text-sm text-muted-foreground">En Proceso</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-gradient-card">
+                    <CardContent className="p-4 text-center">
+                      <TrendingUp className="h-8 w-8 mx-auto mb-2 text-success" />
+                      <p className="text-2xl font-bold text-foreground">{stats.responses}</p>
+                      <p className="text-sm text-muted-foreground">Con Respuesta</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-gradient-card">
+                    <CardContent className="p-4 text-center">
+                      <CheckCircle className="h-8 w-8 mx-auto mb-2 text-success" />
+                      <p className="text-2xl font-bold text-foreground">{stats.offers}</p>
+                      <p className="text-sm text-muted-foreground">Ofertas</p>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              {/* Filters */}
+              {applications.length > 0 && (
+                <div className="mb-8">
+                  <JobApplicationFilters
+                    onFiltersChange={setFilters}
+                    onExport={handleExport}
+                    companies={companies}
                   />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">¡Comienza tu búsqueda de empleo!</h3>
-                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                  Organiza todas tus postulaciones en un solo lugar. Registra tu primera postulación para empezar a hacer seguimiento de tu progreso profesional.
-                </p>
-                <Button 
-                  onClick={() => setShowForm(true)}
-                  size="lg"
-                  className="bg-gradient-primary shadow-card"
-                >
-                  <Plus className="mr-2 h-5 w-5" />
-                  Agregar Primera Postulación
-                </Button>
-              </CardContent>
-            </Card>
+              )}
+
+              {/* Applications Grid */}
+              {filteredApplications.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredApplications.map((application) => (
+                    <JobApplicationCard
+                      key={application.id}
+                      application={application}
+                      onEdit={handleEditApplication}
+                      onDelete={handleDeleteApplication}
+                    />
+                  ))}
+                </div>
+              ) : applications.length > 0 ? (
+                <Card className="bg-gradient-card">
+                  <CardContent className="p-8 text-center">
+                    <h3 className="text-lg font-semibold mb-2">No se encontraron postulaciones</h3>
+                    <p className="text-muted-foreground">Intenta ajustar los filtros de búsqueda</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card className="bg-gradient-card max-w-2xl mx-auto">
+                  <CardContent className="p-8 text-center">
+                    <div className="mb-6">
+                      <img 
+                        src={emptyStateImage} 
+                        alt="Comienza tu búsqueda de empleo" 
+                        className="w-48 h-48 mx-auto rounded-lg object-cover shadow-md"
+                      />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">¡Comienza tu búsqueda de empleo!</h3>
+                    <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                      Organiza todas tus postulaciones en un solo lugar. Registra tu primera postulación para empezar a hacer seguimiento de tu progreso profesional.
+                    </p>
+                    <Button 
+                      onClick={() => setShowForm(true)}
+                      size="lg"
+                      className="bg-gradient-primary shadow-card"
+                    >
+                      <Plus className="mr-2 h-5 w-5" />
+                      Agregar Primera Postulación
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+            </>
           )}
         </main>
 

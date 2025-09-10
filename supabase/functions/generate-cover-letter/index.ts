@@ -25,7 +25,7 @@ serve(async (req) => {
     if (!jobContent || !userEmail) {
       return new Response(
         JSON.stringify({ error: 'jobContent and userEmail are required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -76,7 +76,7 @@ serve(async (req) => {
     console.error('Edge function error:', e?.message || e);
     return new Response(
       JSON.stringify({ error: 'Internal error', message: e?.message || 'unknown' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });

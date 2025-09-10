@@ -39,7 +39,7 @@ export default function Auth() {
     try {
       const redirectUrl = `${window.location.origin}/`;
       
-      const { error } = await supabase.auth.signUp({
+      const { data: signUpData, error } = await supabase.auth.signUp({
         email: signupEmail,
         password: signupPassword,
         options: {
@@ -72,9 +72,34 @@ export default function Auth() {
           });
         }
       } else {
+        // Si la confirmación de email está desactivada, ya hay sesión y podemos crear el perfil inmediatamente
+        const userId = signUpData?.user?.id;
+        if (userId) {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .upsert(
+              [{
+                user_id: userId,
+                display_name: displayName || `${firstName} ${lastName}`.trim() || signupEmail,
+                first_name: firstName,
+                last_name: lastName,
+                phone,
+                location,
+                linkedin_url: linkedinUrl,
+                portfolio_url: portfolioUrl,
+                bio
+              }],
+              { onConflict: 'user_id' }
+            );
+          
+          if (profileError) {
+            console.error('Error creando perfil:', profileError);
+          }
+        }
+
         toast({
           title: 'Registro exitoso',
-          description: 'Revisa tu email para confirmar tu cuenta.',
+          description: 'Tu cuenta ha sido creada.',
         });
         // Reset form
         setSignupEmail('');
@@ -87,6 +112,11 @@ export default function Auth() {
         setLinkedinUrl('');
         setPortfolioUrl('');
         setBio('');
+        
+        // Si hay sesión activa, navega a inicio
+        if (signUpData?.session) {
+          navigate('/');
+        }
       }
     } catch (error) {
       toast({

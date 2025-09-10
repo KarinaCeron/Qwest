@@ -21,7 +21,6 @@ export default function Auth() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [phone, setPhone] = useState('');
   const [location, setLocation] = useState('');
   const [linkedinUrl, setLinkedinUrl] = useState('');
   const [portfolioUrl, setPortfolioUrl] = useState('');
@@ -62,7 +61,6 @@ export default function Auth() {
             first_name: firstName,
             last_name: lastName,
             display_name: displayName || `${firstName} ${lastName}`.trim() || signupEmail,
-            phone: phone,
             location: location,
             linkedin_url: linkedinUrl,
             portfolio_url: portfolioUrl,
@@ -97,7 +95,6 @@ export default function Auth() {
                 display_name: displayName || `${firstName} ${lastName}`.trim() || signupEmail,
                 first_name: firstName,
                 last_name: lastName,
-                phone,
                 location,
                 linkedin_url: linkedinUrl,
                 portfolio_url: portfolioUrl,
@@ -121,7 +118,6 @@ export default function Auth() {
         setFirstName('');
         setLastName('');
         setDisplayName('');
-        setPhone('');
         setLocation('');
         setLinkedinUrl('');
         setPortfolioUrl('');
@@ -343,17 +339,6 @@ export default function Auth() {
                     placeholder="••••••••"
                     required
                     minLength={6}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Teléfono</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+1 234 567 8900"
                   />
                 </div>
                 

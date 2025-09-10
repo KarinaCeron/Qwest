@@ -8,7 +8,7 @@ import { JobApplicationFilters } from '@/components/JobApplicationFilters';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, Briefcase, TrendingUp, Clock, CheckCircle, LogOut, Compass } from 'lucide-react';
+import { Plus, Briefcase, Clock, MessageSquare, Gift, X, FileX, LogOut, Compass } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import emptyStateImage from '@/assets/empty-state.jpg';
@@ -78,18 +78,16 @@ const Index = () => {
     return [...new Set(applications.map(app => app.company))].sort();
   }, [applications]);
 
-  // Stats
-  const stats = useMemo(() => {
-    const total = applications.length;
-    const inProgress = applications.filter(app => app.status === 'in-progress').length;
-    const responses = applications.filter(app => 
-      app.status === 'interview' || 
-      app.status === 'rejected' || 
-      app.status === 'offer'
-    ).length;
-    const offers = applications.filter(app => app.status === 'offer').length;
-
-    return { total, inProgress, responses, offers };
+  // Stats by status
+  const statusStats = useMemo(() => {
+    return {
+      applied: applications.filter(app => app.status === 'applied').length,
+      inProgress: applications.filter(app => app.status === 'in-progress').length,
+      interview: applications.filter(app => app.status === 'interview').length,
+      offer: applications.filter(app => app.status === 'offer').length,
+      rejected: applications.filter(app => app.status === 'rejected').length,
+      noResponse: applications.filter(app => app.status === 'no-response').length,
+    };
   }, [applications]);
 
   const handleAddApplication = async (formData: JobApplicationFormData) => {
@@ -255,35 +253,49 @@ const Index = () => {
           </div>
         ) : (
           <>
-            {/* Stats */}
+            {/* Status Cards */}
             {applications.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
                 <Card className="bg-gradient-card">
                   <CardContent className="p-4 text-center">
-                    <Briefcase className="h-8 w-8 mx-auto mb-2 text-primary" />
-                    <p className="text-2xl font-bold text-foreground">{stats.total}</p>
-                    <p className="text-sm text-muted-foreground">Total</p>
+                    <Briefcase className="h-8 w-8 mx-auto mb-2 text-blue-500" />
+                    <p className="text-2xl font-bold text-foreground">{statusStats.applied}</p>
+                    <p className="text-sm text-muted-foreground">Postulada</p>
                   </CardContent>
                 </Card>
                 <Card className="bg-gradient-card">
                   <CardContent className="p-4 text-center">
-                    <Clock className="h-8 w-8 mx-auto mb-2 text-warning" />
-                    <p className="text-2xl font-bold text-foreground">{stats.inProgress}</p>
+                    <Clock className="h-8 w-8 mx-auto mb-2 text-yellow-500" />
+                    <p className="text-2xl font-bold text-foreground">{statusStats.inProgress}</p>
                     <p className="text-sm text-muted-foreground">En Proceso</p>
                   </CardContent>
                 </Card>
                 <Card className="bg-gradient-card">
                   <CardContent className="p-4 text-center">
-                    <TrendingUp className="h-8 w-8 mx-auto mb-2 text-success" />
-                    <p className="text-2xl font-bold text-foreground">{stats.responses}</p>
-                    <p className="text-sm text-muted-foreground">Con Respuesta</p>
+                    <MessageSquare className="h-8 w-8 mx-auto mb-2 text-purple-500" />
+                    <p className="text-2xl font-bold text-foreground">{statusStats.interview}</p>
+                    <p className="text-sm text-muted-foreground">Entrevista</p>
                   </CardContent>
                 </Card>
                 <Card className="bg-gradient-card">
                   <CardContent className="p-4 text-center">
-                    <CheckCircle className="h-8 w-8 mx-auto mb-2 text-success" />
-                    <p className="text-2xl font-bold text-foreground">{stats.offers}</p>
-                    <p className="text-sm text-muted-foreground">Ofertas</p>
+                    <Gift className="h-8 w-8 mx-auto mb-2 text-green-500" />
+                    <p className="text-2xl font-bold text-foreground">{statusStats.offer}</p>
+                    <p className="text-sm text-muted-foreground">Oferta</p>
+                  </CardContent>
+                </Card>
+                <Card className="bg-gradient-card">
+                  <CardContent className="p-4 text-center">
+                    <X className="h-8 w-8 mx-auto mb-2 text-red-500" />
+                    <p className="text-2xl font-bold text-foreground">{statusStats.rejected}</p>
+                    <p className="text-sm text-muted-foreground">Rechazada</p>
+                  </CardContent>
+                </Card>
+                <Card className="bg-gradient-card">
+                  <CardContent className="p-4 text-center">
+                    <FileX className="h-8 w-8 mx-auto mb-2 text-gray-500" />
+                    <p className="text-2xl font-bold text-foreground">{statusStats.noResponse}</p>
+                    <p className="text-sm text-muted-foreground">Sin Respuesta</p>
                   </CardContent>
                 </Card>
               </div>

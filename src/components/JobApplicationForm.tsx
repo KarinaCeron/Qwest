@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { X, Plus, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 interface JobApplicationFormProps {
   onSubmit: (data: JobApplicationFormData) => void;
@@ -65,42 +66,34 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     setIsGeneratingCoverLetter(true);
     
     try {
-      // Create a form to submit to the webhook (avoids CORS issues)
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = 'https://karinaceron.app.n8n.cloud/webhook/aa37d714-c706-410e-9670-197cb1267e6e';
-      form.target = '_blank'; // Open in new tab so user can see response
-      form.style.display = 'none';
+      console.log('Calling Supabase Edge Function for cover letter generation');
       
-      // Add form data
-      const addField = (name: string, value: string) => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = name;
-        input.value = value;
-        form.appendChild(input);
-      };
-      
-      addField('jobContent', formData.jobContent);
-      addField('company', formData.company || '');
-      addField('role', formData.role || '');
-      addField('userEmail', user.email);
-      addField('timestamp', new Date().toISOString());
-      
-      document.body.appendChild(form);
-      form.submit();
-      document.body.removeChild(form);
-      
+      const { data, error } = await supabase.functions.invoke('generate-cover-letter', {
+        body: {
+          jobContent: formData.jobContent,
+          company: formData.company || '',
+          role: formData.role || '',
+          userEmail: user.email
+        }
+      });
+
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw new Error(error.message || 'Error calling cover letter service');
+      }
+
+      console.log('Cover letter generation response:', data);
+
       toast({
         title: "Cover Letter enviada",
-        description: "La solicitud fue enviada exitosamente. Se abrió una nueva pestaña con la respuesta.",
+        description: "Tu solicitud de cover letter fue enviada exitosamente al sistema de generación",
       });
       
     } catch (error) {
       console.error('Error generating cover letter:', error);
       toast({
         title: "Error",
-        description: "No se pudo enviar la solicitud. Intenta nuevamente.",
+        description: "No se pudo generar la cover letter. Intenta nuevamente.",
         variant: "destructive",
       });
     } finally {

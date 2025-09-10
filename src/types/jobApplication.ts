@@ -19,6 +19,7 @@ export interface JobApplication {
   priority: Priority;
   applicationDate: string;
   notes?: string;
+  jobContent?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -33,4 +34,5 @@ export interface JobApplicationFormData {
   priority: Priority;
   applicationDate: string;
   notes?: string;
+  jobContent?: string;
 }

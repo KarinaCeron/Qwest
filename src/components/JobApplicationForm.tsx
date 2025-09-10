@@ -25,6 +25,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     priority: editingApplication?.priority || 'medium',
     applicationDate: editingApplication?.applicationDate || new Date().toISOString().split('T')[0],
     notes: editingApplication?.notes || '',
+    jobContent: editingApplication?.jobContent || '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -161,6 +162,18 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                   required
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="jobContent">Contenido de la Vacante</Label>
+              <Textarea
+                id="jobContent"
+                value={formData.jobContent}
+                onChange={(e) => handleChange('jobContent', e.target.value)}
+                placeholder="Pega aquí el contenido completo de la vacante: descripción, requisitos, beneficios, etc..."
+                rows={6}
+                className="min-h-[120px]"
+              />
             </div>
 
             <div className="space-y-2">

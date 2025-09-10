@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { Compass } from 'lucide-react';
 
 export default function Auth() {
   // Login states
@@ -31,6 +32,19 @@ export default function Auth() {
   const [resendLoading, setResendLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.title = 'Qwest | Iniciar sesión';
+    const metaDescName = 'description';
+    let meta = document.querySelector(`meta[name="${metaDescName}"]`);
+    const content = 'Inicia sesión en Qwest: gestiona tus postulaciones de empleo.';
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.setAttribute('name', metaDescName);
+      document.head.appendChild(meta);
+    }
+    meta.setAttribute('content', content);
+  }, []);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -209,15 +223,18 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
       <Card className="w-full max-w-lg">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">JobTracker</CardTitle>
-          <CardDescription>
-            Administra tus postulaciones laborales
-          </CardDescription>
-          <div className="text-xs text-muted-foreground mt-2 p-2 bg-muted rounded">
-            <strong>Usuario demo:</strong> evelyn@example.com | <strong>Pass:</strong> 123456789
-          </div>
-        </CardHeader>
+      <CardHeader className="text-center">
+        <div className="mx-auto w-14 h-14 bg-gradient-primary rounded-xl flex items-center justify-center shadow-lg mb-2">
+          <Compass className="h-7 w-7 text-primary-foreground" />
+        </div>
+        <CardTitle className="text-2xl font-bold">Qwest</CardTitle>
+        <CardDescription>
+          Gestiona tus postulaciones de empleo
+        </CardDescription>
+        <div className="text-xs text-muted-foreground mt-2 p-2 bg-muted rounded">
+          <strong>Usuario demo:</strong> evelyn@example.com | <strong>Pass:</strong> 123456789
+        </div>
+      </CardHeader>
         <CardContent>
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2">

@@ -21,6 +21,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const { toast } = useToast();
   const { user } = useAuth();
   const [isGeneratingCoverLetter, setIsGeneratingCoverLetter] = useState(false);
+  const [generatedCoverLetter, setGeneratedCoverLetter] = useState<string | null>(null);
   const [formData, setFormData] = useState<JobApplicationFormData>({
     company: editingApplication?.company || '',
     role: editingApplication?.role || '',
@@ -69,9 +70,6 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
       const { data, error } = await supabase.functions.invoke('generate-cover-letter', {
         body: {
           jobContent: formData.jobContent,
-          company: formData.company || '',
-          role: formData.role || '',
-          userEmail: user.email,
         },
       });
 
@@ -79,16 +77,23 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
         throw new Error(error.message);
       }
 
-      toast({
-        title: "Cover Letter enviada",
-        description: "Solicitud enviada correctamente.",
-      });
+      // Extract the cover letter from response
+      const coverLetter = data?.["Cover letter"];
+      if (coverLetter) {
+        setGeneratedCoverLetter(coverLetter);
+        toast({
+          title: "Cover Letter generada",
+          description: "¡Cover Letter creada exitosamente!",
+        });
+      } else {
+        throw new Error("No se recibió el cover letter");
+      }
       
     } catch (error) {
       console.error('Error generating cover letter:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "No se pudo enviar la solicitud.",
+        description: error instanceof Error ? error.message : "No se pudo generar el cover letter.",
         variant: "destructive",
       });
     } finally {
@@ -244,6 +249,30 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 </Button>
               )}
             </div>
+            
+            {generatedCoverLetter && (
+              <div className="mt-4 p-4 bg-gradient-card border rounded-lg">
+                <h4 className="font-semibold mb-2 text-foreground">Cover Letter Generada:</h4>
+                <div className="bg-background/50 p-3 rounded border max-h-64 overflow-y-auto">
+                  <pre className="whitespace-pre-wrap text-sm text-foreground">{generatedCoverLetter}</pre>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="mt-2"
+                  onClick={() => {
+                    navigator.clipboard.writeText(generatedCoverLetter);
+                    toast({
+                      title: "Copiado",
+                      description: "Cover letter copiado al portapapeles",
+                    });
+                  }}
+                >
+                  📋 Copiar Cover Letter
+                </Button>
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="notes">Notas</Label>

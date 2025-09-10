@@ -44,7 +44,14 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   };
 
   const handleGenerateCoverLetter = async () => {
-    if (!formData.jobContent) return;
+    if (!formData.jobContent) {
+      toast({
+        title: "Error",
+        description: "El contenido de la vacante es requerido",
+        variant: "destructive",
+      });
+      return;
+    }
     
     if (!user?.email) {
       toast({
@@ -58,12 +65,20 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     setIsGeneratingCoverLetter(true);
     
     try {
+      console.log('Attempting to call webhook:', 'https://karinaceron.app.n8n.cloud/webhook/aa37d714-c706-410e-9670-197cb1267e6e');
+      console.log('Payload:', {
+        jobContent: formData.jobContent,
+        company: formData.company,
+        role: formData.role,
+        userEmail: user.email,
+        timestamp: new Date().toISOString()
+      });
+
       const response = await fetch('https://karinaceron.app.n8n.cloud/webhook/aa37d714-c706-410e-9670-197cb1267e6e', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        mode: 'no-cors',
         body: JSON.stringify({
           jobContent: formData.jobContent,
           company: formData.company,
@@ -73,17 +88,23 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
         }),
       });
 
-      // Since we're using no-cors, we won't get a proper response status
-      // Instead, we'll show a message that the request was sent
-      toast({
-        title: "Cover Letter enviada",
-        description: "La solicitud fue enviada para generar tu cover letter",
-      });
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+
+      if (response.ok) {
+        toast({
+          title: "Cover Letter enviada",
+          description: "La solicitud fue enviada exitosamente para generar tu cover letter",
+        });
+      } else {
+        console.error('Response not ok:', response.status, response.statusText);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
     } catch (error) {
       console.error('Error generating cover letter:', error);
       toast({
-        title: "Error",
-        description: "No se pudo generar la cover letter. Intenta nuevamente.",
+        title: "Error de conexión",
+        description: "No se pudo conectar con el servicio. Verifica que el webhook esté activo y sea accesible.",
         variant: "destructive",
       });
     } finally {

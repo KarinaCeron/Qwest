@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { X, Plus, Edit } from 'lucide-react';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { X, Plus, Edit, FileText, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -22,6 +23,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const { user } = useAuth();
   const [isGeneratingCoverLetter, setIsGeneratingCoverLetter] = useState(false);
   const [generatedCoverLetter, setGeneratedCoverLetter] = useState<string | null>(null);
+  const [isCoverLetterOpen, setIsCoverLetterOpen] = useState(false);
   const [formData, setFormData] = useState<JobApplicationFormData>({
     company: editingApplication?.company || '',
     role: editingApplication?.role || '',
@@ -82,6 +84,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
       const coverLetter = data?.["Cover letter"];
       if (coverLetter) {
         setGeneratedCoverLetter(coverLetter);
+        setIsCoverLetterOpen(true);
         toast({
           title: "Cover Letter generada",
           description: "¡Cover Letter creada exitosamente!",
@@ -253,25 +256,55 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
             
             {generatedCoverLetter && (
               <div className="mt-4 p-4 bg-gradient-card border rounded-lg">
-                <h4 className="font-semibold mb-2 text-foreground">Cover Letter Generada:</h4>
-                <div className="bg-background/50 p-3 rounded border max-h-64 overflow-y-auto">
-                  <pre className="whitespace-pre-wrap text-sm text-foreground">{generatedCoverLetter}</pre>
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="mt-2"
-                  onClick={() => {
-                    navigator.clipboard.writeText(generatedCoverLetter);
-                    toast({
-                      title: "Copiado",
-                      description: "Cover letter copiado al portapapeles",
-                    });
-                  }}
-                >
-                  📋 Copiar Cover Letter
-                </Button>
+                <h4 className="font-semibold mb-2 text-foreground">Cover Letter Generada</h4>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Tu cover letter ha sido generada exitosamente.
+                </p>
+                <Sheet open={isCoverLetterOpen} onOpenChange={setIsCoverLetterOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" className="w-full">
+                      <FileText className="h-4 w-4 mr-2" />
+                      Ver Cover Letter
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="right" className="w-[500px] sm:w-[600px]">
+                    <SheetHeader>
+                      <SheetTitle className="flex items-center gap-2">
+                        <FileText className="h-5 w-5" />
+                        Cover Letter para {formData.company}
+                      </SheetTitle>
+                    </SheetHeader>
+                    <div className="mt-6">
+                      <div className="bg-background border rounded-lg p-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+                        <pre className="whitespace-pre-wrap text-sm text-foreground leading-relaxed">
+                          {generatedCoverLetter}
+                        </pre>
+                      </div>
+                      <div className="flex gap-2 mt-4">
+                        <Button
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => {
+                            navigator.clipboard.writeText(generatedCoverLetter);
+                            toast({
+                              title: "Copiado",
+                              description: "Cover letter copiado al portapapeles",
+                            });
+                          }}
+                        >
+                          <Copy className="h-4 w-4 mr-2" />
+                          Copiar al Portapapeles
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsCoverLetterOpen(false)}
+                        >
+                          Cerrar
+                        </Button>
+                      </div>
+                    </div>
+                  </SheetContent>
+                </Sheet>
               </div>
             )}
 

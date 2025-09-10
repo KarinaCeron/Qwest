@@ -81,8 +81,12 @@ const Index = () => {
   // Stats
   const stats = useMemo(() => {
     const total = applications.length;
-    const inProgress = applications.filter(app => app.status === 'in-progress' || app.status === 'interview').length;
-    const responses = applications.filter(app => app.status !== 'no-response').length;
+    const inProgress = applications.filter(app => app.status === 'in-progress').length;
+    const responses = applications.filter(app => 
+      app.status === 'interview' || 
+      app.status === 'rejected' || 
+      app.status === 'offer'
+    ).length;
     const offers = applications.filter(app => app.status === 'offer').length;
 
     return { total, inProgress, responses, offers };

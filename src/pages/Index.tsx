@@ -90,6 +90,10 @@ const Index = () => {
     };
   }, [applications]);
 
+  const handleStatusFilter = (status: ApplicationStatus | 'all') => {
+    setFilters(prev => ({ ...prev, status }));
+  };
+
   const handleAddApplication = async (formData: JobApplicationFormData) => {
     const newApp = await jobApplicationStorage.add(formData);
     if (newApp) {
@@ -256,42 +260,72 @@ const Index = () => {
             {/* Status Cards */}
             {applications.length > 0 && (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-                <Card className="bg-gradient-card">
+                <Card 
+                  className={`bg-gradient-card cursor-pointer transition-all hover:shadow-lg ${
+                    filters.status === 'applied' ? 'ring-2 ring-blue-500 shadow-lg' : ''
+                  }`}
+                  onClick={() => handleStatusFilter('applied')}
+                >
                   <CardContent className="p-4 text-center">
                     <Briefcase className="h-8 w-8 mx-auto mb-2 text-blue-500" />
                     <p className="text-2xl font-bold text-foreground">{statusStats.applied}</p>
                     <p className="text-sm text-muted-foreground">Postulada</p>
                   </CardContent>
                 </Card>
-                <Card className="bg-gradient-card">
+                <Card 
+                  className={`bg-gradient-card cursor-pointer transition-all hover:shadow-lg ${
+                    filters.status === 'in-progress' ? 'ring-2 ring-yellow-500 shadow-lg' : ''
+                  }`}
+                  onClick={() => handleStatusFilter('in-progress')}
+                >
                   <CardContent className="p-4 text-center">
                     <Clock className="h-8 w-8 mx-auto mb-2 text-yellow-500" />
                     <p className="text-2xl font-bold text-foreground">{statusStats.inProgress}</p>
                     <p className="text-sm text-muted-foreground">En Proceso</p>
                   </CardContent>
                 </Card>
-                <Card className="bg-gradient-card">
+                <Card 
+                  className={`bg-gradient-card cursor-pointer transition-all hover:shadow-lg ${
+                    filters.status === 'interview' ? 'ring-2 ring-purple-500 shadow-lg' : ''
+                  }`}
+                  onClick={() => handleStatusFilter('interview')}
+                >
                   <CardContent className="p-4 text-center">
                     <MessageSquare className="h-8 w-8 mx-auto mb-2 text-purple-500" />
                     <p className="text-2xl font-bold text-foreground">{statusStats.interview}</p>
                     <p className="text-sm text-muted-foreground">Entrevista</p>
                   </CardContent>
                 </Card>
-                <Card className="bg-gradient-card">
+                <Card 
+                  className={`bg-gradient-card cursor-pointer transition-all hover:shadow-lg ${
+                    filters.status === 'offer' ? 'ring-2 ring-green-500 shadow-lg' : ''
+                  }`}
+                  onClick={() => handleStatusFilter('offer')}
+                >
                   <CardContent className="p-4 text-center">
                     <Gift className="h-8 w-8 mx-auto mb-2 text-green-500" />
                     <p className="text-2xl font-bold text-foreground">{statusStats.offer}</p>
                     <p className="text-sm text-muted-foreground">Oferta</p>
                   </CardContent>
                 </Card>
-                <Card className="bg-gradient-card">
+                <Card 
+                  className={`bg-gradient-card cursor-pointer transition-all hover:shadow-lg ${
+                    filters.status === 'rejected' ? 'ring-2 ring-red-500 shadow-lg' : ''
+                  }`}
+                  onClick={() => handleStatusFilter('rejected')}
+                >
                   <CardContent className="p-4 text-center">
                     <X className="h-8 w-8 mx-auto mb-2 text-red-500" />
                     <p className="text-2xl font-bold text-foreground">{statusStats.rejected}</p>
                     <p className="text-sm text-muted-foreground">Rechazada</p>
                   </CardContent>
                 </Card>
-                <Card className="bg-gradient-card">
+                <Card 
+                  className={`bg-gradient-card cursor-pointer transition-all hover:shadow-lg ${
+                    filters.status === 'no-response' ? 'ring-2 ring-gray-500 shadow-lg' : ''
+                  }`}
+                  onClick={() => handleStatusFilter('no-response')}
+                >
                   <CardContent className="p-4 text-center">
                     <FileX className="h-8 w-8 mx-auto mb-2 text-gray-500" />
                     <p className="text-2xl font-bold text-foreground">{statusStats.noResponse}</p>

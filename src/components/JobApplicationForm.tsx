@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { X, Plus, Edit } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface JobApplicationFormProps {
   onSubmit: (data: JobApplicationFormData) => void;
@@ -15,6 +16,8 @@ interface JobApplicationFormProps {
 }
 
 export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: JobApplicationFormProps) {
+  const { toast } = useToast();
+  const [isGeneratingCoverLetter, setIsGeneratingCoverLetter] = useState(false);
   const [formData, setFormData] = useState<JobApplicationFormData>({
     company: editingApplication?.company || '',
     role: editingApplication?.role || '',
@@ -36,6 +39,45 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
 
   const handleChange = (field: keyof JobApplicationFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleGenerateCoverLetter = async () => {
+    if (!formData.jobContent) return;
+    
+    setIsGeneratingCoverLetter(true);
+    
+    try {
+      const response = await fetch('https://karinaceron.app.n8n.cloud/webhook/aa37d714-c706-410e-9670-197cb1267e6e', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jobContent: formData.jobContent,
+          company: formData.company,
+          role: formData.role,
+          timestamp: new Date().toISOString()
+        }),
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Cover Letter generada",
+          description: "Tu cover letter ha sido generada exitosamente",
+        });
+      } else {
+        throw new Error('Error en la respuesta del servidor');
+      }
+    } catch (error) {
+      console.error('Error generating cover letter:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo generar la cover letter. Intenta nuevamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingCoverLetter(false);
+    }
   };
 
   return (
@@ -179,12 +221,10 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                   type="button" 
                   variant="outline" 
                   className="w-full mt-2"
-                  onClick={() => {
-                    // TODO: Implement cover letter generation
-                    console.log('Crear cover letter clicked');
-                  }}
+                  onClick={handleGenerateCoverLetter}
+                  disabled={isGeneratingCoverLetter}
                 >
-                  ✉️ Crear Cover Letter
+                  {isGeneratingCoverLetter ? 'Generando...' : '✉️ Crear Cover Letter'}
                 </Button>
               )}
             </div>

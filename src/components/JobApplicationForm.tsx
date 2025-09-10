@@ -174,6 +174,19 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 rows={6}
                 className="min-h-[120px]"
               />
+              {formData.jobContent && (
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="w-full mt-2"
+                  onClick={() => {
+                    // TODO: Implement cover letter generation
+                    console.log('Crear cover letter clicked');
+                  }}
+                >
+                  ✉️ Crear Cover Letter
+                </Button>
+              )}
             </div>
 
             <div className="space-y-2">

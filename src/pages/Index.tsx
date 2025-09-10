@@ -8,7 +8,7 @@ import { JobApplicationFilters } from '@/components/JobApplicationFilters';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, Briefcase, TrendingUp, Clock, CheckCircle, LogOut } from 'lucide-react';
+import { Plus, Briefcase, TrendingUp, Clock, CheckCircle, LogOut, Compass } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import emptyStateImage from '@/assets/empty-state.jpg';
@@ -213,11 +213,9 @@ const Index = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <img 
-                src={qwestLogo} 
-                alt="Qwest" 
-                className="w-12 h-12 rounded-lg shadow-lg"
-              />
+              <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center shadow-lg">
+                <Compass className="h-7 w-7 text-primary-foreground" />
+              </div>
               <div>
                 <h1 className="text-3xl font-bold text-foreground">Qwest</h1>
                 <p className="text-muted-foreground">Gestiona todas tus postulaciones de empleo</p>

@@ -20,7 +20,7 @@ export default function Auth() {
   const [signupPassword, setSignupPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [displayName, setDisplayName] = useState('');
+  const [displayNameField, setDisplayNameField] = useState('');
   const [location, setLocation] = useState('');
   const [linkedinUrl, setLinkedinUrl] = useState('');
   const [portfolioUrl, setPortfolioUrl] = useState('');
@@ -60,7 +60,7 @@ export default function Auth() {
           data: {
             first_name: firstName,
             last_name: lastName,
-            display_name: displayName || `${firstName} ${lastName}`.trim() || signupEmail,
+            display_name: displayNameField || `${firstName} ${lastName}`.trim() || signupEmail,
             location: location,
             linkedin_url: linkedinUrl,
             portfolio_url: portfolioUrl,
@@ -92,7 +92,7 @@ export default function Auth() {
             .upsert(
               [{
                 user_id: userId,
-                display_name: displayName || `${firstName} ${lastName}`.trim() || signupEmail,
+                display_name: displayNameField || `${firstName} ${lastName}`.trim() || signupEmail,
                 first_name: firstName,
                 last_name: lastName,
                 location,
@@ -117,7 +117,7 @@ export default function Auth() {
         setSignupPassword('');
         setFirstName('');
         setLastName('');
-        setDisplayName('');
+        setDisplayNameField('');
         setLocation('');
         setLinkedinUrl('');
         setPortfolioUrl('');
@@ -311,8 +311,8 @@ export default function Auth() {
                   <Input
                     id="display-name"
                     type="text"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
+                    value={displayNameField}
+                    onChange={(e) => setDisplayNameField(e.target.value)}
                     placeholder="Juan P. (opcional - se auto-genera)"
                   />
                 </div>

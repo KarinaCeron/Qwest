@@ -9,7 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { X, Plus, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
 
 interface JobApplicationFormProps {
   onSubmit: (data: JobApplicationFormData) => void;
@@ -66,34 +65,32 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     setIsGeneratingCoverLetter(true);
     
     try {
-      console.log('Calling Supabase Edge Function for cover letter generation');
-      
-      const { data, error } = await supabase.functions.invoke('generate-cover-letter', {
-        body: {
+      const response = await fetch('https://karinaceron.app.n8n.cloud/webhook/aa37d714-c706-410e-9670-197cb1267e6e', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        mode: 'no-cors',
+        body: JSON.stringify({
           jobContent: formData.jobContent,
           company: formData.company || '',
           role: formData.role || '',
-          userEmail: user.email
-        }
+          userEmail: user.email,
+          timestamp: new Date().toISOString()
+        }),
       });
 
-      if (error) {
-        console.error('Supabase function error:', error);
-        throw new Error(error.message || 'Error calling cover letter service');
-      }
-
-      console.log('Cover letter generation response:', data);
-
+      // Con no-cors no podemos verificar el status, asumimos éxito
       toast({
         title: "Cover Letter enviada",
-        description: "Tu solicitud de cover letter fue enviada exitosamente al sistema de generación",
+        description: "La solicitud fue enviada al sistema de generación de cover letter",
       });
       
     } catch (error) {
       console.error('Error generating cover letter:', error);
       toast({
         title: "Error",
-        description: "No se pudo generar la cover letter. Intenta nuevamente.",
+        description: "No se pudo enviar la solicitud. Intenta nuevamente.",
         variant: "destructive",
       });
     } finally {

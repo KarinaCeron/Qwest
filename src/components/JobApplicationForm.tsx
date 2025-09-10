@@ -70,6 +70,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
       const { data, error } = await supabase.functions.invoke('generate-cover-letter', {
         body: {
           jobContent: formData.jobContent,
+          userEmail: user.email,
         },
       });
 

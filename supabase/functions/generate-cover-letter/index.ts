@@ -7,6 +7,7 @@ const corsHeaders = {
 
 interface CoverLetterRequest {
   jobContent: string;
+  userEmail: string;
 }
 
 serve(async (req) => {
@@ -19,16 +20,16 @@ serve(async (req) => {
   }
 
   try {
-    const { jobContent }: CoverLetterRequest = await req.json();
+    const { jobContent, userEmail }: CoverLetterRequest = await req.json();
 
-    if (!jobContent) {
+    if (!jobContent || !userEmail) {
       return new Response(
-        JSON.stringify({ error: 'jobContent is required' }),
+        JSON.stringify({ error: 'jobContent and userEmail are required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Call n8n webhook with GET method and prompt parameter
+    // Call n8n webhook with GET method and vacant/email parameters
     const webhookUrl = 'https://karinaceron.app.n8n.cloud/webhook/aa37d714-c706-410e-9670-197cb1267e6e';
 
     // Avoid overly long URLs by truncating very large contents
@@ -36,7 +37,8 @@ serve(async (req) => {
     const contentForGet = jobContent.length > maxLen ? jobContent.slice(0, maxLen) : jobContent;
 
     const params = new URLSearchParams({
-      prompt: contentForGet
+      vacant: contentForGet,
+      email: userEmail
     });
 
     const getUrl = `${webhookUrl}?${params.toString()}`;

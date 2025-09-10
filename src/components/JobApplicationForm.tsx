@@ -65,46 +65,42 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     setIsGeneratingCoverLetter(true);
     
     try {
-      console.log('Attempting to call webhook:', 'https://karinaceron.app.n8n.cloud/webhook/aa37d714-c706-410e-9670-197cb1267e6e');
-      console.log('Payload:', {
-        jobContent: formData.jobContent,
-        company: formData.company,
-        role: formData.role,
-        userEmail: user.email,
-        timestamp: new Date().toISOString()
+      // Create a form to submit to the webhook (avoids CORS issues)
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = 'https://karinaceron.app.n8n.cloud/webhook/aa37d714-c706-410e-9670-197cb1267e6e';
+      form.target = '_blank'; // Open in new tab so user can see response
+      form.style.display = 'none';
+      
+      // Add form data
+      const addField = (name: string, value: string) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+      };
+      
+      addField('jobContent', formData.jobContent);
+      addField('company', formData.company || '');
+      addField('role', formData.role || '');
+      addField('userEmail', user.email);
+      addField('timestamp', new Date().toISOString());
+      
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
+      
+      toast({
+        title: "Cover Letter enviada",
+        description: "La solicitud fue enviada exitosamente. Se abrió una nueva pestaña con la respuesta.",
       });
-
-      const response = await fetch('https://karinaceron.app.n8n.cloud/webhook/aa37d714-c706-410e-9670-197cb1267e6e', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          jobContent: formData.jobContent,
-          company: formData.company,
-          role: formData.role,
-          userEmail: user.email,
-          timestamp: new Date().toISOString()
-        }),
-      });
-
-      console.log('Response status:', response.status);
-      console.log('Response ok:', response.ok);
-
-      if (response.ok) {
-        toast({
-          title: "Cover Letter enviada",
-          description: "La solicitud fue enviada exitosamente para generar tu cover letter",
-        });
-      } else {
-        console.error('Response not ok:', response.status, response.statusText);
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      
     } catch (error) {
       console.error('Error generating cover letter:', error);
       toast({
-        title: "Error de conexión",
-        description: "No se pudo conectar con el servicio. Verifica que el webhook esté activo y sea accesible.",
+        title: "Error",
+        description: "No se pudo enviar la solicitud. Intenta nuevamente.",
         variant: "destructive",
       });
     } finally {

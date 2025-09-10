@@ -30,22 +30,41 @@ serve(async (req) => {
 
     // Call n8n webhook with GET method and prompt parameter
     const webhookUrl = 'https://karinaceron.app.n8n.cloud/webhook/aa37d714-c706-410e-9670-197cb1267e6e';
+
+    // Avoid overly long URLs by truncating very large contents
+    const maxLen = 4000;
+    const contentForGet = jobContent.length > maxLen ? jobContent.slice(0, maxLen) : jobContent;
+
     const params = new URLSearchParams({
-      prompt: jobContent
+      prompt: contentForGet
     });
 
     const getUrl = `${webhookUrl}?${params.toString()}`;
-    const forwardRes = await fetch(getUrl, { method: 'GET' });
+    const forwardRes = await fetch(getUrl, { method: 'GET', headers: { 'Accept': 'application/json' } });
 
     if (!forwardRes.ok) {
-      console.error('n8n error:', forwardRes.status, await forwardRes.text());
+      const errText = await forwardRes.text();
+      console.error('n8n error:', forwardRes.status, errText);
+      // Return 200 with error payload so the client can display a friendly message
       return new Response(
-        JSON.stringify({ error: 'Webhook failed', status: forwardRes.status }),
-        { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Webhook failed', status: forwardRes.status, body: errText }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const responseData = await forwardRes.json();
+    // Try to parse JSON; if text, wrap into expected shape
+    let responseData: any = null;
+    const contentType = forwardRes.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      responseData = await forwardRes.json();
+    } else {
+      const text = await forwardRes.text();
+      responseData = { "Cover letter": text };
+    }
+
+    if (typeof responseData === 'string') {
+      responseData = { "Cover letter": responseData };
+    }
     
     return new Response(
       JSON.stringify(responseData),

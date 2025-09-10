@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { X, Plus, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 interface JobApplicationFormProps {
   onSubmit: (data: JobApplicationFormData) => void;
@@ -17,6 +18,7 @@ interface JobApplicationFormProps {
 
 export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: JobApplicationFormProps) {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isGeneratingCoverLetter, setIsGeneratingCoverLetter] = useState(false);
   const [formData, setFormData] = useState<JobApplicationFormData>({
     company: editingApplication?.company || '',
@@ -44,6 +46,15 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const handleGenerateCoverLetter = async () => {
     if (!formData.jobContent) return;
     
+    if (!user?.email) {
+      toast({
+        title: "Error",
+        description: "No se pudo obtener el email del usuario",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsGeneratingCoverLetter(true);
     
     try {
@@ -56,6 +67,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
           jobContent: formData.jobContent,
           company: formData.company,
           role: formData.role,
+          userEmail: user.email,
           timestamp: new Date().toISOString()
         }),
       });

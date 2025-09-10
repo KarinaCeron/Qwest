@@ -231,9 +231,6 @@ export default function Auth() {
         <CardDescription>
           Gestiona tus postulaciones de empleo
         </CardDescription>
-        <div className="text-xs text-muted-foreground mt-2 p-2 bg-muted rounded">
-          <strong>Usuario demo:</strong> evelyn@example.com | <strong>Pass:</strong> 123456789
-        </div>
       </CardHeader>
         <CardContent>
           <Tabs defaultValue="signin" className="w-full">

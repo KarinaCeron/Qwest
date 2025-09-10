@@ -98,9 +98,12 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 <Label htmlFor="salary">Salario</Label>
                 <Input
                   id="salary"
+                  type="number"
                   value={formData.salary}
                   onChange={(e) => handleChange('salary', e.target.value)}
-                  placeholder="Ej: 45000€, 50k-60k..."
+                  placeholder="45000"
+                  min="0"
+                  step="1000"
                 />
               </div>
             </div>

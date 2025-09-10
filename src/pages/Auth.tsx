@@ -27,6 +27,8 @@ export default function Auth() {
   const [bio, setBio] = useState('');
   
   const [loading, setLoading] = useState(false);
+  const [needsConfirmation, setNeedsConfirmation] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -108,12 +110,22 @@ export default function Auth() {
       });
 
       if (error) {
-        toast({
-          title: 'Error al iniciar sesión',
-          description: error.message,
-          variant: 'destructive'
-        });
+        const msg = (error as any)?.message || '';
+        if (msg.toLowerCase().includes('email not confirmed')) {
+          setNeedsConfirmation(true);
+          toast({
+            title: 'Confirma tu email',
+            description: 'Debes confirmar tu cuenta desde el correo enviado para poder iniciar sesión.',
+          });
+        } else {
+          toast({
+            title: 'Error al iniciar sesión',
+            description: msg || 'Credenciales inválidas',
+            variant: 'destructive'
+          });
+        }
       } else {
+        setNeedsConfirmation(false);
         toast({
           title: 'Bienvenido',
           description: 'Has iniciado sesión correctamente.',
@@ -128,6 +140,39 @@ export default function Auth() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResendConfirmation = async () => {
+    if (!email) {
+      toast({
+        title: 'Ingresa tu email',
+        description: 'Escribe tu email y vuelve a intentar.',
+      });
+      return;
+    }
+    try {
+      setResendLoading(true);
+      const redirectUrl = `${window.location.origin}/`;
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+        options: { emailRedirectTo: redirectUrl }
+      });
+      if (error) {
+        toast({
+          title: 'No se pudo reenviar',
+          description: error.message,
+          variant: 'destructive'
+        });
+      } else {
+        toast({
+          title: 'Correo reenviado',
+          description: 'Revisa tu bandeja de entrada o spam.',
+        });
+      }
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -177,6 +222,20 @@ export default function Auth() {
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? 'Iniciando...' : 'Iniciar Sesión'}
                 </Button>
+                {needsConfirmation && (
+                  <div className="text-sm text-muted-foreground mt-3">
+                    Debes confirmar tu email para iniciar sesión.
+                    <Button
+                      type="button"
+                      variant="link"
+                      className="px-2"
+                      onClick={handleResendConfirmation}
+                      disabled={resendLoading}
+                    >
+                      {resendLoading ? 'Reenviando...' : 'Reenviar confirmación'}
+                    </Button>
+                  </div>
+                )}
               </form>
             </TabsContent>
             

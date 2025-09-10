@@ -31,25 +31,56 @@ serve(async (req) => {
       );
     }
 
-    // Forward to n8n webhook
+    // Forward to n8n webhook (try POST, fallback to GET if webhook is GET-only)
     const webhookUrl = 'https://karinaceron.app.n8n.cloud/webhook/aa37d714-c706-410e-9670-197cb1267e6e';
 
-    const forwardRes = await fetch(webhookUrl, {
+    const payload = {
+      jobContent,
+      company,
+      role,
+      userEmail,
+      timestamp: new Date().toISOString(),
+      via: 'supabase-edge-proxy'
+    };
+
+    // Try POST first
+    let forwardRes = await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jobContent,
-        company,
-        role,
-        userEmail,
-        timestamp: new Date().toISOString(),
-        via: 'supabase-edge-proxy'
-      })
+      body: JSON.stringify(payload)
     });
 
-    const text = await forwardRes.text();
+    let text = await forwardRes.text();
     let json: any = null;
     try { json = JSON.parse(text); } catch {}
+
+    // If POST is not registered (common in n8n when webhook is GET-only), fallback to GET
+    if (!forwardRes.ok) {
+      const needsGet =
+        forwardRes.status === 404 &&
+        (text?.includes('not registered for POST') || text?.includes('Did you mean to make a GET request'));
+
+      if (needsGet) {
+        // Avoid overly long URLs by truncating very large contents
+        const maxLen = 4000;
+        const contentForGet = jobContent.length > maxLen ? jobContent.slice(0, maxLen) : jobContent;
+
+        const params = new URLSearchParams({
+          jobContent: contentForGet,
+          company,
+          role,
+          userEmail,
+          timestamp: new Date().toISOString(),
+          via: 'supabase-edge-proxy'
+        });
+
+        const getUrl = `${webhookUrl}?${params.toString()}`;
+        forwardRes = await fetch(getUrl, { method: 'GET' });
+        text = await forwardRes.text();
+        json = null;
+        try { json = JSON.parse(text); } catch {}
+      }
+    }
 
     if (!forwardRes.ok) {
       console.error('n8n error:', forwardRes.status, text);

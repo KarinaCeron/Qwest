@@ -80,8 +80,14 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
         throw new Error(error.message);
       }
 
-      // Extract the cover letter from response
-      const coverLetter = data?.["Cover letter"];
+      // Extract the cover letter from response with fallbacks and log raw data
+      console.log('generate-cover-letter response:', data);
+      const coverLetter = (
+        data?.["Cover letter"] ??
+        data?.coverLetter ??
+        data?.data?.["Cover letter"] ??
+        (Array.isArray(data) ? data.find((x: any) => x?.["Cover letter"])?.["Cover letter"] : undefined)
+      );
       if (coverLetter) {
         setGeneratedCoverLetter(coverLetter);
         setIsCoverLetterOpen(true);
@@ -92,7 +98,6 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
       } else {
         throw new Error("No se recibió el cover letter");
       }
-      
     } catch (error) {
       console.error('Error generating cover letter:', error);
       toast({

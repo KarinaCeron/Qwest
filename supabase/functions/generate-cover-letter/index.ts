@@ -54,22 +54,76 @@ serve(async (req) => {
       );
     }
 
-    // Try to parse JSON; if text, wrap into expected shape
-    let responseData: any = null;
-    const contentType = forwardRes.headers.get('content-type') || '';
-    if (contentType.includes('application/json')) {
-      responseData = await forwardRes.json();
-    } else {
-      const text = await forwardRes.text();
-      responseData = { "Cover letter": text };
+    // Try to parse JSON; be resilient and normalize to { "Cover letter": string }
+    const rawContentType = forwardRes.headers.get('content-type') || '';
+    const rawBody = await forwardRes.text();
+
+    // Log basic debug info (content-type and short preview)
+    console.log('n8n content-type:', rawContentType);
+    console.log('n8n body preview:', rawBody?.slice(0, 400));
+
+    let parsed: any = null;
+    try {
+      if (rawContentType.includes('application/json')) {
+        parsed = JSON.parse(rawBody);
+      }
+    } catch (err) {
+      console.warn('Failed to parse n8n JSON:', (err as Error)?.message);
     }
 
-    if (typeof responseData === 'string') {
-      responseData = { "Cover letter": responseData };
+    const extractCoverLetter = (val: any): string | null => {
+      if (val == null) return null;
+      if (typeof val === 'string') return val;
+      if (Array.isArray(val)) {
+        for (const item of val) {
+          const r = extractCoverLetter(item);
+          if (r) return r;
+        }
+        return null;
+      }
+      if (typeof val === 'object') {
+        // Direct known keys variations
+        for (const key of Object.keys(val)) {
+          const lower = key.toLowerCase();
+          if (lower === 'cover letter' || lower === 'cover_letter' || lower === 'coverletter') {
+            const r = extractCoverLetter(val[key]);
+            if (r) return r;
+          }
+        }
+        // Common wrappers
+        for (const key of ['data', 'result', 'payload', 'response', 'body']) {
+          if (key in val) {
+            const r = extractCoverLetter((val as any)[key]);
+            if (r) return r;
+          }
+        }
+        // Text-like fallbacks
+        for (const key of ['text', 'message', 'content', 'output']) {
+          const v = (val as any)[key];
+          if (typeof v === 'string' && v.trim()) return v;
+        }
+      }
+      return null;
+    };
+
+    let coverLetter = extractCoverLetter(parsed);
+    if (!coverLetter) {
+      coverLetter = rawBody?.trim() || null;
     }
-    
+
+    if (!coverLetter) {
+      console.error('Could not extract cover letter from n8n response');
+      return new Response(
+        JSON.stringify({
+          error: 'No cover letter found in response',
+          debug: { contentType: rawContentType, bodyPreview: rawBody?.slice(0, 500) }
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     return new Response(
-      JSON.stringify(responseData),
+      JSON.stringify({ "Cover letter": coverLetter }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (e: any) {

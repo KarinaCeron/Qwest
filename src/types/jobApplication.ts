@@ -20,6 +20,7 @@ export interface JobApplication {
   applicationDate: string;
   notes?: string;
   jobContent?: string;
+  coverLetter?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -35,4 +36,5 @@ export interface JobApplicationFormData {
   applicationDate: string;
   notes?: string;
   jobContent?: string;
+  coverLetter?: string;
 }

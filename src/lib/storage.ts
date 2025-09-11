@@ -25,6 +25,8 @@ export const jobApplicationStorage = {
         priority: app.priority as JobApplication['priority'],
         applicationDate: app.application_date,
         notes: app.notes,
+        jobContent: app.job_content,
+        coverLetter: app.cover_letter,
         createdAt: app.created_at,
         updatedAt: app.updated_at
       })) || [];
@@ -57,7 +59,9 @@ export const jobApplicationStorage = {
           status: formData.status,
           priority: formData.priority,
           application_date: formData.applicationDate,
-          notes: formData.notes
+          notes: formData.notes,
+          job_content: formData.jobContent,
+          cover_letter: formData.coverLetter
         })
         .select()
         .single();
@@ -78,6 +82,8 @@ export const jobApplicationStorage = {
         priority: data.priority as JobApplication['priority'],
         applicationDate: data.application_date,
         notes: data.notes,
+        jobContent: data.job_content,
+        coverLetter: data.cover_letter,
         createdAt: data.created_at,
         updatedAt: data.updated_at
       };
@@ -100,7 +106,9 @@ export const jobApplicationStorage = {
           status: updates.status,
           priority: updates.priority,
           application_date: updates.applicationDate,
-          notes: updates.notes
+          notes: updates.notes,
+          job_content: updates.jobContent,
+          cover_letter: updates.coverLetter
         })
         .eq('id', id)
         .select()
@@ -122,6 +130,8 @@ export const jobApplicationStorage = {
         priority: data.priority as JobApplication['priority'],
         applicationDate: data.application_date,
         notes: data.notes,
+        jobContent: data.job_content,
+        coverLetter: data.cover_letter,
         createdAt: data.created_at,
         updatedAt: data.updated_at
       };

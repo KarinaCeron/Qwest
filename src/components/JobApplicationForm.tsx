@@ -35,12 +35,17 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     applicationDate: editingApplication?.applicationDate || new Date().toISOString().split('T')[0],
     notes: editingApplication?.notes || '',
     jobContent: editingApplication?.jobContent || '',
+    coverLetter: editingApplication?.coverLetter || '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.company.trim() || !formData.role.trim()) return;
-    onSubmit(formData);
+    // Include the generated cover letter when submitting
+    onSubmit({
+      ...formData,
+      coverLetter: generatedCoverLetter || undefined
+    });
   };
 
   const handleChange = (field: keyof JobApplicationFormData, value: string) => {

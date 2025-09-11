@@ -22,7 +22,9 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const { toast } = useToast();
   const { user } = useAuth();
   const [isGeneratingCoverLetter, setIsGeneratingCoverLetter] = useState(false);
-  const [generatedCoverLetter, setGeneratedCoverLetter] = useState<string | null>(null);
+  const [generatedCoverLetter, setGeneratedCoverLetter] = useState<string | null>(
+    editingApplication?.coverLetter || null
+  );
   const [isCoverLetterOpen, setIsCoverLetterOpen] = useState(false);
   const [formData, setFormData] = useState<JobApplicationFormData>({
     company: editingApplication?.company || '',

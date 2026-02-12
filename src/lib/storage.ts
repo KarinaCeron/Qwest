@@ -108,15 +108,22 @@ export const jobApplicationStorage = {
       if (updates.jobContent !== undefined) updateData.job_content = updates.jobContent;
       if (updates.coverLetter !== undefined) updateData.cover_letter = updates.coverLetter;
 
+      console.log('Updating job application:', id, 'with data:', updateData);
+      
       const { data, error } = await supabase
         .from('job_applications')
         .update(updateData)
         .eq('id', id)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error updating job application:', error);
+        return null;
+      }
+
+      if (!data) {
+        console.error('No data returned from update - possible RLS issue or record not found');
         return null;
       }
 

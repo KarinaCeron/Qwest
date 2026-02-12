@@ -134,14 +134,14 @@ export function JobApplicationFilters({ filters, onFiltersChange, onExport, comp
               <div className="space-y-2">
                 <label className="text-sm font-medium">Empresa</label>
                 <Select 
-                  value={filters.company} 
-                  onValueChange={(value) => handleFilterChange('company', value)}
+                  value={filters.company || 'all'} 
+                  onValueChange={(value) => handleFilterChange('company', value === 'all' ? '' : value)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Filtrar por empresa" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todas las empresas</SelectItem>
+                    <SelectItem value="all">Todas las empresas</SelectItem>
                     {companies.map((company) => (
                       <SelectItem key={company} value={company}>
                         {company}

@@ -14,36 +14,26 @@ interface FiltersState {
 }
 
 interface JobApplicationFiltersProps {
+  filters: FiltersState;
   onFiltersChange: (filters: FiltersState) => void;
   onExport: () => void;
   companies: string[];
 }
 
-export function JobApplicationFilters({ onFiltersChange, onExport, companies }: JobApplicationFiltersProps) {
-  const [filters, setFilters] = useState<FiltersState>({
-    search: '',
-    status: 'all',
-    priority: 'all',
-    company: '',
-  });
-
+export function JobApplicationFilters({ filters, onFiltersChange, onExport, companies }: JobApplicationFiltersProps) {
   const [showFilters, setShowFilters] = useState(false);
 
   const handleFilterChange = (key: keyof FiltersState, value: string) => {
-    const newFilters = { ...filters, [key]: value };
-    setFilters(newFilters);
-    onFiltersChange(newFilters);
+    onFiltersChange({ ...filters, [key]: value });
   };
 
   const clearFilters = () => {
-    const clearedFilters: FiltersState = {
+    onFiltersChange({
       search: '',
       status: 'all',
       priority: 'all',
       company: '',
-    };
-    setFilters(clearedFilters);
-    onFiltersChange(clearedFilters);
+    });
   };
 
   const hasActiveFilters = filters.search || filters.status !== 'all' || filters.priority !== 'all' || filters.company;

@@ -339,6 +339,7 @@ const Index = () => {
             {applications.length > 0 && (
               <div className="mb-8">
                 <JobApplicationFilters
+                  filters={filters}
                   onFiltersChange={setFilters}
                   onExport={handleExport}
                   companies={companies}

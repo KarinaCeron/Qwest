@@ -144,10 +144,17 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      // Add a timeout to prevent hanging forever
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('timeout')), 15000)
+      );
+
+      const authPromise = supabase.auth.signInWithPassword({
         email,
         password,
       });
+
+      const { error } = await Promise.race([authPromise, timeoutPromise]) as any;
 
       if (error) {
         const msg = (error as any)?.message || '';
@@ -173,9 +180,12 @@ export default function Auth() {
         navigate('/');
       }
     } catch (error) {
+      const isTimeout = error instanceof Error && error.message === 'timeout';
       toast({
-        title: 'Error',
-        description: 'Ocurrió un error inesperado',
+        title: isTimeout ? 'Conexión lenta' : 'Error',
+        description: isTimeout
+          ? 'No se pudo conectar con el servidor. Intenta de nuevo o usa la versión publicada.'
+          : 'Ocurrió un error inesperado. Intenta de nuevo.',
         variant: 'destructive'
       });
     } finally {

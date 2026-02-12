@@ -95,21 +95,22 @@ export const jobApplicationStorage = {
 
   update: async (id: string, updates: Partial<JobApplicationFormData>): Promise<JobApplication | null> => {
     try {
+      const updateData: Record<string, any> = {};
+      if (updates.company !== undefined) updateData.company = updates.company;
+      if (updates.role !== undefined) updateData.role = updates.role;
+      if (updates.recruiterName !== undefined) updateData.recruiter_name = updates.recruiterName;
+      if (updates.salary !== undefined) updateData.salary = updates.salary;
+      if (updates.jobLink !== undefined) updateData.job_link = updates.jobLink;
+      if (updates.status !== undefined) updateData.status = updates.status;
+      if (updates.priority !== undefined) updateData.priority = updates.priority;
+      if (updates.applicationDate !== undefined) updateData.application_date = updates.applicationDate;
+      if (updates.notes !== undefined) updateData.notes = updates.notes;
+      if (updates.jobContent !== undefined) updateData.job_content = updates.jobContent;
+      if (updates.coverLetter !== undefined) updateData.cover_letter = updates.coverLetter;
+
       const { data, error } = await supabase
         .from('job_applications')
-        .update({
-          company: updates.company,
-          role: updates.role,
-          recruiter_name: updates.recruiterName,
-          salary: updates.salary,
-          job_link: updates.jobLink,
-          status: updates.status,
-          priority: updates.priority,
-          application_date: updates.applicationDate,
-          notes: updates.notes,
-          job_content: updates.jobContent,
-          cover_letter: updates.coverLetter
-        })
+        .update(updateData)
         .eq('id', id)
         .select()
         .single();

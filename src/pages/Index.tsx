@@ -91,7 +91,12 @@ const Index = () => {
   }, [applications]);
 
   const handleStatusFilter = (status: ApplicationStatus | 'all') => {
-    setFilters(prev => ({ ...prev, status }));
+    setFilters({
+      search: '',
+      status: filters.status === status ? 'all' : status,
+      priority: 'all',
+      company: '',
+    });
   };
 
   const handleAddApplication = async (formData: JobApplicationFormData) => {

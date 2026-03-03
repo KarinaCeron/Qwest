@@ -8,7 +8,8 @@ import { JobApplicationFilters } from '@/components/JobApplicationFilters';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, Briefcase, Clock, MessageSquare, Gift, X, FileX, LogOut, Compass } from 'lucide-react';
+import { Plus, Briefcase, Clock, MessageSquare, Gift, X, FileX, LogOut, Compass, FileText } from 'lucide-react';
+import { CVManager } from '@/components/CVManager';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import emptyStateImage from '@/assets/empty-state.jpg';
@@ -28,6 +29,7 @@ const Index = () => {
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingApplication, setEditingApplication] = useState<JobApplication | null>(null);
+  const [showCVManager, setShowCVManager] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [filters, setFilters] = useState<FiltersState>({
     search: '',
@@ -243,6 +245,14 @@ const Index = () => {
               </Button>
               <Button
                 variant="outline"
+                onClick={() => setShowCVManager(true)}
+                className="flex items-center gap-2"
+              >
+                <FileText className="h-4 w-4" />
+                Mi CV
+              </Button>
+              <Button
+                variant="outline"
                 onClick={handleSignOut}
                 className="flex items-center gap-2"
               >
@@ -408,6 +418,8 @@ const Index = () => {
           editingApplication={editingApplication}
         />
       )}
+
+      <CVManager open={showCVManager} onClose={() => setShowCVManager(false)} />
     </div>
   );
 };

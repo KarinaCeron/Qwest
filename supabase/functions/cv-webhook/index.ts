@@ -76,6 +76,21 @@ Deno.serve(async (req) => {
     });
 
     const webhookResult = await webhookResponse.text();
+    console.log("Webhook response:", webhookResponse.status, webhookResult);
+
+    // After n8n inserts into cv_rag, assign user_id to rows that don't have one
+    if (webhookResponse.ok) {
+      const { error: updateError } = await supabaseAdmin
+        .from("cv_rag")
+        .update({ user_id: user.id })
+        .is("user_id", null);
+
+      if (updateError) {
+        console.error("Error updating cv_rag user_id:", updateError);
+      } else {
+        console.log("Updated cv_rag rows with user_id:", user.id);
+      }
+    }
 
     return new Response(
       JSON.stringify({ success: true, webhookStatus: webhookResponse.status }),

@@ -60,7 +60,7 @@ export function CVManager({ open, onClose }: { open: boolean; onClose: () => voi
       await supabase.from('cv_rag').delete().eq('user_id', user.id);
     }
 
-    const fileName = `cv_${Date.now()}.pdf`;
+    const fileName = file.name;
     const { error } = await supabase.storage
       .from('cvs')
       .upload(`${user.id}/${fileName}`, file, { upsert: true });

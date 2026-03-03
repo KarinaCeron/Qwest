@@ -80,10 +80,25 @@ Deno.serve(async (req) => {
 
     // After n8n inserts into cv_rag, assign user_id to rows that don't have one
     if (webhookResponse.ok) {
-      const { error: updateError } = await supabaseAdmin
+      // Update rows without user_id, setting both user_id column and metadata
+      const { data: rowsToUpdate } = await supabaseAdmin
         .from("cv_rag")
-        .update({ user_id: user.id })
+        .select("id, metadata")
         .is("user_id", null);
+
+      if (rowsToUpdate && rowsToUpdate.length > 0) {
+        for (const row of rowsToUpdate) {
+          const existingMetadata = (row.metadata as Record<string, unknown>) || {};
+          const updatedMetadata = { ...existingMetadata, user_id: user.id };
+
+          await supabaseAdmin
+            .from("cv_rag")
+            .update({ user_id: user.id, metadata: updatedMetadata })
+            .eq("id", row.id);
+        }
+      }
+
+      const updateError = null;
 
       if (updateError) {
         console.error("Error updating cv_rag user_id:", updateError);

@@ -4,63 +4,76 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const N8N_CHAT_WEBHOOK =
+  "https://karinaceron.app.n8n.cloud/webhook/0db1bc13-1b0a-4828-9870-3201d2894542";
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { messages } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
-
-    const response = await fetch(
-      "https://ai.gateway.lovable.dev/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
-          messages: [
-            {
-              role: "system",
-              content:
-                "Eres un asistente de búsqueda de empleo. Ayudas a los usuarios con preguntas sobre postulaciones, entrevistas, currículums y carrera profesional. Responde siempre en español, de forma clara y concisa. Si te preguntan algo fuera de tu dominio, redirige amablemente al tema laboral.",
-            },
-            ...messages,
-          ],
-          stream: true,
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Demasiadas solicitudes, intenta de nuevo en unos segundos." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "Créditos agotados. Agrega fondos en tu workspace de Lovable." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
-      return new Response(
-        JSON.stringify({ error: "Error del servicio de IA" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "No authorization" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    return new Response(response.body, {
-      headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const { message } = await req.json();
+    if (!message) {
+      return new Response(JSON.stringify({ error: "message required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const webhookResponse = await fetch(N8N_CHAT_WEBHOOK, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        question: message,
+        user_id: user.id,
+        user_email: user.email || "",
+      }),
     });
+
+    const responseText = await webhookResponse.text();
+    console.log("n8n response status:", webhookResponse.status);
+
+    let answer: string;
+    try {
+      const parsed = JSON.parse(responseText);
+      // n8n may return the answer in different formats
+      answer = parsed.answer || parsed.output || parsed.text || parsed.message || responseText;
+    } catch {
+      answer = responseText;
+    }
+
+    return new Response(
+      JSON.stringify({ answer }),
+      {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
   } catch (e) {
     console.error("chat error:", e);
     return new Response(

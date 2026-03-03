@@ -45,14 +45,13 @@ Deno.serve(async (req) => {
       });
     }
 
-    const webhookResponse = await fetch(N8N_CHAT_WEBHOOK, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        question: message,
-        user_id: user.id,
-        user_email: user.email || "",
-      }),
+    const url = new URL(N8N_CHAT_WEBHOOK);
+    url.searchParams.set("question", message);
+    url.searchParams.set("user_id", user.id);
+    url.searchParams.set("user_email", user.email || "");
+
+    const webhookResponse = await fetch(url.toString(), {
+      method: "GET",
     });
 
     const responseText = await webhookResponse.text();

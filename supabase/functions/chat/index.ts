@@ -60,8 +60,7 @@ Deno.serve(async (req) => {
     let answer: string;
     try {
       const parsed = JSON.parse(responseText);
-      // n8n may return the answer in different formats
-      answer = parsed.answer || parsed.output || parsed.text || parsed.message || responseText;
+      answer = parsed.response || parsed.answer || parsed.output || parsed.text || parsed.message || responseText;
     } catch {
       answer = responseText;
     }

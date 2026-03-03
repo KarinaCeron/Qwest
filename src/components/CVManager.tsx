@@ -69,6 +69,13 @@ export function CVManager({ open, onClose }: { open: boolean; onClose: () => voi
     } else {
       toast({ title: '✅ CV subido correctamente' });
       await fetchCV();
+
+      // Trigger n8n webhook
+      supabase.functions.invoke('cv-webhook', {
+        body: { filePath: `${user.id}/${fileName}` },
+      }).then(({ error: whError }) => {
+        if (whError) console.error('Webhook error:', whError);
+      });
     }
     setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = '';

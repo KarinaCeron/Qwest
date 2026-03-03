@@ -2,3 +2,6 @@ project_id = "tdilpthezwydrqheppki"
 
 [functions.generate-cover-letter]
 verify_jwt = false
+
+[functions.cv-webhook]
+verify_jwt = false

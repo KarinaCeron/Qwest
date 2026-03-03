@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Plus, Briefcase, Clock, MessageSquare, Gift, X, FileX, LogOut, Compass, FileText } from 'lucide-react';
 import { CVManager } from '@/components/CVManager';
+import { ChatWindow } from '@/components/ChatWindow';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import emptyStateImage from '@/assets/empty-state.jpg';
@@ -420,6 +421,7 @@ const Index = () => {
       )}
 
       <CVManager open={showCVManager} onClose={() => setShowCVManager(false)} />
+      <ChatWindow />
     </div>
   );
 };

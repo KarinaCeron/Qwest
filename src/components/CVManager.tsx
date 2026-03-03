@@ -54,9 +54,10 @@ export function CVManager({ open, onClose }: { open: boolean; onClose: () => voi
 
     setUploading(true);
 
-    // Delete existing CV first
+    // Delete existing CV and its RAG data first
     if (cvFile) {
       await supabase.storage.from('cvs').remove([`${user.id}/${cvFile.name}`]);
+      await supabase.from('cv_rag').delete().filter('metadata->>user_id', 'eq', user.id);
     }
 
     const fileName = `cv_${Date.now()}.pdf`;
@@ -105,6 +106,8 @@ export function CVManager({ open, onClose }: { open: boolean; onClose: () => voi
     if (error) {
       toast({ title: '❌ Error al eliminar', variant: 'destructive' });
     } else {
+      // Also delete cv_rag entries for this user
+      await supabase.from('cv_rag').delete().filter('metadata->>user_id', 'eq', user.id);
       toast({ title: '🗑️ CV eliminado' });
       setCvFile(null);
     }

@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 const N8N_WEBHOOK_URL =
-  "https://karinaceron.app.n8n.cloud/webhook/6cdb236e-63a2-4320-b0e3-4961a410ef2b";
+  "https://karinaceron.app.n8n.cloud/webhook-test/6cdb236e-63a2-4320-b0e3-4961a410ef2b";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {

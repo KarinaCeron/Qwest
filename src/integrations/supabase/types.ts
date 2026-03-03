@@ -21,6 +21,7 @@ export type Database = {
           embedding: string | null
           id: string
           metadata: Json | null
+          user_id: string | null
         }
         Insert: {
           content?: string | null
@@ -28,6 +29,7 @@ export type Database = {
           embedding?: string | null
           id?: string
           metadata?: Json | null
+          user_id?: string | null
         }
         Update: {
           content?: string | null
@@ -35,6 +37,7 @@ export type Database = {
           embedding?: string | null
           id?: string
           metadata?: Json | null
+          user_id?: string | null
         }
         Relationships: []
       }

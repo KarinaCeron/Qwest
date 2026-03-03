@@ -145,32 +145,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      match_documents:
-        | {
-            Args: {
-              filter?: Json
-              match_count: number
-              query_embedding: string
-            }
-            Returns: {
-              content: string
-              id: string
-              similarity: number
-            }[]
-          }
-        | {
-            Args: {
-              filter?: Json
-              match_count: number
-              p_user_id?: string
-              query_embedding: string
-            }
-            Returns: {
-              content: string
-              id: string
-              similarity: number
-            }[]
-          }
+      match_documents: {
+        Args: {
+          filter?: Json
+          match_count: number
+          p_user_id?: string
+          query_embedding: string
+        }
+        Returns: {
+          content: string
+          id: string
+          similarity: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

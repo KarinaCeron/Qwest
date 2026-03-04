@@ -33,45 +33,29 @@ export function JobApplicationCard({ application, onEdit, onDelete }: JobApplica
                 {priorityConfig.label}
               </Badge>
             </div>
-            <p className="text-muted-foreground font-medium">
-              {application.company}
-            </p>
+            <p className="text-muted-foreground font-medium">{application.company}</p>
           </div>
-          
           <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onEdit(application)}
-              className="h-8 w-8 p-0"
-            >
+            <Button variant="ghost" size="sm" onClick={() => onEdit(application)} className="h-8 w-8 p-0">
               <Edit className="h-4 w-4" />
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onDelete(application.id)}
-              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-            >
+            <Button variant="ghost" size="sm" onClick={() => onDelete(application.id)} className="h-8 w-8 p-0 text-destructive hover:text-destructive">
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </CardHeader>
-
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
           <Badge className={statusConfig.color}>
             <span className="mr-1">{statusConfig.icon}</span>
             {statusConfig.label}
           </Badge>
-          
           <span className="text-sm text-muted-foreground">
             <Calendar className="h-3 w-3 inline mr-1" />
             {formatDate(application.applicationDate)}
           </span>
         </div>
-
         {(application.recruiterName || application.salary) && (
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             {application.recruiterName && (
@@ -88,29 +72,17 @@ export function JobApplicationCard({ application, onEdit, onDelete }: JobApplica
             )}
           </div>
         )}
-
         {application.notes && (
           <p className="text-sm text-muted-foreground line-clamp-2 bg-muted/50 p-2 rounded-md">
             {application.notes}
           </p>
         )}
-
         {application.jobLink && (
           <div className="pt-2">
-            <Button
-              variant="outline"
-              size="sm"
-              asChild
-              className="w-full"
-            >
-              <a
-                href={application.jobLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2"
-              >
+            <Button variant="outline" size="sm" asChild className="w-full">
+              <a href={application.jobLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
                 <ExternalLink className="h-4 w-4" />
-                Ver Vacante
+                View Job Posting
               </a>
             </Button>
           </div>

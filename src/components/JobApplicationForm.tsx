@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { X, Plus, Edit, FileText, Copy } from 'lucide-react';
+import { X, Plus, Edit, FileText, Copy, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -22,6 +22,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const { toast } = useToast();
   const { user } = useAuth();
   const [isGeneratingCoverLetter, setIsGeneratingCoverLetter] = useState(false);
+  const [isTailoringCV, setIsTailoringCV] = useState(false);
   const [generatedCoverLetter, setGeneratedCoverLetter] = useState<string | null>(
     editingApplication?.coverLetter || null
   );
@@ -43,7 +44,6 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.company.trim() || !formData.role.trim()) return;
-    // Include the generated cover letter when submitting
     onSubmit({
       ...formData,
       coverLetter: generatedCoverLetter || undefined
@@ -58,35 +58,25 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     if (!formData.jobContent) {
       toast({
         title: "Error",
-        description: "El contenido de la vacante es requerido",
+        description: "Job content is required",
         variant: "destructive",
       });
       return;
     }
-    
     if (!user?.email) {
       toast({
         title: "Error",
-        description: "No se pudo obtener el email del usuario",
+        description: "Could not get user email",
         variant: "destructive",
       });
       return;
     }
-    
     setIsGeneratingCoverLetter(true);
-    
     try {
       const { data, error } = await supabase.functions.invoke('generate-cover-letter', {
-        body: {
-          jobContent: formData.jobContent,
-        },
+        body: { jobContent: formData.jobContent },
       });
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      // Extract the cover letter from response with fallbacks and log raw data
+      if (error) throw new Error(error.message);
       console.log('generate-cover-letter response:', data);
       const coverLetter = (
         data?.["Cover letter"] ??
@@ -97,22 +87,52 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
       if (coverLetter) {
         setGeneratedCoverLetter(coverLetter);
         setIsCoverLetterOpen(true);
-        toast({
-          title: "Cover Letter generada",
-          description: "¡Cover Letter creada exitosamente!",
-        });
+        toast({ title: "Cover Letter generated", description: "Cover letter created successfully!" });
       } else {
-        throw new Error("No se recibió el cover letter");
+        throw new Error("No cover letter received");
       }
     } catch (error) {
       console.error('Error generating cover letter:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "No se pudo generar el cover letter.",
+        description: error instanceof Error ? error.message : "Could not generate the cover letter.",
         variant: "destructive",
       });
     } finally {
       setIsGeneratingCoverLetter(false);
+    }
+  };
+
+  const handleTailorCV = async () => {
+    if (!formData.jobContent) {
+      toast({
+        title: "Error",
+        description: "Job content is required to tailor your CV",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsTailoringCV(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('chat', {
+        body: {
+          message: `Based on the following job description, analyze my CV and provide specific recommendations on how to tailor it for this position. Highlight which skills and experiences to emphasize, what to add, and what to reorganize.\n\nJob Description:\n${formData.jobContent}`,
+        },
+      });
+      if (error) throw new Error(error.message);
+      const answer = data?.answer || 'No recommendations received';
+      toast({ title: "CV Tailoring Complete", description: "Check the chat window for recommendations!" });
+      // We don't have direct access to ChatWindow state, so we notify via toast
+      // The user can check the chat for the response
+    } catch (error) {
+      console.error('Error tailoring CV:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Could not tailor your CV.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsTailoringCV(false);
     }
   };
 
@@ -123,7 +143,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               {editingApplication ? <Edit className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
-              {editingApplication ? 'Editar Postulación' : 'Nueva Postulación'}
+              {editingApplication ? 'Edit Application' : 'New Application'}
             </CardTitle>
             <Button
               variant="ghost"
@@ -140,23 +160,22 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="company">Empresa *</Label>
+                <Label htmlFor="company">Company *</Label>
                 <Input
                   id="company"
                   value={formData.company}
                   onChange={(e) => handleChange('company', e.target.value)}
-                  placeholder="Ej: Google, Microsoft..."
+                  placeholder="e.g. Google, Microsoft..."
                   required
                 />
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="role">Rol / Puesto *</Label>
+                <Label htmlFor="role">Role / Position *</Label>
                 <Input
                   id="role"
                   value={formData.role}
                   onChange={(e) => handleChange('role', e.target.value)}
-                  placeholder="Ej: Frontend Developer..."
+                  placeholder="e.g. Frontend Developer..."
                   required
                 />
               </div>
@@ -164,17 +183,16 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="recruiterName">Recruiter / Contacto</Label>
+                <Label htmlFor="recruiterName">Recruiter / Contact</Label>
                 <Input
                   id="recruiterName"
                   value={formData.recruiterName}
                   onChange={(e) => handleChange('recruiterName', e.target.value)}
-                  placeholder="Nombre del recruiter"
+                  placeholder="Recruiter name"
                 />
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="salary">Salario (USD)</Label>
+                <Label htmlFor="salary">Salary (USD)</Label>
                 <Input
                   id="salary"
                   type="number"
@@ -188,7 +206,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="jobLink">Link de la Vacante</Label>
+              <Label htmlFor="jobLink">Job Link</Label>
               <Input
                 id="jobLink"
                 type="url"
@@ -200,38 +218,38 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="status">Estado</Label>
+                <Label htmlFor="status">Status</Label>
                 <Select value={formData.status} onValueChange={(value) => handleChange('status', value)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="applied">📤 Postulada</SelectItem>
-                    <SelectItem value="in-progress">⏳ En Proceso</SelectItem>
-                    <SelectItem value="interview">💼 Entrevista</SelectItem>
-                    <SelectItem value="offer">🎉 Oferta</SelectItem>
-                    <SelectItem value="rejected">❌ Rechazada</SelectItem>
-                    <SelectItem value="no-response">⏸️ Sin Respuesta</SelectItem>
+                    <SelectItem value="applied">📤 Applied</SelectItem>
+                    <SelectItem value="in-progress">⏳ In Progress</SelectItem>
+                    <SelectItem value="interview">💼 Interview</SelectItem>
+                    <SelectItem value="offer">🎉 Offer</SelectItem>
+                    <SelectItem value="rejected">❌ Rejected</SelectItem>
+                    <SelectItem value="no-response">⏸️ No Response</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="priority">Prioridad</Label>
+                <Label htmlFor="priority">Priority</Label>
                 <Select value={formData.priority} onValueChange={(value) => handleChange('priority', value)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="high">🔴 Alta</SelectItem>
-                    <SelectItem value="medium">🟡 Media</SelectItem>
-                    <SelectItem value="low">🟢 Baja</SelectItem>
+                    <SelectItem value="high">🔴 High</SelectItem>
+                    <SelectItem value="medium">🟡 Medium</SelectItem>
+                    <SelectItem value="low">🟢 Low</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="applicationDate">Fecha de Postulación</Label>
+                <Label htmlFor="applicationDate">Application Date</Label>
                 <Input
                   id="applicationDate"
                   type="date"
@@ -243,46 +261,62 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="jobContent">Contenido de la Vacante</Label>
+              <Label htmlFor="jobContent">Job Description</Label>
               <Textarea
                 id="jobContent"
                 value={formData.jobContent}
                 onChange={(e) => handleChange('jobContent', e.target.value)}
-                placeholder="Pega aquí el contenido completo de la vacante: descripción, requisitos, beneficios, etc..."
+                placeholder="Paste the full job description here: requirements, benefits, responsibilities..."
                 rows={6}
                 className="min-h-[120px]"
               />
               {formData.jobContent && (
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  className="w-full mt-2"
-                  onClick={handleGenerateCoverLetter}
-                  disabled={isGeneratingCoverLetter}
-                >
-                  {isGeneratingCoverLetter ? 'Generando...' : '✉️ Crear Cover Letter'}
-                </Button>
+                <div className="flex gap-2 mt-2">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    className="flex-1"
+                    onClick={handleGenerateCoverLetter}
+                    disabled={isGeneratingCoverLetter}
+                  >
+                    {isGeneratingCoverLetter ? 'Generating...' : '✉️ Create Cover Letter'}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={handleTailorCV}
+                    disabled={isTailoringCV}
+                  >
+                    {isTailoringCV ? 'Tailoring...' : (
+                      <>
+                        <Wand2 className="h-4 w-4 mr-2" />
+                        Tailor my CV
+                      </>
+                    )}
+                  </Button>
+                </div>
               )}
             </div>
             
             {generatedCoverLetter && (
               <div className="mt-4 p-4 bg-gradient-card border rounded-lg">
-                <h4 className="font-semibold mb-2 text-foreground">Cover Letter Generada</h4>
+                <h4 className="font-semibold mb-2 text-foreground">Generated Cover Letter</h4>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Tu cover letter ha sido generada exitosamente.
+                  Your cover letter has been generated successfully.
                 </p>
                 <Sheet open={isCoverLetterOpen} onOpenChange={setIsCoverLetterOpen}>
                   <SheetTrigger asChild>
                     <Button variant="outline" className="w-full">
                       <FileText className="h-4 w-4 mr-2" />
-                      Ver Cover Letter
+                      View Cover Letter
                     </Button>
                   </SheetTrigger>
                   <SheetContent side="right" className="w-[500px] sm:w-[600px]">
                     <SheetHeader>
                       <SheetTitle className="flex items-center gap-2">
                         <FileText className="h-5 w-5" />
-                        Cover Letter para {formData.company}
+                        Cover Letter for {formData.company}
                       </SheetTitle>
                     </SheetHeader>
                     <div className="mt-6">
@@ -297,20 +331,14 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                           className="flex-1"
                           onClick={() => {
                             navigator.clipboard.writeText(generatedCoverLetter);
-                            toast({
-                              title: "Copiado",
-                              description: "Cover letter copiado al portapapeles",
-                            });
+                            toast({ title: "Copied", description: "Cover letter copied to clipboard" });
                           }}
                         >
                           <Copy className="h-4 w-4 mr-2" />
-                          Copiar al Portapapeles
+                          Copy to Clipboard
                         </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => setIsCoverLetterOpen(false)}
-                        >
-                          Cerrar
+                        <Button variant="outline" onClick={() => setIsCoverLetterOpen(false)}>
+                          Close
                         </Button>
                       </div>
                     </div>
@@ -320,22 +348,22 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="notes">Notas</Label>
+              <Label htmlFor="notes">Notes</Label>
               <Textarea
                 id="notes"
                 value={formData.notes}
                 onChange={(e) => handleChange('notes', e.target.value)}
-                placeholder="Comentarios adicionales sobre la postulación..."
+                placeholder="Additional comments about the application..."
                 rows={3}
               />
             </div>
 
             <div className="flex gap-3 pt-4">
               <Button type="submit" className="flex-1 bg-gradient-primary">
-                {editingApplication ? 'Actualizar' : 'Guardar'} Postulación
+                {editingApplication ? 'Update' : 'Save'} Application
               </Button>
               <Button type="button" variant="outline" onClick={onCancel}>
-                Cancelar
+                Cancel
               </Button>
             </div>
           </form>

@@ -8,9 +8,7 @@ import { Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 const CORRECT_PASSWORD = 'Karisapp';
 const SESSION_KEY = 'jobtracker_authenticated';
 
-interface PasswordGateProps {
-  children: React.ReactNode;
-}
+interface PasswordGateProps { children: React.ReactNode; }
 
 export function PasswordGate({ children }: PasswordGateProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -20,28 +18,20 @@ export function PasswordGate({ children }: PasswordGateProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is already authenticated in this session
     const authenticated = sessionStorage.getItem(SESSION_KEY);
-    if (authenticated === 'true') {
-      setIsAuthenticated(true);
-    }
+    if (authenticated === 'true') setIsAuthenticated(true);
     setIsLoading(false);
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (password === CORRECT_PASSWORD) {
-      setIsAuthenticated(true);
-      setError('');
-      sessionStorage.setItem(SESSION_KEY, 'true');
+      setIsAuthenticated(true); setError(''); sessionStorage.setItem(SESSION_KEY, 'true');
     } else {
-      setError('Contraseña incorrecta. Inténtalo de nuevo.');
-      setPassword('');
+      setError('Incorrect password. Please try again.'); setPassword('');
     }
   };
 
-  // Show loading state briefly
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -50,7 +40,6 @@ export function PasswordGate({ children }: PasswordGateProps) {
     );
   }
 
-  // Show password form if not authenticated
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -62,66 +51,33 @@ export function PasswordGate({ children }: PasswordGateProps) {
               </div>
               <div>
                 <CardTitle className="text-2xl font-bold">JobTracker</CardTitle>
-                <p className="text-muted-foreground mt-2">
-                  Ingresa la contraseña para acceder a tu gestor de postulaciones
-                </p>
+                <p className="text-muted-foreground mt-2">Enter the password to access your application manager</p>
               </div>
             </CardHeader>
-
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="password">Contraseña</Label>
+                  <Label htmlFor="password">Password</Label>
                   <div className="relative">
-                    <Input
-                      id="password"
-                      type={showPassword ? 'text' : 'password'}
-                      value={password}
-                      onChange={(e) => {
-                        setPassword(e.target.value);
-                        setError(''); // Clear error when user types
-                      }}
-                      placeholder="Ingresa la contraseña"
-                      className="pr-10"
-                      autoFocus
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
+                    <Input id="password" type={showPassword ? 'text' : 'password'} value={password}
+                      onChange={(e) => { setPassword(e.target.value); setError(''); }}
+                      placeholder="Enter the password" className="pr-10" autoFocus />
+                    <Button type="button" variant="ghost" size="sm" className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent" onClick={() => setShowPassword(!showPassword)}>
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </Button>
                   </div>
                 </div>
-
                 {error && (
                   <div className="flex items-center gap-2 text-destructive text-sm bg-destructive/10 p-3 rounded-md">
-                    <AlertCircle className="h-4 w-4" />
-                    {error}
+                    <AlertCircle className="h-4 w-4" />{error}
                   </div>
                 )}
-
-                <Button 
-                  type="submit" 
-                  className="w-full bg-gradient-primary shadow-card"
-                  disabled={!password.trim()}
-                >
-                  <Lock className="mr-2 h-4 w-4" />
-                  Acceder
+                <Button type="submit" className="w-full bg-gradient-primary shadow-card" disabled={!password.trim()}>
+                  <Lock className="mr-2 h-4 w-4" />Access
                 </Button>
               </form>
-
               <div className="mt-6 text-center">
-                <p className="text-xs text-muted-foreground">
-                  Gestiona todas tus postulaciones de empleo de forma segura y organizada
-                </p>
+                <p className="text-xs text-muted-foreground">Manage all your job applications securely and organized</p>
               </div>
             </CardContent>
           </Card>
@@ -130,6 +86,5 @@ export function PasswordGate({ children }: PasswordGateProps) {
     );
   }
 
-  // Show the main app if authenticated
   return <>{children}</>;
 }

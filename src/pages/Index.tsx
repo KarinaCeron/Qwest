@@ -108,13 +108,13 @@ const Index = () => {
       setApplications(prev => [newApp, ...prev]);
       setShowForm(false);
       toast({
-        title: "✅ Postulación agregada",
-        description: `Se agregó la postulación para ${formData.role} en ${formData.company}`,
+        title: "✅ Application added",
+        description: `Added application for ${formData.role} at ${formData.company}`,
       });
     } else {
       toast({
         title: "❌ Error",
-        description: "No se pudo agregar la postulación",
+        description: "Could not add the application",
         variant: "destructive",
       });
     }
@@ -134,31 +134,31 @@ const Index = () => {
       setShowForm(false);
       setEditingApplication(null);
       toast({
-        title: "✅ Postulación actualizada",
-        description: `Se actualizó la postulación para ${formData.role} en ${formData.company}`,
+        title: "✅ Application updated",
+        description: `Updated application for ${formData.role} at ${formData.company}`,
       });
     } else {
       toast({
         title: "❌ Error",
-        description: "No se pudo actualizar la postulación",
+        description: "Could not update the application",
         variant: "destructive",
       });
     }
   };
 
   const handleDeleteApplication = async (id: string) => {
-    if (confirm('¿Estás seguro de que quieres eliminar esta postulación?')) {
+    if (confirm('Are you sure you want to delete this application?')) {
       const success = await jobApplicationStorage.delete(id);
       if (success) {
         setApplications(prev => prev.filter(app => app.id !== id));
         toast({
-          title: "🗑️ Postulación eliminada",
-          description: "La postulación se eliminó correctamente",
+          title: "🗑️ Application deleted",
+          description: "The application was deleted successfully",
         });
       } else {
         toast({
           title: "❌ Error",
-          description: "No se pudo eliminar la postulación",
+          description: "Could not delete the application",
           variant: "destructive",
         });
       }
@@ -169,8 +169,8 @@ const Index = () => {
     const csv = await jobApplicationStorage.exportToCSV();
     if (!csv) {
       toast({
-        title: "⚠️ Sin datos para exportar",
-        description: "No hay postulaciones para exportar",
+        title: "⚠️ No data to export",
+        description: "There are no applications to export",
         variant: "destructive",
       });
       return;
@@ -179,12 +179,12 @@ const Index = () => {
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `postulaciones_${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = `applications_${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
     
     toast({
-      title: "📊 Exportación completada",
-      description: "El archivo CSV se descargó correctamente",
+      title: "📊 Export completed",
+      description: "The CSV file was downloaded successfully",
     });
   };
 
@@ -210,7 +210,7 @@ const Index = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">Cargando...</p>
+        <p className="text-muted-foreground">Loading...</p>
       </div>
     );
   }
@@ -232,7 +232,7 @@ const Index = () => {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-foreground">Qwest</h1>
-                <p className="text-muted-foreground">Gestiona todas tus postulaciones de empleo</p>
+                <p className="text-muted-foreground">Manage all your job applications</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -242,7 +242,7 @@ const Index = () => {
                 className="bg-gradient-primary shadow-card"
               >
                 <Plus className="mr-2 h-5 w-5" />
-                Nueva Postulación
+                New Application
               </Button>
               <Button
                 variant="outline"
@@ -250,7 +250,7 @@ const Index = () => {
                 className="flex items-center gap-2"
               >
                 <FileText className="h-4 w-4" />
-                Mi CV
+                My CV
               </Button>
               <Button
                 variant="outline"
@@ -258,7 +258,7 @@ const Index = () => {
                 className="flex items-center gap-2"
               >
                 <LogOut className="h-4 w-4" />
-                Cerrar Sesión
+                Sign Out
               </Button>
             </div>
           </div>
@@ -269,7 +269,7 @@ const Index = () => {
         {/* Loading state */}
         {loadingData ? (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">Cargando postulaciones...</p>
+            <p className="text-muted-foreground">Loading applications...</p>
           </div>
         ) : (
           <>
@@ -285,7 +285,7 @@ const Index = () => {
                   <CardContent className="p-4 text-center">
                     <Briefcase className="h-8 w-8 mx-auto mb-2 text-blue-500" />
                     <p className="text-2xl font-bold text-foreground">{statusStats.applied}</p>
-                    <p className="text-sm text-muted-foreground">Postulada</p>
+                    <p className="text-sm text-muted-foreground">Applied</p>
                   </CardContent>
                 </Card>
                 <Card 
@@ -297,7 +297,7 @@ const Index = () => {
                   <CardContent className="p-4 text-center">
                     <Clock className="h-8 w-8 mx-auto mb-2 text-yellow-500" />
                     <p className="text-2xl font-bold text-foreground">{statusStats.inProgress}</p>
-                    <p className="text-sm text-muted-foreground">En Proceso</p>
+                    <p className="text-sm text-muted-foreground">In Progress</p>
                   </CardContent>
                 </Card>
                 <Card 
@@ -309,7 +309,7 @@ const Index = () => {
                   <CardContent className="p-4 text-center">
                     <MessageSquare className="h-8 w-8 mx-auto mb-2 text-purple-500" />
                     <p className="text-2xl font-bold text-foreground">{statusStats.interview}</p>
-                    <p className="text-sm text-muted-foreground">Entrevista</p>
+                    <p className="text-sm text-muted-foreground">Interview</p>
                   </CardContent>
                 </Card>
                 <Card 
@@ -321,7 +321,7 @@ const Index = () => {
                   <CardContent className="p-4 text-center">
                     <Gift className="h-8 w-8 mx-auto mb-2 text-green-500" />
                     <p className="text-2xl font-bold text-foreground">{statusStats.offer}</p>
-                    <p className="text-sm text-muted-foreground">Oferta</p>
+                    <p className="text-sm text-muted-foreground">Offer</p>
                   </CardContent>
                 </Card>
                 <Card 
@@ -333,7 +333,7 @@ const Index = () => {
                   <CardContent className="p-4 text-center">
                     <X className="h-8 w-8 mx-auto mb-2 text-red-500" />
                     <p className="text-2xl font-bold text-foreground">{statusStats.rejected}</p>
-                    <p className="text-sm text-muted-foreground">Rechazada</p>
+                    <p className="text-sm text-muted-foreground">Rejected</p>
                   </CardContent>
                 </Card>
                 <Card 
@@ -345,7 +345,7 @@ const Index = () => {
                   <CardContent className="p-4 text-center">
                     <FileX className="h-8 w-8 mx-auto mb-2 text-gray-500" />
                     <p className="text-2xl font-bold text-foreground">{statusStats.noResponse}</p>
-                    <p className="text-sm text-muted-foreground">Sin Respuesta</p>
+                    <p className="text-sm text-muted-foreground">No Response</p>
                   </CardContent>
                 </Card>
               </div>
@@ -378,8 +378,8 @@ const Index = () => {
             ) : applications.length > 0 ? (
               <Card className="bg-gradient-card">
                 <CardContent className="p-8 text-center">
-                  <h3 className="text-lg font-semibold mb-2">No se encontraron postulaciones</h3>
-                  <p className="text-muted-foreground">Intenta ajustar los filtros de búsqueda</p>
+                  <h3 className="text-lg font-semibold mb-2">No applications found</h3>
+                  <p className="text-muted-foreground">Try adjusting the search filters</p>
                 </CardContent>
               </Card>
             ) : (
@@ -388,13 +388,13 @@ const Index = () => {
                   <div className="mb-6">
                     <img 
                       src={emptyStateImage} 
-                      alt="Comienza tu búsqueda de empleo" 
+                      alt="Start your job search" 
                       className="w-48 h-48 mx-auto rounded-lg object-cover shadow-md"
                     />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">¡Comienza tu búsqueda de empleo!</h3>
+                  <h3 className="text-xl font-semibold mb-2">Start your job search!</h3>
                   <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                    Organiza todas tus postulaciones en un solo lugar. Registra tu primera postulación para empezar a hacer seguimiento de tu progreso profesional.
+                    Organize all your applications in one place. Add your first application to start tracking your professional progress.
                   </p>
                   <Button 
                     onClick={() => setShowForm(true)}
@@ -402,7 +402,7 @@ const Index = () => {
                     className="bg-gradient-primary shadow-card"
                   >
                     <Plus className="mr-2 h-5 w-5" />
-                    Agregar Primera Postulación
+                    Add First Application
                   </Button>
                 </CardContent>
               </Card>

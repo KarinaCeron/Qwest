@@ -23,6 +23,8 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const { user } = useAuth();
   const [isGeneratingCoverLetter, setIsGeneratingCoverLetter] = useState(false);
   const [isTailoringCV, setIsTailoringCV] = useState(false);
+  const [tailoringResult, setTailoringResult] = useState<string | null>(null);
+  const [isTailoringResultOpen, setIsTailoringResultOpen] = useState(false);
   const [generatedCoverLetter, setGeneratedCoverLetter] = useState<string | null>(
     editingApplication?.coverLetter || null
   );

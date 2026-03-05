@@ -47,6 +47,7 @@ Deno.serve(async (req) => {
 
     const url = new URL(N8N_TAILOR_CV_WEBHOOK);
     url.searchParams.set("question", jobContent);
+    url.searchParams.set("job_description", jobContent);
     url.searchParams.set("role", role || "");
     url.searchParams.set("company", company || "");
     url.searchParams.set("user_id", user.id);

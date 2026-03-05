@@ -115,7 +115,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     setIsTailoringCV(true);
     try {
       const { data, error } = await supabase.functions.invoke('tailor-cv', {
-        body: { jobContent: formData.jobContent },
+        body: { jobContent: formData.jobContent, role: formData.role, company: formData.company },
       });
       if (error) throw new Error(error.message);
       const answer = data?.answer || 'No recommendations received';

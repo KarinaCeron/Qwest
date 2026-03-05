@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { jobContent } = await req.json();
+    const { jobContent, role, company } = await req.json();
     if (!jobContent) {
       return new Response(JSON.stringify({ error: "jobContent required" }), {
         status: 400,
@@ -47,6 +47,8 @@ Deno.serve(async (req) => {
 
     const url = new URL(N8N_TAILOR_CV_WEBHOOK);
     url.searchParams.set("question", jobContent);
+    url.searchParams.set("role", role || "");
+    url.searchParams.set("company", company || "");
     url.searchParams.set("user_id", user.id);
     url.searchParams.set("user_email", user.email || "");
 

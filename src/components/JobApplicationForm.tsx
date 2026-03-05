@@ -120,8 +120,10 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
         body: { jobContent: formData.jobContent, role: formData.role, company: formData.company },
       });
       if (error) throw new Error(error.message);
-      const answer = data?.answer || 'No recommendations received';
-      toast({ title: "CV Tailoring Complete", description: answer.substring(0, 200) + (answer.length > 200 ? '...' : '') });
+      const answer = data?.answer || data?.response || data?.output || data?.text || data?.message || 'No recommendations received';
+      setTailoringResult(answer);
+      setIsTailoringResultOpen(true);
+      toast({ title: "CV Tailoring Complete", description: "Your recommendations are ready!" });
     } catch (error) {
       console.error('Error tailoring CV:', error);
       toast({

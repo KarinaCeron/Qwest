@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.chat]
 verify_jwt = false
+
+[functions.tailor-cv]
+verify_jwt = false

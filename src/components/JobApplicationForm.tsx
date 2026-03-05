@@ -114,16 +114,12 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     }
     setIsTailoringCV(true);
     try {
-      const { data, error } = await supabase.functions.invoke('chat', {
-        body: {
-          message: `Based on the following job description, analyze my CV and provide specific recommendations on how to tailor it for this position. Highlight which skills and experiences to emphasize, what to add, and what to reorganize.\n\nJob Description:\n${formData.jobContent}`,
-        },
+      const { data, error } = await supabase.functions.invoke('tailor-cv', {
+        body: { jobContent: formData.jobContent },
       });
       if (error) throw new Error(error.message);
       const answer = data?.answer || 'No recommendations received';
-      toast({ title: "CV Tailoring Complete", description: "Check the chat window for recommendations!" });
-      // We don't have direct access to ChatWindow state, so we notify via toast
-      // The user can check the chat for the response
+      toast({ title: "CV Tailoring Complete", description: answer.substring(0, 200) + (answer.length > 200 ? '...' : '') });
     } catch (error) {
       console.error('Error tailoring CV:', error);
       toast({

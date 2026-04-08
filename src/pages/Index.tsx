@@ -102,6 +102,50 @@ const Index = () => {
     });
   };
 
+  const handleDragStart = (e: React.DragEvent, application: JobApplication) => {
+    e.dataTransfer.setData('application/json', JSON.stringify({ id: application.id }));
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDrop = async (e: React.DragEvent, newStatus: ApplicationStatus) => {
+    e.preventDefault();
+    try {
+      const data = JSON.parse(e.dataTransfer.getData('application/json'));
+      const app = applications.find(a => a.id === data.id);
+      if (!app || app.status === newStatus) return;
+
+      const formData = {
+        company: app.company,
+        role: app.role,
+        recruiterName: app.recruiterName,
+        salary: app.salary,
+        jobLink: app.jobLink,
+        status: newStatus,
+        priority: app.priority,
+        applicationDate: app.applicationDate,
+        notes: app.notes,
+        jobContent: app.jobContent,
+        coverLetter: app.coverLetter,
+      };
+
+      const updated = await jobApplicationStorage.update(app.id, formData);
+      if (updated) {
+        setApplications(prev => prev.map(a => a.id === updated.id ? updated : a));
+        toast({
+          title: "✅ Status updated",
+          description: `${app.role} at ${app.company} moved to ${newStatus}`,
+        });
+      }
+    } catch (err) {
+      console.error('Drop failed', err);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
   const handleAddApplication = async (formData: JobApplicationFormData) => {
     const newApp = await jobApplicationStorage.add(formData);
     if (newApp) {

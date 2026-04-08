@@ -428,6 +428,7 @@ const Index = () => {
                     application={application}
                     onEdit={handleEditApplication}
                     onDelete={handleDeleteApplication}
+                    onDragStart={handleDragStart}
                   />
                 ))}
               </div>

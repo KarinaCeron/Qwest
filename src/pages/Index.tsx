@@ -353,6 +353,8 @@ const Index = () => {
                     filters.status === 'interview' ? 'ring-2 ring-purple-500 shadow-lg' : ''
                   }`}
                   onClick={() => handleStatusFilter('interview')}
+                  onDrop={(e) => handleDrop(e, 'interview')}
+                  onDragOver={handleDragOver}
                 >
                   <CardContent className="p-4 text-center">
                     <MessageSquare className="h-8 w-8 mx-auto mb-2 text-purple-500" />

@@ -381,6 +381,8 @@ const Index = () => {
                     filters.status === 'rejected' ? 'ring-2 ring-red-500 shadow-lg' : ''
                   }`}
                   onClick={() => handleStatusFilter('rejected')}
+                  onDrop={(e) => handleDrop(e, 'rejected')}
+                  onDragOver={handleDragOver}
                 >
                   <CardContent className="p-4 text-center">
                     <X className="h-8 w-8 mx-auto mb-2 text-red-500" />

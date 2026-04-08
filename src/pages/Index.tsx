@@ -395,6 +395,8 @@ const Index = () => {
                     filters.status === 'no-response' ? 'ring-2 ring-gray-500 shadow-lg' : ''
                   }`}
                   onClick={() => handleStatusFilter('no-response')}
+                  onDrop={(e) => handleDrop(e, 'no-response')}
+                  onDragOver={handleDragOver}
                 >
                   <CardContent className="p-4 text-center">
                     <FileX className="h-8 w-8 mx-auto mb-2 text-gray-500" />

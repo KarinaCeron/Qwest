@@ -325,6 +325,8 @@ const Index = () => {
                     filters.status === 'applied' ? 'ring-2 ring-blue-500 shadow-lg' : ''
                   }`}
                   onClick={() => handleStatusFilter('applied')}
+                  onDrop={(e) => handleDrop(e, 'applied')}
+                  onDragOver={handleDragOver}
                 >
                   <CardContent className="p-4 text-center">
                     <Briefcase className="h-8 w-8 mx-auto mb-2 text-blue-500" />

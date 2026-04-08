@@ -367,6 +367,8 @@ const Index = () => {
                     filters.status === 'offer' ? 'ring-2 ring-green-500 shadow-lg' : ''
                   }`}
                   onClick={() => handleStatusFilter('offer')}
+                  onDrop={(e) => handleDrop(e, 'offer')}
+                  onDragOver={handleDragOver}
                 >
                   <CardContent className="p-4 text-center">
                     <Gift className="h-8 w-8 mx-auto mb-2 text-green-500" />

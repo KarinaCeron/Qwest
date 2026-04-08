@@ -10,6 +10,8 @@ interface JobApplicationCardProps {
   application: JobApplication;
   onEdit: (application: JobApplication) => void;
   onDelete: (id: string) => void;
+  draggable?: boolean;
+  onDragStart?: (e: React.DragEvent, application: JobApplication) => void;
 }
 
 export function JobApplicationCard({ application, onEdit, onDelete }: JobApplicationCardProps) {

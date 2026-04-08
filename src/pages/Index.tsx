@@ -339,6 +339,8 @@ const Index = () => {
                     filters.status === 'in-progress' ? 'ring-2 ring-yellow-500 shadow-lg' : ''
                   }`}
                   onClick={() => handleStatusFilter('in-progress')}
+                  onDrop={(e) => handleDrop(e, 'in-progress')}
+                  onDragOver={handleDragOver}
                 >
                   <CardContent className="p-4 text-center">
                     <Clock className="h-8 w-8 mx-auto mb-2 text-yellow-500" />

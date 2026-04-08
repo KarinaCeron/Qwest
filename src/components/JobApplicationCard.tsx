@@ -10,18 +10,24 @@ interface JobApplicationCardProps {
   application: JobApplication;
   onEdit: (application: JobApplication) => void;
   onDelete: (id: string) => void;
+  draggable?: boolean;
+  onDragStart?: (e: React.DragEvent, application: JobApplication) => void;
 }
 
-export function JobApplicationCard({ application, onEdit, onDelete }: JobApplicationCardProps) {
+export function JobApplicationCard({ application, onEdit, onDelete, draggable = true, onDragStart }: JobApplicationCardProps) {
   const statusConfig = getStatusConfig(application.status);
   const priorityConfig = getPriorityConfig(application.priority);
 
   return (
-    <Card className={cn(
-      "group hover:shadow-card transition-all duration-300 border-l-4",
-      priorityConfig.color,
-      "bg-gradient-card"
-    )}>
+    <Card 
+      draggable={draggable}
+      onDragStart={(e) => onDragStart?.(e, application)}
+      className={cn(
+        "group hover:shadow-card transition-all duration-300 border-l-4 cursor-grab active:cursor-grabbing",
+        priorityConfig.color,
+        "bg-gradient-card"
+      )}
+    >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="space-y-1 flex-1">

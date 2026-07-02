@@ -84,9 +84,10 @@ export function JobApplicationFilters({ filters, onFiltersChange, onExport, comp
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All statuses</SelectItem>
-                    <SelectItem value="applied">📤 Applied</SelectItem>
+                    <SelectItem value="submitted">📤 Submitted</SelectItem>
                     <SelectItem value="in-progress">⏳ In Progress</SelectItem>
                     <SelectItem value="interview">💼 Interview</SelectItem>
+                    <SelectItem value="technical-interview">🧪 Technical Interview</SelectItem>
                     <SelectItem value="offer">🎉 Offer</SelectItem>
                     <SelectItem value="rejected">❌ Rejected</SelectItem>
                     <SelectItem value="no-response">⏸️ No Response</SelectItem>

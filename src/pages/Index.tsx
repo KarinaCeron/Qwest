@@ -114,6 +114,24 @@ const Index = () => {
     };
   }, [applications]);
 
+  const statusCards: Array<{
+    key: ApplicationStatus;
+    label: string;
+    description: string;
+    icon: typeof Briefcase;
+    iconColor: string;
+    ringColor: string;
+    count: number;
+  }> = [
+    { key: 'submitted', label: 'Submitted', description: 'You submitted the job application.', icon: Briefcase, iconColor: 'text-blue-500', ringColor: 'ring-blue-500', count: statusStats.submitted },
+    { key: 'in-progress', label: 'In Progress', description: 'The company confirmed receipt and your CV is being reviewed.', icon: Clock, iconColor: 'text-yellow-500', ringColor: 'ring-yellow-500', count: statusStats.inProgress },
+    { key: 'interview', label: 'Interview', description: 'You got the first interview with HR.', icon: MessageSquare, iconColor: 'text-purple-500', ringColor: 'ring-purple-500', count: statusStats.interview },
+    { key: 'technical-interview', label: 'Technical Interview', description: 'You moved on to the technical interview stage.', icon: FlaskConical, iconColor: 'text-indigo-500', ringColor: 'ring-indigo-500', count: statusStats.technicalInterview },
+    { key: 'offer', label: 'Offer', description: 'You received an offer.', icon: Gift, iconColor: 'text-green-500', ringColor: 'ring-green-500', count: statusStats.offer },
+    { key: 'rejected', label: 'Rejected', description: 'You received a No as an answer.', icon: X, iconColor: 'text-red-500', ringColor: 'ring-red-500', count: statusStats.rejected },
+    { key: 'no-response', label: 'No Response', description: 'No news for over a month. Applications land here automatically after 30 days without a status change.', icon: FileX, iconColor: 'text-gray-500', ringColor: 'ring-gray-500', count: statusStats.noResponse },
+  ];
+
   const handleStatusFilter = (status: ApplicationStatus | 'all') => {
     setFilters({
       search: '',

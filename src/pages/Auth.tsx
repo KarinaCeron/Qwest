@@ -25,6 +25,9 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [needsConfirmation, setNeedsConfirmation] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -119,6 +122,26 @@ export default function Auth() {
     } finally { setResendLoading(false); }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!forgotEmail) return;
+    setForgotLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) {
+        toast({ title: 'Could not send reset email', description: error.message, variant: 'destructive' });
+      } else {
+        toast({ title: 'Check your inbox', description: 'We sent you a password reset link.' });
+        setForgotOpen(false);
+        setForgotEmail('');
+      }
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
       <Card className="w-full max-w-lg">
@@ -148,6 +171,11 @@ export default function Auth() {
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? 'Signing in...' : 'Sign In'}
                 </Button>
+                <div className="text-right">
+                  <Button type="button" variant="link" className="px-0 h-auto text-sm" onClick={() => { setForgotEmail(email); setForgotOpen(true); }}>
+                    Forgot your password?
+                  </Button>
+                </div>
                 {needsConfirmation && (
                   <div className="text-sm text-muted-foreground mt-3">
                     You must confirm your email to sign in.
@@ -157,6 +185,20 @@ export default function Auth() {
                   </div>
                 )}
               </form>
+              {forgotOpen && (
+                <form onSubmit={handleForgotPassword} className="mt-4 space-y-3 border-t pt-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="forgot-email">Recover password</Label>
+                    <Input id="forgot-email" type="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} placeholder="your@email.com" required />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button type="submit" className="flex-1" disabled={forgotLoading}>
+                      {forgotLoading ? 'Sending...' : 'Send reset link'}
+                    </Button>
+                    <Button type="button" variant="outline" onClick={() => setForgotOpen(false)}>Cancel</Button>
+                  </div>
+                </form>
+              )}
             </TabsContent>
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-4 max-h-96 overflow-y-auto">

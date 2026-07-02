@@ -362,7 +362,7 @@ const Index = () => {
           <>
             {/* Status Cards */}
             {applications.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
+              <div className="grid grid-cols-7 gap-2 md:gap-4 mb-8">
                 {statusCards.map(({ key, label, description, icon: Icon, iconColor, ringColor, count }) => (
                   <Tooltip key={key}>
                     <TooltipTrigger asChild>

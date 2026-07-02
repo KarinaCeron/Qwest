@@ -143,7 +143,8 @@ export const jobApplicationStorage = {
         jobContent: data.job_content,
         coverLetter: data.cover_letter,
         createdAt: data.created_at,
-        updatedAt: data.updated_at
+        updatedAt: data.updated_at,
+        statusChangedAt: (data as any).status_changed_at ?? data.updated_at,
       };
     } catch (error) {
       console.error('Error updating job application:', error);

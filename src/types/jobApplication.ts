@@ -23,6 +23,7 @@ export interface JobApplication {
   coverLetter?: string;
   createdAt: string;
   updatedAt: string;
+  statusChangedAt: string;
 }
 
 export interface JobApplicationFormData {

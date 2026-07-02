@@ -16,11 +16,16 @@ import { useNavigate } from 'react-router-dom';
 import emptyStateImage from '@/assets/empty-state.jpg';
 import qwestLogo from '@/assets/qwest-logo.png';
 
+type DateField = 'created' | 'statusChanged';
+
 interface FiltersState {
   search: string;
   status: ApplicationStatus | 'all';
   priority: Priority | 'all';
   company: string;
+  dateField: DateField;
+  dateFrom: string;
+  dateTo: string;
 }
 
 const Index = () => {
@@ -37,6 +42,9 @@ const Index = () => {
     status: 'all',
     priority: 'all',
     company: '',
+    dateField: 'created',
+    dateFrom: '',
+    dateTo: '',
   });
 
   // Redirect to auth if not logged in
@@ -62,17 +70,26 @@ const Index = () => {
 
   // Filter applications
   const filteredApplications = useMemo(() => {
+    const fromTs = filters.dateFrom ? new Date(filters.dateFrom).getTime() : null;
+    const toTs = filters.dateTo ? new Date(filters.dateTo).getTime() + 24 * 60 * 60 * 1000 - 1 : null;
+
     return applications.filter(app => {
-      const matchesSearch = !filters.search || 
+      const matchesSearch = !filters.search ||
         app.company.toLowerCase().includes(filters.search.toLowerCase()) ||
         app.role.toLowerCase().includes(filters.search.toLowerCase()) ||
         app.recruiterName?.toLowerCase().includes(filters.search.toLowerCase());
-      
+
       const matchesStatus = filters.status === 'all' || app.status === filters.status;
       const matchesPriority = filters.priority === 'all' || app.priority === filters.priority;
       const matchesCompany = !filters.company || app.company === filters.company;
 
-      return matchesSearch && matchesStatus && matchesPriority && matchesCompany;
+      const dateStr = filters.dateField === 'statusChanged' ? app.statusChangedAt : app.createdAt;
+      const dateTs = dateStr ? new Date(dateStr).getTime() : null;
+      const matchesDate =
+        (fromTs === null || (dateTs !== null && dateTs >= fromTs)) &&
+        (toTs === null || (dateTs !== null && dateTs <= toTs));
+
+      return matchesSearch && matchesStatus && matchesPriority && matchesCompany && matchesDate;
     }).sort((a, b) => new Date(b.applicationDate).getTime() - new Date(a.applicationDate).getTime());
   }, [applications, filters]);
 
@@ -99,6 +116,9 @@ const Index = () => {
       status: filters.status === status ? 'all' : status,
       priority: 'all',
       company: '',
+      dateField: filters.dateField,
+      dateFrom: filters.dateFrom,
+      dateTo: filters.dateTo,
     });
   };
 

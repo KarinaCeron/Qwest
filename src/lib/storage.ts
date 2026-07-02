@@ -28,7 +28,8 @@ export const jobApplicationStorage = {
         jobContent: app.job_content,
         coverLetter: app.cover_letter,
         createdAt: app.created_at,
-        updatedAt: app.updated_at
+        updatedAt: app.updated_at,
+        statusChangedAt: (app as any).status_changed_at ?? app.updated_at,
       })) || [];
     } catch (error) {
       console.error('Error loading job applications:', error);
@@ -85,7 +86,8 @@ export const jobApplicationStorage = {
         jobContent: data.job_content,
         coverLetter: data.cover_letter,
         createdAt: data.created_at,
-        updatedAt: data.updated_at
+        updatedAt: data.updated_at,
+        statusChangedAt: (data as any).status_changed_at ?? data.updated_at,
       };
     } catch (error) {
       console.error('Error adding job application:', error);
@@ -141,7 +143,8 @@ export const jobApplicationStorage = {
         jobContent: data.job_content,
         coverLetter: data.cover_letter,
         createdAt: data.created_at,
-        updatedAt: data.updated_at
+        updatedAt: data.updated_at,
+        statusChangedAt: (data as any).status_changed_at ?? data.updated_at,
       };
     } catch (error) {
       console.error('Error updating job application:', error);

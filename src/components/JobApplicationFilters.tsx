@@ -6,11 +6,16 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Search, Filter, X, Download } from 'lucide-react';
 
+export type DateField = 'created' | 'statusChanged';
+
 interface FiltersState {
   search: string;
   status: ApplicationStatus | 'all';
   priority: Priority | 'all';
   company: string;
+  dateField: DateField;
+  dateFrom: string;
+  dateTo: string;
 }
 
 interface JobApplicationFiltersProps {
@@ -28,10 +33,16 @@ export function JobApplicationFilters({ filters, onFiltersChange, onExport, comp
   };
 
   const clearFilters = () => {
-    onFiltersChange({ search: '', status: 'all', priority: 'all', company: '' });
+    onFiltersChange({ search: '', status: 'all', priority: 'all', company: '', dateField: 'created', dateFrom: '', dateTo: '' });
   };
 
-  const hasActiveFilters = filters.search || filters.status !== 'all' || filters.priority !== 'all' || filters.company;
+  const hasActiveFilters =
+    filters.search ||
+    filters.status !== 'all' ||
+    filters.priority !== 'all' ||
+    filters.company ||
+    filters.dateFrom ||
+    filters.dateTo;
 
   return (
     <div className="space-y-4">
@@ -65,7 +76,7 @@ export function JobApplicationFilters({ filters, onFiltersChange, onExport, comp
 
       {showFilters && (
         <Card className="bg-gradient-card">
-          <CardContent className="p-4">
+          <CardContent className="p-4 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Status</label>
@@ -105,6 +116,35 @@ export function JobApplicationFilters({ filters, onFiltersChange, onExport, comp
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 border-t">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Filter by date</label>
+                <Select value={filters.dateField} onValueChange={(value) => handleFilterChange('dateField', value)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="created">Creation date</SelectItem>
+                    <SelectItem value="statusChanged">Status change date</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">From</label>
+                <Input
+                  type="date"
+                  value={filters.dateFrom}
+                  onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">To</label>
+                <Input
+                  type="date"
+                  value={filters.dateTo}
+                  onChange={(e) => handleFilterChange('dateTo', e.target.value)}
+                />
               </div>
             </div>
           </CardContent>

@@ -15,7 +15,7 @@ export const getStatusConfig = (status: ApplicationStatus) => {
       description: 'The company confirmed receipt of your application and your CV is being reviewed.',
     },
     'interview': {
-      label: 'Interview',
+      label: 'HR Interview',
       color: 'bg-success text-success-foreground',
       icon: '💼',
       description: 'You got the first interview with HR.',

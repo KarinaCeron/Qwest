@@ -226,7 +226,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                   <SelectContent>
                     <SelectItem value="submitted">📤 Submitted</SelectItem>
                     <SelectItem value="in-progress">⏳ In Progress</SelectItem>
-                    <SelectItem value="interview">💼 Interview</SelectItem>
+                    <SelectItem value="interview">💼 HR Interview</SelectItem>
                     <SelectItem value="technical-interview">🧪 Technical Interview</SelectItem>
                     <SelectItem value="offer">🎉 Offer</SelectItem>
                     <SelectItem value="rejected">❌ Rejected</SelectItem>

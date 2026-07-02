@@ -70,17 +70,26 @@ const Index = () => {
 
   // Filter applications
   const filteredApplications = useMemo(() => {
+    const fromTs = filters.dateFrom ? new Date(filters.dateFrom).getTime() : null;
+    const toTs = filters.dateTo ? new Date(filters.dateTo).getTime() + 24 * 60 * 60 * 1000 - 1 : null;
+
     return applications.filter(app => {
-      const matchesSearch = !filters.search || 
+      const matchesSearch = !filters.search ||
         app.company.toLowerCase().includes(filters.search.toLowerCase()) ||
         app.role.toLowerCase().includes(filters.search.toLowerCase()) ||
         app.recruiterName?.toLowerCase().includes(filters.search.toLowerCase());
-      
+
       const matchesStatus = filters.status === 'all' || app.status === filters.status;
       const matchesPriority = filters.priority === 'all' || app.priority === filters.priority;
       const matchesCompany = !filters.company || app.company === filters.company;
 
-      return matchesSearch && matchesStatus && matchesPriority && matchesCompany;
+      const dateStr = filters.dateField === 'statusChanged' ? app.statusChangedAt : app.createdAt;
+      const dateTs = dateStr ? new Date(dateStr).getTime() : null;
+      const matchesDate =
+        (fromTs === null || (dateTs !== null && dateTs >= fromTs)) &&
+        (toTs === null || (dateTs !== null && dateTs <= toTs));
+
+      return matchesSearch && matchesStatus && matchesPriority && matchesCompany && matchesDate;
     }).sort((a, b) => new Date(b.applicationDate).getTime() - new Date(a.applicationDate).getTime());
   }, [applications, filters]);
 

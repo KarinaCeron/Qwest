@@ -322,6 +322,7 @@ const Index = () => {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <NotificationsBell />
               <Button 
                 onClick={() => setShowForm(true)} 
                 size="lg"

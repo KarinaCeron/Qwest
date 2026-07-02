@@ -107,6 +107,9 @@ const Index = () => {
       status: filters.status === status ? 'all' : status,
       priority: 'all',
       company: '',
+      dateField: filters.dateField,
+      dateFrom: filters.dateFrom,
+      dateTo: filters.dateTo,
     });
   };
 

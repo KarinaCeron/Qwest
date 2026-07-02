@@ -1,10 +1,11 @@
-export type ApplicationStatus = 
-  | 'applied' 
-  | 'in-progress' 
-  | 'rejected' 
-  | 'no-response'
+export type ApplicationStatus =
+  | 'submitted'
+  | 'in-progress'
   | 'interview'
-  | 'offer';
+  | 'technical-interview'
+  | 'offer'
+  | 'rejected'
+  | 'no-response';
 
 export type Priority = 'high' | 'medium' | 'low';
 

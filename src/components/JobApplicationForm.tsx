@@ -35,7 +35,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     recruiterName: editingApplication?.recruiterName || '',
     salary: editingApplication?.salary || '',
     jobLink: editingApplication?.jobLink || '',
-    status: editingApplication?.status || 'applied',
+    status: editingApplication?.status || 'submitted',
     priority: editingApplication?.priority || 'medium',
     applicationDate: editingApplication?.applicationDate || new Date().toISOString().split('T')[0],
     notes: editingApplication?.notes || '',
@@ -224,9 +224,10 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="applied">📤 Applied</SelectItem>
+                    <SelectItem value="submitted">📤 Submitted</SelectItem>
                     <SelectItem value="in-progress">⏳ In Progress</SelectItem>
                     <SelectItem value="interview">💼 Interview</SelectItem>
+                    <SelectItem value="technical-interview">🧪 Technical Interview</SelectItem>
                     <SelectItem value="offer">🎉 Offer</SelectItem>
                     <SelectItem value="rejected">❌ Rejected</SelectItem>
                     <SelectItem value="no-response">⏸️ No Response</SelectItem>

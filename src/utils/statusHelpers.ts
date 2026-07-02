@@ -2,13 +2,49 @@ import { ApplicationStatus, Priority } from '@/types/jobApplication';
 
 export const getStatusConfig = (status: ApplicationStatus) => {
   const configs = {
-    'applied': { label: 'Applied', color: 'bg-pending text-pending-foreground', icon: '📤' },
-    'in-progress': { label: 'In Progress', color: 'bg-warning text-warning-foreground', icon: '⏳' },
-    'interview': { label: 'Interview', color: 'bg-success text-success-foreground', icon: '💼' },
-    'offer': { label: 'Offer', color: 'bg-success text-success-foreground', icon: '🎉' },
-    'rejected': { label: 'Rejected', color: 'bg-rejected text-rejected-foreground', icon: '❌' },
-    'no-response': { label: 'No Response', color: 'bg-muted text-muted-foreground', icon: '⏸️' }
-  };
+    'submitted': {
+      label: 'Submitted',
+      color: 'bg-pending text-pending-foreground',
+      icon: '📤',
+      description: 'You submitted the job application.',
+    },
+    'in-progress': {
+      label: 'In Progress',
+      color: 'bg-warning text-warning-foreground',
+      icon: '⏳',
+      description: 'The company confirmed receipt of your application and your CV is being reviewed.',
+    },
+    'interview': {
+      label: 'Interview',
+      color: 'bg-success text-success-foreground',
+      icon: '💼',
+      description: 'You got the first interview with HR.',
+    },
+    'technical-interview': {
+      label: 'Technical Interview',
+      color: 'bg-success text-success-foreground',
+      icon: '🧪',
+      description: 'You moved on to the technical interview stage.',
+    },
+    'offer': {
+      label: 'Offer',
+      color: 'bg-success text-success-foreground',
+      icon: '🎉',
+      description: 'You received an offer.',
+    },
+    'rejected': {
+      label: 'Rejected',
+      color: 'bg-rejected text-rejected-foreground',
+      icon: '❌',
+      description: 'You received a No as an answer.',
+    },
+    'no-response': {
+      label: 'No Response',
+      color: 'bg-muted text-muted-foreground',
+      icon: '⏸️',
+      description: 'No news for over a month. Applications are moved here automatically after 30 days without a status change.',
+    },
+  } as const;
   return configs[status];
 };
 

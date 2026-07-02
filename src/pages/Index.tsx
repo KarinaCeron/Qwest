@@ -340,93 +340,35 @@ const Index = () => {
           <>
             {/* Status Cards */}
             {applications.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-                <Card 
-                  className={`bg-gradient-card cursor-pointer transition-all hover:shadow-lg ${
-                    filters.status === 'applied' ? 'ring-2 ring-blue-500 shadow-lg' : ''
-                  }`}
-                  onClick={() => handleStatusFilter('applied')}
-                  onDrop={(e) => handleDrop(e, 'applied')}
-                  onDragOver={handleDragOver}
-                >
-                  <CardContent className="p-4 text-center">
-                    <Briefcase className="h-8 w-8 mx-auto mb-2 text-blue-500" />
-                    <p className="text-2xl font-bold text-foreground">{statusStats.applied}</p>
-                    <p className="text-sm text-muted-foreground">Applied</p>
-                  </CardContent>
-                </Card>
-                <Card 
-                  className={`bg-gradient-card cursor-pointer transition-all hover:shadow-lg ${
-                    filters.status === 'in-progress' ? 'ring-2 ring-yellow-500 shadow-lg' : ''
-                  }`}
-                  onClick={() => handleStatusFilter('in-progress')}
-                  onDrop={(e) => handleDrop(e, 'in-progress')}
-                  onDragOver={handleDragOver}
-                >
-                  <CardContent className="p-4 text-center">
-                    <Clock className="h-8 w-8 mx-auto mb-2 text-yellow-500" />
-                    <p className="text-2xl font-bold text-foreground">{statusStats.inProgress}</p>
-                    <p className="text-sm text-muted-foreground">In Progress</p>
-                  </CardContent>
-                </Card>
-                <Card 
-                  className={`bg-gradient-card cursor-pointer transition-all hover:shadow-lg ${
-                    filters.status === 'interview' ? 'ring-2 ring-purple-500 shadow-lg' : ''
-                  }`}
-                  onClick={() => handleStatusFilter('interview')}
-                  onDrop={(e) => handleDrop(e, 'interview')}
-                  onDragOver={handleDragOver}
-                >
-                  <CardContent className="p-4 text-center">
-                    <MessageSquare className="h-8 w-8 mx-auto mb-2 text-purple-500" />
-                    <p className="text-2xl font-bold text-foreground">{statusStats.interview}</p>
-                    <p className="text-sm text-muted-foreground">Interview</p>
-                  </CardContent>
-                </Card>
-                <Card 
-                  className={`bg-gradient-card cursor-pointer transition-all hover:shadow-lg ${
-                    filters.status === 'offer' ? 'ring-2 ring-green-500 shadow-lg' : ''
-                  }`}
-                  onClick={() => handleStatusFilter('offer')}
-                  onDrop={(e) => handleDrop(e, 'offer')}
-                  onDragOver={handleDragOver}
-                >
-                  <CardContent className="p-4 text-center">
-                    <Gift className="h-8 w-8 mx-auto mb-2 text-green-500" />
-                    <p className="text-2xl font-bold text-foreground">{statusStats.offer}</p>
-                    <p className="text-sm text-muted-foreground">Offer</p>
-                  </CardContent>
-                </Card>
-                <Card 
-                  className={`bg-gradient-card cursor-pointer transition-all hover:shadow-lg ${
-                    filters.status === 'rejected' ? 'ring-2 ring-red-500 shadow-lg' : ''
-                  }`}
-                  onClick={() => handleStatusFilter('rejected')}
-                  onDrop={(e) => handleDrop(e, 'rejected')}
-                  onDragOver={handleDragOver}
-                >
-                  <CardContent className="p-4 text-center">
-                    <X className="h-8 w-8 mx-auto mb-2 text-red-500" />
-                    <p className="text-2xl font-bold text-foreground">{statusStats.rejected}</p>
-                    <p className="text-sm text-muted-foreground">Rejected</p>
-                  </CardContent>
-                </Card>
-                <Card 
-                  className={`bg-gradient-card cursor-pointer transition-all hover:shadow-lg ${
-                    filters.status === 'no-response' ? 'ring-2 ring-gray-500 shadow-lg' : ''
-                  }`}
-                  onClick={() => handleStatusFilter('no-response')}
-                  onDrop={(e) => handleDrop(e, 'no-response')}
-                  onDragOver={handleDragOver}
-                >
-                  <CardContent className="p-4 text-center">
-                    <FileX className="h-8 w-8 mx-auto mb-2 text-gray-500" />
-                    <p className="text-2xl font-bold text-foreground">{statusStats.noResponse}</p>
-                    <p className="text-sm text-muted-foreground">No Response</p>
-                  </CardContent>
-                </Card>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
+                {statusCards.map(({ key, label, description, icon: Icon, iconColor, ringColor, count }) => (
+                  <Tooltip key={key}>
+                    <TooltipTrigger asChild>
+                      <Card
+                        className={`bg-gradient-card cursor-pointer transition-all hover:shadow-lg ${
+                          filters.status === key ? `ring-2 ${ringColor} shadow-lg` : ''
+                        }`}
+                        onClick={() => handleStatusFilter(key)}
+                        onDrop={(e) => handleDrop(e, key)}
+                        onDragOver={handleDragOver}
+                      >
+                        <CardContent className="p-4 text-center">
+                          <Icon className={`h-8 w-8 mx-auto mb-2 ${iconColor}`} />
+                          <p className="text-2xl font-bold text-foreground">{count}</p>
+                          <p className="text-sm text-muted-foreground">{label}</p>
+                        </CardContent>
+                      </Card>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-xs">
+                      <p className="font-semibold">{label}</p>
+                      <p className="text-xs text-muted-foreground">{description}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                ))}
               </div>
             )}
+
+
 
             {/* Filters */}
             {applications.length > 0 && (

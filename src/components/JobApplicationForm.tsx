@@ -35,7 +35,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     recruiterName: editingApplication?.recruiterName || '',
     salary: editingApplication?.salary || '',
     jobLink: editingApplication?.jobLink || '',
-    status: editingApplication?.status || 'applied',
+    status: editingApplication?.status || 'submitted',
     priority: editingApplication?.priority || 'medium',
     applicationDate: editingApplication?.applicationDate || new Date().toISOString().split('T')[0],
     notes: editingApplication?.notes || '',

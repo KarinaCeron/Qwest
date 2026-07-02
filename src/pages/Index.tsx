@@ -16,11 +16,16 @@ import { useNavigate } from 'react-router-dom';
 import emptyStateImage from '@/assets/empty-state.jpg';
 import qwestLogo from '@/assets/qwest-logo.png';
 
+type DateField = 'created' | 'statusChanged';
+
 interface FiltersState {
   search: string;
   status: ApplicationStatus | 'all';
   priority: Priority | 'all';
   company: string;
+  dateField: DateField;
+  dateFrom: string;
+  dateTo: string;
 }
 
 const Index = () => {

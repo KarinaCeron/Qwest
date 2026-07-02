@@ -101,9 +101,10 @@ const Index = () => {
   // Stats by status
   const statusStats = useMemo(() => {
     return {
-      applied: applications.filter(app => app.status === 'applied').length,
+      submitted: applications.filter(app => app.status === 'submitted').length,
       inProgress: applications.filter(app => app.status === 'in-progress').length,
       interview: applications.filter(app => app.status === 'interview').length,
+      technicalInterview: applications.filter(app => app.status === 'technical-interview').length,
       offer: applications.filter(app => app.status === 'offer').length,
       rejected: applications.filter(app => app.status === 'rejected').length,
       noResponse: applications.filter(app => app.status === 'no-response').length,

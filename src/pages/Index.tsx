@@ -42,6 +42,9 @@ const Index = () => {
     status: 'all',
     priority: 'all',
     company: '',
+    dateField: 'created',
+    dateFrom: '',
+    dateTo: '',
   });
 
   // Redirect to auth if not logged in

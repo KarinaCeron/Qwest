@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Upload, FileText, Trash2, Download, Loader2, Compass } from 'lucide-react';
+import { UserMenu } from '@/components/UserMenu';
 
 interface CVFile { name: string; created_at: string; size: number; }
 
@@ -99,9 +100,12 @@ const CV = () => {
                 <p className="text-muted-foreground">My CV</p>
               </div>
             </div>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
-              Back
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
+                Back
+              </Button>
+              <UserMenu />
+            </div>
           </div>
         </div>
       </header>

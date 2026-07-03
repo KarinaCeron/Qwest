@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Upload, FileText, Trash2, Download, Loader2, ArrowLeft } from 'lucide-react';
+import { Upload, FileText, Trash2, Download, Loader2, ArrowLeft, FileText as FileIcon } from 'lucide-react';
 
 interface CVFile { name: string; created_at: string; size: number; }
 

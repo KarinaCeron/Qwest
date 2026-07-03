@@ -99,10 +99,7 @@ const CV = () => {
 
       <main className="container mx-auto px-4 py-8 max-w-2xl">
         <Card className="bg-gradient-card">
-          <CardHeader>
-            <CardTitle className="text-lg">Manage CV</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-6">
             {loadingCV ? (
               <div className="flex items-center justify-center py-8">
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />

@@ -40,7 +40,7 @@ const Index = () => {
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingApplication, setEditingApplication] = useState<JobApplication | null>(null);
-  const [showCVManager, setShowCVManager] = useState(false);
+  
   const [loadingData, setLoadingData] = useState(true);
   const [filters, setFilters] = useState<FiltersState>({
     search: '',

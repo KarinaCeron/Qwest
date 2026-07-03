@@ -30,6 +30,7 @@ interface JobApplicationFiltersProps {
 
 export function JobApplicationFilters({ filters, onFiltersChange, onExport, companies }: JobApplicationFiltersProps) {
   const [showFilters, setShowFilters] = useState(false);
+  const [companyOpen, setCompanyOpen] = useState(false);
 
   const handleFilterChange = (key: keyof FiltersState, value: string) => {
     onFiltersChange({ ...filters, [key]: value });

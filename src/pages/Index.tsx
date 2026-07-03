@@ -377,7 +377,7 @@ const Index = () => {
                     <User className="mr-2 h-4 w-4" />
                     My Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setShowCVManager(true)} className="cursor-pointer">
+                  <DropdownMenuItem onClick={() => navigate('/cv')} className="cursor-pointer">
                     <FileText className="mr-2 h-4 w-4" />
                     My CV
                   </DropdownMenuItem>

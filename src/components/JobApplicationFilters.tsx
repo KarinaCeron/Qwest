@@ -4,7 +4,10 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Search, Filter, X, Download } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Search, Filter, X, Download, ChevronsUpDown, Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export type DateField = 'created' | 'statusChanged';
 
@@ -27,6 +30,7 @@ interface JobApplicationFiltersProps {
 
 export function JobApplicationFilters({ filters, onFiltersChange, onExport, companies }: JobApplicationFiltersProps) {
   const [showFilters, setShowFilters] = useState(false);
+  const [companyOpen, setCompanyOpen] = useState(false);
 
   const handleFilterChange = (key: keyof FiltersState, value: string) => {
     onFiltersChange({ ...filters, [key]: value });
@@ -108,15 +112,48 @@ export function JobApplicationFilters({ filters, onFiltersChange, onExport, comp
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Company</label>
-                <Select value={filters.company || 'all'} onValueChange={(value) => handleFilterChange('company', value === 'all' ? '' : value)}>
-                  <SelectTrigger><SelectValue placeholder="Filter by company" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All companies</SelectItem>
-                    {companies.map((company) => (
-                      <SelectItem key={company} value={company}>{company}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={companyOpen} onOpenChange={setCompanyOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={companyOpen}
+                      className="w-full justify-between font-normal"
+                    >
+                      <span className={cn('truncate', !filters.company && 'text-muted-foreground')}>
+                        {filters.company || 'All companies'}
+                      </span>
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search company..." />
+                      <CommandList>
+                        <CommandEmpty>No company found.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            value="all"
+                            onSelect={() => { handleFilterChange('company', ''); setCompanyOpen(false); }}
+                          >
+                            <Check className={cn('mr-2 h-4 w-4', !filters.company ? 'opacity-100' : 'opacity-0')} />
+                            All companies
+                          </CommandItem>
+                          {companies.map((company) => (
+                            <CommandItem
+                              key={company}
+                              value={company}
+                              onSelect={() => { handleFilterChange('company', company); setCompanyOpen(false); }}
+                            >
+                              <Check className={cn('mr-2 h-4 w-4', filters.company === company ? 'opacity-100' : 'opacity-0')} />
+                              {company}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
 

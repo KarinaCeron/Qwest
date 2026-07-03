@@ -20,6 +20,8 @@ export const jobApplicationStorage = {
         role: app.role,
         recruiterName: app.recruiter_name,
         salary: app.salary,
+        salaryOffered: (app as any).salary_offered ?? false,
+        requestedSalary: (app as any).requested_salary ?? undefined,
         jobLink: app.job_link,
         status: app.status as JobApplication['status'],
         priority: app.priority as JobApplication['priority'],
@@ -56,6 +58,8 @@ export const jobApplicationStorage = {
           role: formData.role,
           recruiter_name: formData.recruiterName,
           salary: formData.salary,
+          salary_offered: formData.salaryOffered ?? false,
+          requested_salary: formData.requestedSalary,
           job_link: formData.jobLink,
           status: formData.status,
           priority: formData.priority,
@@ -63,7 +67,7 @@ export const jobApplicationStorage = {
           notes: formData.notes,
           job_content: formData.jobContent,
           cover_letter: formData.coverLetter
-        })
+        } as any)
         .select()
         .single();
 
@@ -78,6 +82,8 @@ export const jobApplicationStorage = {
         role: data.role,
         recruiterName: data.recruiter_name,
         salary: data.salary,
+        salaryOffered: (data as any).salary_offered ?? false,
+        requestedSalary: (data as any).requested_salary ?? undefined,
         jobLink: data.job_link,
         status: data.status as JobApplication['status'],
         priority: data.priority as JobApplication['priority'],
@@ -102,6 +108,8 @@ export const jobApplicationStorage = {
       if (updates.role !== undefined) updateData.role = updates.role;
       if (updates.recruiterName !== undefined) updateData.recruiter_name = updates.recruiterName;
       if (updates.salary !== undefined) updateData.salary = updates.salary;
+      if (updates.salaryOffered !== undefined) updateData.salary_offered = updates.salaryOffered;
+      if (updates.requestedSalary !== undefined) updateData.requested_salary = updates.requestedSalary;
       if (updates.jobLink !== undefined) updateData.job_link = updates.jobLink;
       if (updates.status !== undefined) updateData.status = updates.status;
       if (updates.priority !== undefined) updateData.priority = updates.priority;
@@ -135,6 +143,8 @@ export const jobApplicationStorage = {
         role: data.role,
         recruiterName: data.recruiter_name,
         salary: data.salary,
+        salaryOffered: (data as any).salary_offered ?? false,
+        requestedSalary: (data as any).requested_salary ?? undefined,
         jobLink: data.job_link,
         status: data.status as JobApplication['status'],
         priority: data.priority as JobApplication['priority'],

@@ -34,6 +34,8 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     role: editingApplication?.role || '',
     recruiterName: editingApplication?.recruiterName || '',
     salary: editingApplication?.salary || '',
+    salaryOffered: editingApplication?.salaryOffered ?? false,
+    requestedSalary: editingApplication?.requestedSalary || '',
     jobLink: editingApplication?.jobLink || '',
     status: editingApplication?.status || 'submitted',
     priority: editingApplication?.priority || 'medium',
@@ -52,7 +54,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     });
   };
 
-  const handleChange = (field: keyof JobApplicationFormData, value: string) => {
+  const handleChange = (field: keyof JobApplicationFormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -192,17 +194,49 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="salary">Salary (USD)</Label>
+                <Label htmlFor="requestedSalary">Requested Salary (USD)</Label>
                 <Input
-                  id="salary"
+                  id="requestedSalary"
                   type="number"
-                  value={formData.salary}
-                  onChange={(e) => handleChange('salary', e.target.value)}
-                  placeholder="45000"
+                  value={formData.requestedSalary}
+                  onChange={(e) => handleChange('requestedSalary', e.target.value)}
+                  placeholder="What you are asking for"
                   min="0"
                   step="1000"
                 />
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="salaryOffered">Salary included in the offer?</Label>
+                <Select
+                  value={formData.salaryOffered ? 'yes' : 'no'}
+                  onValueChange={(value) => handleChange('salaryOffered', value === 'yes')}
+                >
+                  <SelectTrigger id="salaryOffered">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="no">No</SelectItem>
+                    <SelectItem value="yes">Yes</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {formData.salaryOffered && (
+                <div className="space-y-2">
+                  <Label htmlFor="salary">Offered Salary (USD)</Label>
+                  <Input
+                    id="salary"
+                    type="number"
+                    value={formData.salary}
+                    onChange={(e) => handleChange('salary', e.target.value)}
+                    placeholder="45000"
+                    min="0"
+                    step="1000"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">

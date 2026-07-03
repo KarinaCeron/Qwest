@@ -183,31 +183,17 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="recruiterName">Recruiter / Contact</Label>
-                <Input
-                  id="recruiterName"
-                  value={formData.recruiterName}
-                  onChange={(e) => handleChange('recruiterName', e.target.value)}
-                  placeholder="Recruiter name"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="requestedSalary">Requested Salary (USD)</Label>
-                <Input
-                  id="requestedSalary"
-                  type="number"
-                  value={formData.requestedSalary}
-                  onChange={(e) => handleChange('requestedSalary', e.target.value)}
-                  placeholder="What you are asking for"
-                  min="0"
-                  step="1000"
-                />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="recruiterName">Recruiter / Contact</Label>
+              <Input
+                id="recruiterName"
+                value={formData.recruiterName}
+                onChange={(e) => handleChange('recruiterName', e.target.value)}
+                placeholder="Recruiter name"
+              />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="salaryOffered">Salary included in the offer?</Label>
                 <Select
@@ -237,7 +223,20 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                   />
                 </div>
               )}
+              <div className="space-y-2">
+                <Label htmlFor="requestedSalary">Requested Salary (USD)</Label>
+                <Input
+                  id="requestedSalary"
+                  type="number"
+                  value={formData.requestedSalary}
+                  onChange={(e) => handleChange('requestedSalary', e.target.value)}
+                  placeholder="What you are asking for"
+                  min="0"
+                  step="1000"
+                />
+              </div>
             </div>
+
 
             <div className="space-y-2">
               <Label htmlFor="jobLink">Job Link</Label>

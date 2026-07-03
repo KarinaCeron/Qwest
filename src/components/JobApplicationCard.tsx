@@ -57,13 +57,12 @@ export function JobApplicationCard({ application, onEdit, onDelete, draggable = 
             <span className="mr-1">{statusConfig.icon}</span>
             {statusConfig.label}
           </Badge>
-          <span className="text-sm text-muted-foreground">
-            <Calendar className="h-3 w-3 inline mr-1" />
-            {formatDate(application.applicationDate)}
-          </span>
         </div>
         <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>Submission date: {formatDate(application.createdAt)}</span>
+          <span>
+            <Calendar className="h-3 w-3 inline mr-1" />
+            Submission date: {formatDate(application.applicationDate)}
+          </span>
           <span>Status changed: {formatDate(application.statusChangedAt)}</span>
         </div>
         {(application.recruiterName || application.salary) && (

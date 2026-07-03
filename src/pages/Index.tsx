@@ -13,7 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Plus, Briefcase, Clock, MessageSquare, Gift, X, FileX, LogOut, Compass, FileText, FlaskConical, Bell, User } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { CVManager } from '@/components/CVManager';
+
 import { ChatWindow } from '@/components/ChatWindow';
 import { NotificationsBell } from '@/components/NotificationsBell';
 import { useToast } from '@/hooks/use-toast';
@@ -40,7 +40,7 @@ const Index = () => {
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingApplication, setEditingApplication] = useState<JobApplication | null>(null);
-  const [showCVManager, setShowCVManager] = useState(false);
+  
   const [loadingData, setLoadingData] = useState(true);
   const [filters, setFilters] = useState<FiltersState>({
     search: '',
@@ -377,7 +377,7 @@ const Index = () => {
                     <User className="mr-2 h-4 w-4" />
                     My Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setShowCVManager(true)} className="cursor-pointer">
+                  <DropdownMenuItem onClick={() => navigate('/cv')} className="cursor-pointer">
                     <FileText className="mr-2 h-4 w-4" />
                     My CV
                   </DropdownMenuItem>
@@ -503,7 +503,7 @@ const Index = () => {
         />
       )}
 
-      <CVManager open={showCVManager} onClose={() => setShowCVManager(false)} />
+      
       <ChatWindow />
     </div>
   );

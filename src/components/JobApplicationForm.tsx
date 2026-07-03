@@ -54,7 +54,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     });
   };
 
-  const handleChange = (field: keyof JobApplicationFormData, value: string) => {
+  const handleChange = (field: keyof JobApplicationFormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 

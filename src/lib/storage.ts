@@ -108,6 +108,8 @@ export const jobApplicationStorage = {
       if (updates.role !== undefined) updateData.role = updates.role;
       if (updates.recruiterName !== undefined) updateData.recruiter_name = updates.recruiterName;
       if (updates.salary !== undefined) updateData.salary = updates.salary;
+      if (updates.salaryOffered !== undefined) updateData.salary_offered = updates.salaryOffered;
+      if (updates.requestedSalary !== undefined) updateData.requested_salary = updates.requestedSalary;
       if (updates.jobLink !== undefined) updateData.job_link = updates.jobLink;
       if (updates.status !== undefined) updateData.status = updates.status;
       if (updates.priority !== undefined) updateData.priority = updates.priority;

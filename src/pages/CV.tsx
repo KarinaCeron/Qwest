@@ -100,12 +100,7 @@ const CV = () => {
                 <p className="text-muted-foreground">My CV</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
-                Back
-              </Button>
-              <UserMenu />
-            </div>
+            <UserMenu />
           </div>
         </div>
       </header>

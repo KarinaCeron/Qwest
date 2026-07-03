@@ -130,12 +130,7 @@ const Profile = () => {
                 <p className="text-muted-foreground">My Profile</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
-                Back
-              </Button>
-              <UserMenu />
-            </div>
+            <UserMenu />
           </div>
         </div>
       </header>

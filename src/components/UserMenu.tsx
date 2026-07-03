@@ -31,12 +31,6 @@ export const UserMenu = () => {
 
   return (
     <div className="flex items-center gap-2">
-      {location.pathname !== '/' && (
-        <Button variant="outline" size="sm" onClick={() => navigate('/')}>
-          <Briefcase className="mr-2 h-4 w-4" />
-          My Job Apps
-        </Button>
-      )}
       <NotificationsBell />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

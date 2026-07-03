@@ -11,6 +11,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Plus, Briefcase, Clock, MessageSquare, Gift, X, FileX, LogOut, Compass, FileText, FlaskConical, Bell } from 'lucide-react';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { CVManager } from '@/components/CVManager';
 import { ChatWindow } from '@/components/ChatWindow';
 import { NotificationsBell } from '@/components/NotificationsBell';
@@ -352,23 +354,36 @@ const Index = () => {
                 <Plus className="mr-2 h-5 w-5" />
                 New Application
               </Button>
-              <Button
-                variant="outline"
-                onClick={() => setShowCVManager(true)}
-                className="flex items-center gap-2"
-              >
-                <FileText className="h-4 w-4" />
-                My CV
-              </Button>
               <NotificationsBell />
-              <Button
-                variant="outline"
-                onClick={handleSignOut}
-                className="flex items-center gap-2"
-              >
-                <LogOut className="h-4 w-4" />
-                Sign Out
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                    <Avatar className="h-10 w-10 border-2 border-primary/20 hover:border-primary/50 transition-colors">
+                      <AvatarFallback className="bg-gradient-primary text-primary-foreground font-semibold">
+                        {(user.email?.[0] ?? 'U').toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 bg-popover">
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">Signed in as</p>
+                      <p className="text-xs leading-none text-muted-foreground truncate">{user.email}</p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setShowCVManager(true)} className="cursor-pointer">
+                    <FileText className="mr-2 h-4 w-4" />
+                    My CV
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>

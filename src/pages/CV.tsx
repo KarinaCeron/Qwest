@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Upload, FileText, Trash2, Download, Loader2, ArrowLeft, FileText as FileIcon } from 'lucide-react';
+import { Upload, FileText, Trash2, Download, Loader2, Compass } from 'lucide-react';
 
 interface CVFile { name: string; created_at: string; size: number; }
 
@@ -92,11 +92,11 @@ const CV = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center shadow-lg">
-                <FileIcon className="h-7 w-7 text-primary-foreground" />
+                <Compass className="h-7 w-7 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-foreground">My CV</h1>
-                <p className="text-muted-foreground">Upload and manage your resume</p>
+                <h1 className="text-3xl font-bold text-foreground">Qwest</h1>
+                <p className="text-muted-foreground">My CV — upload and manage your resume</p>
               </div>
             </div>
             <Button variant="ghost" size="sm" onClick={() => navigate('/')}>

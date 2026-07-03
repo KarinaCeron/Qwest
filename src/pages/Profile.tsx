@@ -122,11 +122,11 @@ const Profile = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center shadow-lg">
-                <UserIcon className="h-7 w-7 text-primary-foreground" />
+                <Compass className="h-7 w-7 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-foreground">My Profile</h1>
-                <p className="text-muted-foreground">View and edit your personal information</p>
+                <h1 className="text-3xl font-bold text-foreground">Qwest</h1>
+                <p className="text-muted-foreground">My Profile — view and edit your personal information</p>
               </div>
             </div>
             <Button variant="ghost" size="sm" onClick={() => navigate('/')}>

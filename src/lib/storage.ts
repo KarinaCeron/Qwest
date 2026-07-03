@@ -143,6 +143,8 @@ export const jobApplicationStorage = {
         role: data.role,
         recruiterName: data.recruiter_name,
         salary: data.salary,
+        salaryOffered: (data as any).salary_offered ?? false,
+        requestedSalary: (data as any).requested_salary ?? undefined,
         jobLink: data.job_link,
         status: data.status as JobApplication['status'],
         priority: data.priority as JobApplication['priority'],

@@ -63,7 +63,7 @@ export function JobApplicationCard({ application, onEdit, onDelete, draggable = 
           </span>
         </div>
         <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>Created: {formatDate(application.createdAt)}</span>
+          <span>Submission date: {formatDate(application.createdAt)}</span>
           <span>Status changed: {formatDate(application.statusChangedAt)}</span>
         </div>
         {(application.recruiterName || application.salary) && (

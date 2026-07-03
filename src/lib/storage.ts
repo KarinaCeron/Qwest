@@ -58,6 +58,8 @@ export const jobApplicationStorage = {
           role: formData.role,
           recruiter_name: formData.recruiterName,
           salary: formData.salary,
+          salary_offered: formData.salaryOffered ?? false,
+          requested_salary: formData.requestedSalary,
           job_link: formData.jobLink,
           status: formData.status,
           priority: formData.priority,
@@ -65,7 +67,7 @@ export const jobApplicationStorage = {
           notes: formData.notes,
           job_content: formData.jobContent,
           cover_letter: formData.coverLetter
-        })
+        } as any)
         .select()
         .single();
 
@@ -80,6 +82,8 @@ export const jobApplicationStorage = {
         role: data.role,
         recruiterName: data.recruiter_name,
         salary: data.salary,
+        salaryOffered: (data as any).salary_offered ?? false,
+        requestedSalary: (data as any).requested_salary ?? undefined,
         jobLink: data.job_link,
         status: data.status as JobApplication['status'],
         priority: data.priority as JobApplication['priority'],

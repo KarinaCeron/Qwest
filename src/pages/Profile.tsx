@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Save, Pencil, X, Compass } from 'lucide-react';
+import { UserMenu } from '@/components/UserMenu';
 
 interface ProfileData {
   display_name: string | null;
@@ -129,9 +130,12 @@ const Profile = () => {
                 <p className="text-muted-foreground">My Profile</p>
               </div>
             </div>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
-              Back
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
+                Back
+              </Button>
+              <UserMenu />
+            </div>
           </div>
         </div>
       </header>

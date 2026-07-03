@@ -322,7 +322,6 @@ const Index = () => {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <NotificationsBell />
               <Button 
                 onClick={() => setShowForm(true)} 
                 size="lg"
@@ -339,6 +338,7 @@ const Index = () => {
                 <FileText className="h-4 w-4" />
                 My CV
               </Button>
+              <NotificationsBell />
               <Button
                 variant="outline"
                 onClick={handleSignOut}

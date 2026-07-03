@@ -101,18 +101,40 @@ const Index = () => {
     return [...new Set(applications.map(app => app.company))].sort();
   }, [applications]);
 
-  // Stats by status
+  // Stats by status — respect date/search/priority/company filters (ignore status filter itself)
+  const statsSource = useMemo(() => {
+    const fromTs = filters.dateFrom ? new Date(filters.dateFrom).getTime() : null;
+    const toTs = filters.dateTo ? new Date(filters.dateTo).getTime() + 24 * 60 * 60 * 1000 - 1 : null;
+
+    return applications.filter(app => {
+      const matchesSearch = !filters.search ||
+        app.company.toLowerCase().includes(filters.search.toLowerCase()) ||
+        app.role.toLowerCase().includes(filters.search.toLowerCase()) ||
+        app.recruiterName?.toLowerCase().includes(filters.search.toLowerCase());
+      const matchesPriority = filters.priority === 'all' || app.priority === filters.priority;
+      const matchesCompany = !filters.company || app.company === filters.company;
+
+      const dateStr = filters.dateField === 'statusChanged' ? app.statusChangedAt : app.createdAt;
+      const dateTs = dateStr ? new Date(dateStr).getTime() : null;
+      const matchesDate =
+        (fromTs === null || (dateTs !== null && dateTs >= fromTs)) &&
+        (toTs === null || (dateTs !== null && dateTs <= toTs));
+
+      return matchesSearch && matchesPriority && matchesCompany && matchesDate;
+    });
+  }, [applications, filters.search, filters.priority, filters.company, filters.dateField, filters.dateFrom, filters.dateTo]);
+
   const statusStats = useMemo(() => {
     return {
-      submitted: applications.filter(app => app.status === 'submitted').length,
-      inProgress: applications.filter(app => app.status === 'in-progress').length,
-      interview: applications.filter(app => app.status === 'interview').length,
-      technicalInterview: applications.filter(app => app.status === 'technical-interview').length,
-      offer: applications.filter(app => app.status === 'offer').length,
-      rejected: applications.filter(app => app.status === 'rejected').length,
-      noResponse: applications.filter(app => app.status === 'no-response').length,
+      submitted: statsSource.filter(app => app.status === 'submitted').length,
+      inProgress: statsSource.filter(app => app.status === 'in-progress').length,
+      interview: statsSource.filter(app => app.status === 'interview').length,
+      technicalInterview: statsSource.filter(app => app.status === 'technical-interview').length,
+      offer: statsSource.filter(app => app.status === 'offer').length,
+      rejected: statsSource.filter(app => app.status === 'rejected').length,
+      noResponse: statsSource.filter(app => app.status === 'no-response').length,
     };
-  }, [applications]);
+  }, [statsSource]);
 
   const statusCards: Array<{
     key: ApplicationStatus;

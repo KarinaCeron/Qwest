@@ -503,7 +503,7 @@ const Index = () => {
         />
       )}
 
-      <CVManager open={showCVManager} onClose={() => setShowCVManager(false)} />
+      
       <ChatWindow />
     </div>
   );

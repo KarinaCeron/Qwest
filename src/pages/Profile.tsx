@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Save, Pencil, X } from 'lucide-react';
+import { ArrowLeft, Save, Pencil, X, User as UserIcon } from 'lucide-react';
 
 interface ProfileData {
   display_name: string | null;
@@ -118,12 +118,22 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-gradient-card">
-        <div className="container mx-auto px-4 py-6 flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          <h1 className="text-2xl font-bold">My Profile</h1>
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center shadow-lg">
+                <UserIcon className="h-7 w-7 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-foreground">My Profile</h1>
+                <p className="text-muted-foreground">View and edit your personal information</p>
+              </div>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+          </div>
         </div>
       </header>
 

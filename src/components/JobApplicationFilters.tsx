@@ -112,15 +112,48 @@ export function JobApplicationFilters({ filters, onFiltersChange, onExport, comp
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Company</label>
-                <Select value={filters.company || 'all'} onValueChange={(value) => handleFilterChange('company', value === 'all' ? '' : value)}>
-                  <SelectTrigger><SelectValue placeholder="Filter by company" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All companies</SelectItem>
-                    {companies.map((company) => (
-                      <SelectItem key={company} value={company}>{company}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={companyOpen} onOpenChange={setCompanyOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={companyOpen}
+                      className="w-full justify-between font-normal"
+                    >
+                      <span className={cn('truncate', !filters.company && 'text-muted-foreground')}>
+                        {filters.company || 'All companies'}
+                      </span>
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search company..." />
+                      <CommandList>
+                        <CommandEmpty>No company found.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            value="all"
+                            onSelect={() => { handleFilterChange('company', ''); setCompanyOpen(false); }}
+                          >
+                            <Check className={cn('mr-2 h-4 w-4', !filters.company ? 'opacity-100' : 'opacity-0')} />
+                            All companies
+                          </CommandItem>
+                          {companies.map((company) => (
+                            <CommandItem
+                              key={company}
+                              value={company}
+                              onSelect={() => { handleFilterChange('company', company); setCompanyOpen(false); }}
+                            >
+                              <Check className={cn('mr-2 h-4 w-4', filters.company === company ? 'opacity-100' : 'opacity-0')} />
+                              {company}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
 

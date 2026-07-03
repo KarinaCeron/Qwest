@@ -100,7 +100,6 @@ const CV = () => {
               </div>
             </div>
             <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
               Back
             </Button>
           </div>

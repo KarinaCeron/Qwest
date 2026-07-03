@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { NotificationsBell } from '@/components/NotificationsBell';
-import { User, FileText, LogOut } from 'lucide-react';
+import { User, FileText, LogOut, Briefcase } from 'lucide-react';
 
 export const UserMenu = () => {
   const { user, signOut } = useAuth();
@@ -47,6 +47,10 @@ export const UserMenu = () => {
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => navigate('/')} className="cursor-pointer">
+            <Briefcase className="mr-2 h-4 w-4" />
+            My Job Apps
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer">
             <User className="mr-2 h-4 w-4" />
             My Profile

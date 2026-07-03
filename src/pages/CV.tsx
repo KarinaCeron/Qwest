@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Upload, FileText, Trash2, Download, Loader2, ArrowLeft } from 'lucide-react';
+import { Upload, FileText, Trash2, Download, Loader2, ArrowLeft, FileText as FileIcon } from 'lucide-react';
 
 interface CVFile { name: string; created_at: string; size: number; }
 
@@ -88,12 +88,22 @@ const CV = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-gradient-card">
-        <div className="container mx-auto px-4 py-6 flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          <h1 className="text-2xl font-bold">My CV</h1>
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center shadow-lg">
+                <FileIcon className="h-7 w-7 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-foreground">My CV</h1>
+                <p className="text-muted-foreground">Upload and manage your resume</p>
+              </div>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+          </div>
         </div>
       </header>
 

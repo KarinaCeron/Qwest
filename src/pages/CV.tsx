@@ -96,7 +96,7 @@ const CV = () => {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-foreground">Qwest</h1>
-                <p className="text-muted-foreground">My CV — upload and manage your resume</p>
+                <p className="text-muted-foreground">My CV</p>
               </div>
             </div>
             <Button variant="ghost" size="sm" onClick={() => navigate('/')}>

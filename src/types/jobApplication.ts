@@ -15,6 +15,8 @@ export interface JobApplication {
   role: string;
   recruiterName?: string;
   salary?: string;
+  salaryOffered?: boolean;
+  requestedSalary?: string;
   jobLink?: string;
   status: ApplicationStatus;
   priority: Priority;
@@ -32,6 +34,8 @@ export interface JobApplicationFormData {
   role: string;
   recruiterName?: string;
   salary?: string;
+  salaryOffered?: boolean;
+  requestedSalary?: string;
   jobLink?: string;
   status: ApplicationStatus;
   priority: Priority;

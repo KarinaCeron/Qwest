@@ -53,8 +53,10 @@ export type Database = {
           notes: string | null
           priority: string
           recruiter_name: string | null
+          requested_salary: string | null
           role: string
           salary: string | null
+          salary_offered: boolean
           status: string
           status_changed_at: string
           updated_at: string
@@ -71,8 +73,10 @@ export type Database = {
           notes?: string | null
           priority: string
           recruiter_name?: string | null
+          requested_salary?: string | null
           role: string
           salary?: string | null
+          salary_offered?: boolean
           status: string
           status_changed_at?: string
           updated_at?: string
@@ -89,8 +93,10 @@ export type Database = {
           notes?: string | null
           priority?: string
           recruiter_name?: string | null
+          requested_salary?: string | null
           role?: string
           salary?: string | null
+          salary_offered?: boolean
           status?: string
           status_changed_at?: string
           updated_at?: string

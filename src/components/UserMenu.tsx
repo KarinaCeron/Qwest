@@ -11,12 +11,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { NotificationsBell } from '@/components/NotificationsBell';
+import { Button } from '@/components/ui/button';
+import { useLocation } from 'react-router-dom';
 import { User, FileText, LogOut, Briefcase } from 'lucide-react';
 
 export const UserMenu = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const location = useLocation();
 
   if (!user) return null;
 
@@ -28,6 +31,12 @@ export const UserMenu = () => {
 
   return (
     <div className="flex items-center gap-2">
+      {location.pathname !== '/' && (
+        <Button variant="outline" size="sm" onClick={() => navigate('/')}>
+          <Briefcase className="mr-2 h-4 w-4" />
+          My Job Apps
+        </Button>
+      )}
       <NotificationsBell />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

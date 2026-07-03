@@ -13,7 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Plus, Briefcase, Clock, MessageSquare, Gift, X, FileX, LogOut, Compass, FileText, FlaskConical, Bell, User } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { CVManager } from '@/components/CVManager';
+
 import { ChatWindow } from '@/components/ChatWindow';
 import { NotificationsBell } from '@/components/NotificationsBell';
 import { useToast } from '@/hooks/use-toast';

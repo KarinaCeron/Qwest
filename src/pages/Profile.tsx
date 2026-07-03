@@ -126,7 +126,7 @@ const Profile = () => {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-foreground">Qwest</h1>
-                <p className="text-muted-foreground">My Profile — view and edit your personal information</p>
+                <p className="text-muted-foreground">My Profile</p>
               </div>
             </div>
             <Button variant="ghost" size="sm" onClick={() => navigate('/')}>

@@ -7,8 +7,8 @@ import { supabase } from '@/integrations/supabase/client';
 
 type Msg = { role: 'user' | 'assistant'; content: string };
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://tdilpthezwydrqheppki.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 export function ChatWindow() {
   const [open, setOpen] = useState(false);
@@ -37,12 +37,18 @@ export function ChatWindow() {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session.access_token}`,
-          apikey: SUPABASE_PUBLISHABLE_KEY,
+          ...(SUPABASE_PUBLISHABLE_KEY ? { apikey: SUPABASE_PUBLISHABLE_KEY } : {}),
         },
         body: JSON.stringify({ message: text }),
       });
 
-      const data = await response.json().catch(() => ({}));
+      const responseText = await response.text();
+      let data: { answer?: string; error?: string } = {};
+      try {
+        data = responseText ? JSON.parse(responseText) : {};
+      } catch {
+        data = { error: responseText };
+      }
       if (!response.ok) throw new Error(data.error || `Chat failed (${response.status})`);
       setMessages(prev => [...prev, { role: 'assistant', content: data.answer || 'No response' }]);
     } catch (e: any) {

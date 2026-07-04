@@ -10,6 +10,34 @@ type Msg = { role: 'user' | 'assistant'; content: string };
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://tdilpthezwydrqheppki.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+const getAccessToken = async (forceRefresh = false) => {
+  const { data: { session }, error } = forceRefresh
+    ? await supabase.auth.refreshSession()
+    : await supabase.auth.getSession();
+
+  if (error || !session) {
+    throw new Error('Your session expired. Please sign in again.');
+  }
+
+  const expiresAt = session.expires_at ? session.expires_at * 1000 : 0;
+  if (!forceRefresh && expiresAt && expiresAt < Date.now() + 60_000) {
+    return getAccessToken(true);
+  }
+
+  return session.access_token;
+};
+
+const callChatFunction = (message: string, accessToken: string) =>
+  fetch(`${SUPABASE_URL}/functions/v1/chat`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+      ...(SUPABASE_PUBLISHABLE_KEY ? { apikey: SUPABASE_PUBLISHABLE_KEY } : {}),
+    },
+    body: JSON.stringify({ message }),
+  });
+
 export function ChatWindow() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -29,18 +57,10 @@ export function ChatWindow() {
     setInput('');
     setIsLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Please sign in to use chat');
-
-      const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-          ...(SUPABASE_PUBLISHABLE_KEY ? { apikey: SUPABASE_PUBLISHABLE_KEY } : {}),
-        },
-        body: JSON.stringify({ message: text }),
-      });
+      let response = await callChatFunction(text, await getAccessToken());
+      if (response.status === 401) {
+        response = await callChatFunction(text, await getAccessToken(true));
+      }
 
       const responseText = await response.text();
       let data: { answer?: string; error?: string } = {};
@@ -49,7 +69,13 @@ export function ChatWindow() {
       } catch {
         data = { error: responseText };
       }
-      if (!response.ok) throw new Error(data.error || `Chat failed (${response.status})`);
+      if (!response.ok) {
+        if (response.status === 401) {
+          await supabase.auth.signOut();
+          throw new Error('Your session expired. Please sign in again.');
+        }
+        throw new Error(data.error || `Chat failed (${response.status})`);
+      }
       setMessages(prev => [...prev, { role: 'assistant', content: data.answer || 'No response' }]);
     } catch (e: any) {
       setMessages(prev => [...prev, { role: 'assistant', content: `⚠️ ${e.message || 'Unexpected error'}` }]);

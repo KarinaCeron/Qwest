@@ -26,7 +26,12 @@ export function ChatWindow() {
     setInput('');
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('chat', { body: { message: text } });
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Please sign in to use chat');
+      const { data, error } = await supabase.functions.invoke('chat', {
+        body: { message: text },
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
       if (error) throw new Error(error.message);
       setMessages(prev => [...prev, { role: 'assistant', content: data.answer || 'No response' }]);
     } catch (e: any) {

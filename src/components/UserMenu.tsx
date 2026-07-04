@@ -13,7 +13,7 @@ import {
 import { NotificationsBell } from '@/components/NotificationsBell';
 import { Button } from '@/components/ui/button';
 import { useLocation } from 'react-router-dom';
-import { User, FileText, LogOut, Briefcase } from 'lucide-react';
+import { User, FileText, LogOut, Briefcase, MessageSquareText } from 'lucide-react';
 
 export const UserMenu = () => {
   const { user, signOut } = useAuth();
@@ -61,6 +61,10 @@ export const UserMenu = () => {
           <DropdownMenuItem onClick={() => navigate('/cv')} className="cursor-pointer">
             <FileText className="mr-2 h-4 w-4" />
             My CV
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => navigate('/templates')} className="cursor-pointer">
+            <MessageSquareText className="mr-2 h-4 w-4" />
+            My Templates
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">

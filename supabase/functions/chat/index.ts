@@ -29,13 +29,21 @@ Deno.serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
-    if (userError || !user) {
+    const token = authHeader.replace(/^Bearer\s+/i, "");
+    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+    const claims = claimsData?.claims;
+    if (claimsError || !claims?.sub) {
+      console.error("chat auth failed:", claimsError?.message ?? "missing claims");
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    const user = {
+      id: claims.sub,
+      email: typeof claims.email === "string" ? claims.email : "",
+    };
 
     const { message } = await req.json();
     if (!message) {

@@ -4,22 +4,17 @@ import { jobApplicationStorage } from '@/lib/storage';
 import { JobApplicationCard } from '@/components/JobApplicationCard';
 import { JobApplicationForm } from '@/components/JobApplicationForm';
 import { JobApplicationFilters } from '@/components/JobApplicationFilters';
+import { AppHeader } from '@/components/AppHeader';
 
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Plus, Briefcase, Clock, MessageSquare, Gift, X, FileX, LogOut, Compass, FileText, FlaskConical, Bell, User, MessageSquareText } from 'lucide-react';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Plus, Briefcase, Clock, MessageSquare, Gift, X, FileX, FlaskConical } from 'lucide-react';
 
-import { ChatWindow } from '@/components/ChatWindow';
-import { NotificationsBell } from '@/components/NotificationsBell';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import emptyStateImage from '@/assets/empty-state.jpg';
-import qwestLogo from '@/assets/qwest-logo.png';
 
 type DateField = 'created' | 'statusChanged';
 
@@ -34,7 +29,7 @@ interface FiltersState {
 }
 
 const Index = () => {
-  const { user, loading, signOut } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [applications, setApplications] = useState<JobApplication[]>([]);
@@ -311,11 +306,6 @@ const Index = () => {
     setEditingApplication(null);
   };
 
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/auth');
-  };
-
   // Show loading while checking auth
   if (loading) {
     return (
@@ -332,74 +322,15 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-gradient-card">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center shadow-lg">
-                <Compass className="h-7 w-7 text-primary-foreground" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-foreground">Qwest</h1>
-                <p className="text-muted-foreground">Manage all your job applications</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button 
-                onClick={() => setShowForm(true)} 
-                size="lg"
-                className="bg-gradient-primary shadow-card"
-              >
-                <Plus className="mr-2 h-5 w-5" />
-                New Application
-              </Button>
-              <NotificationsBell />
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                    <Avatar className="h-10 w-10 border-2 border-primary/20 hover:border-primary/50 transition-colors">
-                      <AvatarFallback className="bg-gradient-primary text-primary-foreground font-semibold">
-                        {(user.email?.[0] ?? 'U').toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 bg-popover">
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">Signed in as</p>
-                      <p className="text-xs leading-none text-muted-foreground truncate">{user.email}</p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate('/')} className="cursor-pointer">
-                    <Briefcase className="mr-2 h-4 w-4" />
-                    My Job Apps
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer">
-                    <User className="mr-2 h-4 w-4" />
-                    My Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/cv')} className="cursor-pointer">
-                    <FileText className="mr-2 h-4 w-4" />
-                    My CV
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/templates')} className="cursor-pointer">
-                    <MessageSquareText className="mr-2 h-4 w-4" />
-                    My Templates
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-        </div>
-      </header>
+      <AppHeader
+        subtitle="Manage all your job applications"
+        actions={(
+          <Button onClick={() => setShowForm(true)} size="lg" className="bg-gradient-primary shadow-card">
+            <Plus className="mr-2 h-5 w-5" />
+            New Application
+          </Button>
+        )}
+      />
 
       <main className="container mx-auto px-4 py-8">
         {/* Loading state */}

@@ -10,6 +10,7 @@ import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import CV from "./pages/CV";
 import Templates from "./pages/Templates";
+import QuestionBank from "./pages/QuestionBank";
 import { GlobalChat } from "./components/GlobalChat";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/profile" element={<Profile />} />
           <Route path="/cv" element={<CV />} />
           <Route path="/templates" element={<Templates />} />
+          <Route path="/questions" element={<QuestionBank />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

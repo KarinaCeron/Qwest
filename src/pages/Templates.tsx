@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
@@ -15,7 +15,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger,
 } from '@/components/ui/dialog';
 import { UserMenu } from '@/components/UserMenu';
-import { Plus, Pencil, Trash2, Copy, ArrowLeft } from 'lucide-react';
+import { Plus, Pencil, Trash2, Copy, Compass, MessageSquareText, Loader2 } from 'lucide-react';
 
 type Template = {
   id: string;
@@ -42,6 +42,7 @@ export default function TemplatesPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [templates, setTemplates] = useState<Template[]>([]);
+  const [loadingList, setLoadingList] = useState(true);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Template | null>(null);
   const [title, setTitle] = useState('');
@@ -54,20 +55,20 @@ export default function TemplatesPage() {
   }, [loading, user, navigate]);
 
   const load = async () => {
+    setLoadingList(true);
     const { data, error } = await supabase
       .from('message_templates')
       .select('id,title,content,category,updated_at')
       .order('updated_at', { ascending: false });
     if (error) {
       toast({ title: 'Failed to load templates', description: error.message, variant: 'destructive' });
-      return;
+    } else {
+      setTemplates(data ?? []);
     }
-    setTemplates(data ?? []);
+    setLoadingList(false);
   };
 
-  useEffect(() => {
-    if (user) load();
-  }, [user]);
+  useEffect(() => { if (user) load(); }, [user]);
 
   const resetForm = () => {
     setEditing(null);
@@ -76,10 +77,7 @@ export default function TemplatesPage() {
     setCategory('linkedin-connect');
   };
 
-  const openNew = () => {
-    resetForm();
-    setOpen(true);
-  };
+  const openNew = () => { resetForm(); setOpen(true); };
 
   const openEdit = (t: Template) => {
     setEditing(t);
@@ -115,20 +113,20 @@ export default function TemplatesPage() {
       toast({ title: 'Failed to save', description: error.message, variant: 'destructive' });
       return;
     }
-    toast({ title: editing ? 'Template updated' : 'Template created' });
+    toast({ title: editing ? '✅ Template updated' : '✅ Template created' });
     setOpen(false);
     resetForm();
     load();
   };
 
   const remove = async (id: string) => {
-    if (!confirm('Delete this template?')) return;
+    if (!confirm('Are you sure you want to delete this template?')) return;
     const { error } = await supabase.from('message_templates').delete().eq('id', id);
     if (error) {
-      toast({ title: 'Failed to delete', description: error.message, variant: 'destructive' });
+      toast({ title: '❌ Error deleting', description: error.message, variant: 'destructive' });
       return;
     }
-    toast({ title: 'Template deleted' });
+    toast({ title: '🗑️ Template deleted' });
     setTemplates((prev) => prev.filter((t) => t.id !== id));
   };
 
@@ -141,114 +139,122 @@ export default function TemplatesPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-card/50 backdrop-blur">
-        <div className="container mx-auto flex items-center justify-between py-4">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-2xl font-bold">My Templates</h1>
+      <header className="border-b bg-gradient-card">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center shadow-lg">
+                <Compass className="h-7 w-7 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-foreground">Qwest</h1>
+                <p className="text-muted-foreground">My Templates</p>
+              </div>
+            </div>
+            <UserMenu />
           </div>
-          <UserMenu />
         </div>
       </header>
 
-      <main className="container mx-auto py-8 space-y-6">
-        <div className="flex items-center justify-between">
-          <p className="text-muted-foreground">
-            Reusable messages for LinkedIn outreach, follow-ups, feedback requests and more.
-          </p>
-          <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) resetForm(); }}>
-            <DialogTrigger asChild>
-              <Button onClick={openNew}>
-                <Plus className="mr-2 h-4 w-4" /> New Template
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>{editing ? 'Edit Template' : 'New Template'}</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="tpl-title">Title</Label>
-                  <Input
-                    id="tpl-title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="e.g. LinkedIn intro to recruiter"
-                    maxLength={120}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Category</Label>
-                  <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {CATEGORIES.map((c) => (
-                        <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="tpl-content">Content</Label>
-                  <Textarea
-                    id="tpl-content"
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    placeholder="Write your reusable message here..."
-                    rows={10}
-                    maxLength={5000}
-                  />
-                  <p className="text-xs text-muted-foreground">{content.length}/5000</p>
-                </div>
+      <main className="container mx-auto px-4 py-8 max-w-2xl">
+        <Card className="bg-gradient-card">
+          <CardContent className="space-y-4 pt-6">
+            {loadingList ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
               </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                <Button onClick={save} disabled={saving}>{saving ? 'Saving...' : 'Save'}</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
-
-        {templates.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center text-muted-foreground">
-              No templates yet. Create your first one to save time on recruiter outreach.
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2">
-            {templates.map((t) => (
-              <Card key={t.id}>
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <CardTitle className="text-lg">{t.title}</CardTitle>
-                      <CardDescription>{categoryLabel(t.category)}</CardDescription>
+            ) : templates.length === 0 ? (
+              <div className="text-center py-4">
+                <MessageSquareText className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
+                <p className="text-muted-foreground text-sm">
+                  You don't have any templates yet
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {templates.map((t) => (
+                  <div key={t.id} className="border rounded-lg p-4 space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="font-medium truncate">{t.title}</p>
+                        <p className="text-sm text-muted-foreground">{categoryLabel(t.category)}</p>
+                      </div>
+                      <div className="flex gap-1 shrink-0">
+                        <Button variant="ghost" size="icon" onClick={() => copy(t)} title="Copy">
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => openEdit(t)} title="Edit">
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => remove(t.id)} title="Delete">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" onClick={() => copy(t)} title="Copy">
-                        <Copy className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => openEdit(t)} title="Edit">
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => remove(t.id)} title="Delete">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    <p className="text-sm whitespace-pre-wrap line-clamp-4 text-muted-foreground">
+                      {t.content}
+                    </p>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm whitespace-pre-wrap line-clamp-6 text-muted-foreground">
-                    {t.content}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+                ))}
+              </div>
+            )}
+
+            <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) resetForm(); }}>
+              <DialogTrigger asChild>
+                <Button className="w-full bg-gradient-primary" onClick={openNew}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  New Template
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>{editing ? 'Edit Template' : 'New Template'}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="tpl-title">Title</Label>
+                    <Input
+                      id="tpl-title"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      placeholder="e.g. LinkedIn intro to recruiter"
+                      maxLength={120}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Category</Label>
+                    <Select value={category} onValueChange={setCategory}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {CATEGORIES.map((c) => (
+                          <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="tpl-content">Content</Label>
+                    <Textarea
+                      id="tpl-content"
+                      value={content}
+                      onChange={(e) => setContent(e.target.value)}
+                      placeholder="Write your reusable message here..."
+                      rows={10}
+                      maxLength={5000}
+                    />
+                    <p className="text-xs text-muted-foreground">{content.length}/5000</p>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+                  <Button onClick={save} disabled={saving} className="bg-gradient-primary">
+                    {saving ? 'Saving...' : 'Save'}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </CardContent>
+        </Card>
       </main>
     </div>
   );

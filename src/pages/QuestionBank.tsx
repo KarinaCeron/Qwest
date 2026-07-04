@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Copy, Search, Sparkles } from 'lucide-react';
 import { AppHeader } from '@/components/AppHeader';
@@ -161,7 +161,7 @@ export default function QuestionBank() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
 
-  useMemo(() => {
+  useEffect(() => {
     if (!loading && !user) navigate('/auth');
   }, [loading, user, navigate]);
 

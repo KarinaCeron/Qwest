@@ -7,6 +7,9 @@ import { supabase } from '@/integrations/supabase/client';
 
 type Msg = { role: 'user' | 'assistant'; content: string };
 
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
 export function ChatWindow() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -28,11 +31,19 @@ export function ChatWindow() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Please sign in to use chat');
-      const { data, error } = await supabase.functions.invoke('chat', {
-        body: { message: text },
-        headers: { Authorization: `Bearer ${session.access_token}` },
+
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({ message: text }),
       });
-      if (error) throw new Error(error.message);
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || `Chat failed (${response.status})`);
       setMessages(prev => [...prev, { role: 'assistant', content: data.answer || 'No response' }]);
     } catch (e: any) {
       setMessages(prev => [...prev, { role: 'assistant', content: `⚠️ ${e.message || 'Unexpected error'}` }]);

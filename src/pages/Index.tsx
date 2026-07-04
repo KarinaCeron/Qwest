@@ -511,8 +511,7 @@ const Index = () => {
         />
       )}
 
-      
-      <ChatWindow />
+
     </div>
   );
 };

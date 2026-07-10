@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
@@ -15,7 +15,9 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger,
 } from '@/components/ui/dialog';
 import { AppHeader } from '@/components/AppHeader';
-import { Plus, Pencil, Trash2, Copy, MessageSquareText, Loader2, FolderOpen } from 'lucide-react';
+import {
+  Plus, Pencil, Trash2, Copy, MessageSquareText, Loader2, FolderOpen,
+} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 type Template = {
@@ -37,6 +39,17 @@ const CATEGORIES = [
 
 const categoryLabel = (v: string | null) =>
   CATEGORIES.find((c) => c.value === v)?.label ?? 'Other';
+
+const categoryColor = (value: string | null) => {
+  switch (value) {
+    case 'linkedin-connect': return 'bg-blue-50 text-blue-700 border-blue-100';
+    case 'send-cv': return 'bg-emerald-50 text-emerald-700 border-emerald-100';
+    case 'follow-up': return 'bg-amber-50 text-amber-700 border-amber-100';
+    case 'feedback-request': return 'bg-rose-50 text-rose-700 border-rose-100';
+    case 'thank-you': return 'bg-purple-50 text-purple-700 border-purple-100';
+    default: return 'bg-slate-50 text-slate-700 border-slate-100';
+  }
+};
 
 export default function TemplatesPage() {
   const { user, loading } = useAuth();
@@ -161,121 +174,157 @@ export default function TemplatesPage() {
     <div className="min-h-screen bg-background">
       <AppHeader subtitle="My Templates" />
 
-      <main className="container mx-auto px-4 py-8 max-w-2xl">
-        <Card className="bg-gradient-card">
-          <CardContent className="space-y-4 pt-6">
-            <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) resetForm(); }}>
-              <div className="flex justify-end">
-                <DialogTrigger asChild>
-                  <Button className="bg-gradient-primary" onClick={openNew}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    New Template
-                  </Button>
-                </DialogTrigger>
+      <main className="container mx-auto max-w-6xl px-4 py-12">
+        <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          <div className="space-y-2">
+            <h2 className="text-3xl font-bold tracking-tight text-foreground">Message templates</h2>
+            <p className="max-w-xl text-base text-muted-foreground">
+              Reusable messages for recruiters, follow-ups, and new applications. Copy, edit, or create new templates to speed up your outreach.
+            </p>
+          </div>
+          <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) resetForm(); }}>
+            <DialogTrigger asChild>
+              <Button className="bg-gradient-primary shrink-0 shadow-md transition-smooth hover:shadow-lg" onClick={openNew}>
+                <Plus className="mr-2 h-4 w-4" />
+                New Template
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>{editing ? 'Edit Template' : 'New Template'}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="tpl-title">Title</Label>
+                  <Input
+                    id="tpl-title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="e.g. LinkedIn intro to recruiter"
+                    maxLength={120}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Category</Label>
+                  <Select value={category} onValueChange={setCategory}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {CATEGORIES.map((c) => (
+                        <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="tpl-content">Content</Label>
+                  <Textarea
+                    id="tpl-content"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    placeholder="Write your reusable message here..."
+                    rows={10}
+                    maxLength={5000}
+                  />
+                  <p className="text-xs text-muted-foreground">{content.length}/5000</p>
+                </div>
               </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+                <Button onClick={save} disabled={saving} className="bg-gradient-primary">
+                  {saving ? 'Saving...' : 'Save'}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
 
-              {loadingList ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        <Card className="bg-gradient-card border-0 shadow-card">
+          <CardContent className="p-8">
+            {loadingList ? (
+              <div className="flex items-center justify-center py-16">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : templates.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-muted">
+                  <MessageSquareText className="h-10 w-10 text-muted-foreground" />
                 </div>
-              ) : templates.length === 0 ? (
-                <div className="text-center py-4">
-                  <MessageSquareText className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-                  <p className="text-muted-foreground text-sm">
-                    You don't have any templates yet
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  {groupedTemplates.map((group) => (
-                    <section key={group.value} className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <FolderOpen className="h-4 w-4 text-muted-foreground" />
-                        <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                          {group.label}
-                        </h3>
-                        <Badge variant="secondary">{group.items.length}</Badge>
-                      </div>
-                      <div className="space-y-3">
-                        {group.items.map((t) => (
-                          <div key={t.id} className="border rounded-lg p-4 space-y-3">
+                <h3 className="text-xl font-semibold text-foreground">No templates yet</h3>
+                <p className="mt-2 max-w-md text-muted-foreground">
+                  Create your first reusable message to save time when reaching out to recruiters or following up on applications.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-12">
+                {groupedTemplates.map((group) => (
+                  <section key={group.value} className="space-y-5">
+                    <div className="flex items-center gap-3">
+                      <FolderOpen className="h-5 w-5 text-muted-foreground" />
+                      <h3 className="text-lg font-semibold text-foreground">{group.label}</h3>
+                      <Badge variant="secondary" className="font-medium">
+                        {group.items.length}
+                      </Badge>
+                    </div>
+                    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                      {group.items.map((t) => (
+                        <article
+                          key={t.id}
+                          className="group flex flex-col justify-between rounded-xl border bg-card p-5 shadow-sm transition-smooth hover:-translate-y-0.5 hover:shadow-md"
+                        >
+                          <div className="space-y-3">
                             <div className="flex items-start justify-between gap-3">
                               <div className="min-w-0">
-                                <p className="font-medium truncate">{t.title}</p>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="font-display text-lg font-semibold leading-snug text-foreground line-clamp-2">
+                                  {t.title}
+                                </p>
+                                <p className="mt-1 text-xs text-muted-foreground">
                                   Updated {new Date(t.updated_at).toLocaleDateString()}
                                 </p>
                               </div>
-                              <div className="flex gap-1 shrink-0">
-                                <Button variant="ghost" size="icon" onClick={() => copy(t)} title="Copy">
-                                  <Copy className="h-4 w-4" />
-                                </Button>
-                                <Button variant="ghost" size="icon" onClick={() => openEdit(t)} title="Edit">
-                                  <Pencil className="h-4 w-4" />
-                                </Button>
-                                <Button variant="ghost" size="icon" onClick={() => remove(t.id)} title="Delete">
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
+                              <Badge variant="outline" className={`shrink-0 text-xs ${categoryColor(t.category)}`}>
+                                {categoryLabel(t.category)}
+                              </Badge>
                             </div>
-                            <p className="text-sm whitespace-pre-wrap line-clamp-4 text-muted-foreground">
+                            <p className="text-sm leading-relaxed text-muted-foreground line-clamp-4">
                               {t.content}
                             </p>
                           </div>
-                        ))}
-                      </div>
-                    </section>
-                  ))}
-                </div>
-              )}
-
-              <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>{editing ? 'Edit Template' : 'New Template'}</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="tpl-title">Title</Label>
-                    <Input
-                      id="tpl-title"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      placeholder="e.g. LinkedIn intro to recruiter"
-                      maxLength={120}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Category</Label>
-                    <Select value={category} onValueChange={setCategory}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {CATEGORIES.map((c) => (
-                          <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="tpl-content">Content</Label>
-                    <Textarea
-                      id="tpl-content"
-                      value={content}
-                      onChange={(e) => setContent(e.target.value)}
-                      placeholder="Write your reusable message here..."
-                      rows={10}
-                      maxLength={5000}
-                    />
-                    <p className="text-xs text-muted-foreground">{content.length}/5000</p>
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                  <Button onClick={save} disabled={saving} className="bg-gradient-primary">
-                    {saving ? 'Saving...' : 'Save'}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+                          <div className="mt-5 flex items-center gap-2 border-t pt-4">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 gap-1.5 px-2 text-xs"
+                              onClick={() => copy(t)}
+                            >
+                              <Copy className="h-3.5 w-3.5" />
+                              Copy
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 gap-1.5 px-2 text-xs"
+                              onClick={() => openEdit(t)}
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                              Edit
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 gap-1.5 px-2 text-xs text-destructive hover:text-destructive"
+                              onClick={() => remove(t.id)}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                              Delete
+                            </Button>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  </section>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </main>

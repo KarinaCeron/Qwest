@@ -251,6 +251,7 @@ export default function TemplatesPage() {
             </DialogContent>
           </Dialog>
         </div>
+      </div>
 
         <Card className="bg-gradient-card border-0 shadow-card">
           <CardContent className="p-8">

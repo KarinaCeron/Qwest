@@ -56,6 +56,7 @@ export default function TemplatesPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [templates, setTemplates] = useState<Template[]>([]);
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [loadingList, setLoadingList] = useState(true);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Template | null>(null);

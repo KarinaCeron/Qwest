@@ -56,6 +56,7 @@ export default function TemplatesPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [templates, setTemplates] = useState<Template[]>([]);
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [loadingList, setLoadingList] = useState(true);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Template | null>(null);
@@ -155,6 +156,7 @@ export default function TemplatesPage() {
     );
     const map = new Map<string, Template[]>();
     for (const t of sorted) {
+      if (categoryFilter !== 'all' && t.category !== categoryFilter) continue;
       const key = t.category ?? 'other';
       const list = map.get(key) ?? [];
       list.push(t);
@@ -166,7 +168,7 @@ export default function TemplatesPage() {
       if (items && items.length > 0) result.push({ value: cat.value, label: cat.label, items });
     }
     return result;
-  }, [templates]);
+  }, [templates, categoryFilter]);
 
   if (loading || !user) return null;
 
@@ -182,6 +184,18 @@ export default function TemplatesPage() {
               Reusable messages for recruiters, follow-ups, and new applications. Copy, edit, or create new templates to speed up your outreach.
             </p>
           </div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectValue placeholder="All categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All categories</SelectItem>
+                {CATEGORIES.map((c) => (
+                  <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) resetForm(); }}>
             <DialogTrigger asChild>
               <Button className="bg-gradient-primary shrink-0 shadow-md transition-smooth hover:shadow-lg" onClick={openNew}>
@@ -237,6 +251,7 @@ export default function TemplatesPage() {
             </DialogContent>
           </Dialog>
         </div>
+      </div>
 
         <Card className="bg-gradient-card border-0 shadow-card">
           <CardContent className="p-8">

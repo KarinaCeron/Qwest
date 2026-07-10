@@ -15,7 +15,8 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger,
 } from '@/components/ui/dialog';
 import { AppHeader } from '@/components/AppHeader';
-import { Plus, Pencil, Trash2, Copy, MessageSquareText, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Copy, MessageSquareText, Loader2, FolderOpen } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 type Template = {
   id: string;

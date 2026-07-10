@@ -136,6 +136,25 @@ export default function TemplatesPage() {
     toast({ title: '📋 Copied to clipboard' });
   };
 
+  const groupedTemplates = useMemo(() => {
+    const sorted = [...templates].sort(
+      (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+    );
+    const map = new Map<string, Template[]>();
+    for (const t of sorted) {
+      const key = t.category ?? 'other';
+      const list = map.get(key) ?? [];
+      list.push(t);
+      map.set(key, list);
+    }
+    const result: { value: string; label: string; items: Template[] }[] = [];
+    for (const cat of CATEGORIES) {
+      const items = map.get(cat.value);
+      if (items && items.length > 0) result.push({ value: cat.value, label: cat.label, items });
+    }
+    return result;
+  }, [templates]);
+
   if (loading || !user) return null;
 
   return (

@@ -156,6 +156,7 @@ export default function TemplatesPage() {
     );
     const map = new Map<string, Template[]>();
     for (const t of sorted) {
+      if (categoryFilter !== 'all' && t.category !== categoryFilter) continue;
       const key = t.category ?? 'other';
       const list = map.get(key) ?? [];
       list.push(t);
@@ -167,7 +168,7 @@ export default function TemplatesPage() {
       if (items && items.length > 0) result.push({ value: cat.value, label: cat.label, items });
     }
     return result;
-  }, [templates]);
+  }, [templates, categoryFilter]);
 
   if (loading || !user) return null;
 

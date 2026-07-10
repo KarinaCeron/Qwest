@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -15,7 +15,8 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger,
 } from '@/components/ui/dialog';
 import { AppHeader } from '@/components/AppHeader';
-import { Plus, Pencil, Trash2, Copy, MessageSquareText, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Copy, MessageSquareText, Loader2, FolderOpen } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 type Template = {
   id: string;
@@ -135,6 +136,25 @@ export default function TemplatesPage() {
     toast({ title: '📋 Copied to clipboard' });
   };
 
+  const groupedTemplates = useMemo(() => {
+    const sorted = [...templates].sort(
+      (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+    );
+    const map = new Map<string, Template[]>();
+    for (const t of sorted) {
+      const key = t.category ?? 'other';
+      const list = map.get(key) ?? [];
+      list.push(t);
+      map.set(key, list);
+    }
+    const result: { value: string; label: string; items: Template[] }[] = [];
+    for (const cat of CATEGORIES) {
+      const items = map.get(cat.value);
+      if (items && items.length > 0) result.push({ value: cat.value, label: cat.label, items });
+    }
+    return result;
+  }, [templates]);
+
   if (loading || !user) return null;
 
   return (
@@ -166,30 +186,45 @@ export default function TemplatesPage() {
                   </p>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  {templates.map((t) => (
-                    <div key={t.id} className="border rounded-lg p-4 space-y-3">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="font-medium truncate">{t.title}</p>
-                          <p className="text-sm text-muted-foreground">{categoryLabel(t.category)}</p>
-                        </div>
-                        <div className="flex gap-1 shrink-0">
-                          <Button variant="ghost" size="icon" onClick={() => copy(t)} title="Copy">
-                            <Copy className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" onClick={() => openEdit(t)} title="Edit">
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" onClick={() => remove(t.id)} title="Delete">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+                <div className="space-y-6">
+                  {groupedTemplates.map((group) => (
+                    <section key={group.value} className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <FolderOpen className="h-4 w-4 text-muted-foreground" />
+                        <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                          {group.label}
+                        </h3>
+                        <Badge variant="secondary">{group.items.length}</Badge>
                       </div>
-                      <p className="text-sm whitespace-pre-wrap line-clamp-4 text-muted-foreground">
-                        {t.content}
-                      </p>
-                    </div>
+                      <div className="space-y-3">
+                        {group.items.map((t) => (
+                          <div key={t.id} className="border rounded-lg p-4 space-y-3">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="font-medium truncate">{t.title}</p>
+                                <p className="text-sm text-muted-foreground">
+                                  Updated {new Date(t.updated_at).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <div className="flex gap-1 shrink-0">
+                                <Button variant="ghost" size="icon" onClick={() => copy(t)} title="Copy">
+                                  <Copy className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" onClick={() => openEdit(t)} title="Edit">
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" onClick={() => remove(t.id)} title="Delete">
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                            <p className="text-sm whitespace-pre-wrap line-clamp-4 text-muted-foreground">
+                              {t.content}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
                   ))}
                 </div>
               )}

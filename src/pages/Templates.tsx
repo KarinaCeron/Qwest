@@ -144,53 +144,56 @@ export default function TemplatesPage() {
       <main className="container mx-auto px-4 py-8 max-w-2xl">
         <Card className="bg-gradient-card">
           <CardContent className="space-y-4 pt-6">
-            {loadingList ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-              </div>
-            ) : templates.length === 0 ? (
-              <div className="text-center py-4">
-                <MessageSquareText className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-                <p className="text-muted-foreground text-sm">
-                  You don't have any templates yet
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {templates.map((t) => (
-                  <div key={t.id} className="border rounded-lg p-4 space-y-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="font-medium truncate">{t.title}</p>
-                        <p className="text-sm text-muted-foreground">{categoryLabel(t.category)}</p>
-                      </div>
-                      <div className="flex gap-1 shrink-0">
-                        <Button variant="ghost" size="icon" onClick={() => copy(t)} title="Copy">
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => openEdit(t)} title="Edit">
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => remove(t.id)} title="Delete">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                    <p className="text-sm whitespace-pre-wrap line-clamp-4 text-muted-foreground">
-                      {t.content}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-
             <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) resetForm(); }}>
-              <DialogTrigger asChild>
-                <Button className="w-full bg-gradient-primary" onClick={openNew}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  New Template
-                </Button>
-              </DialogTrigger>
+              <div className="flex justify-end">
+                <DialogTrigger asChild>
+                  <Button className="bg-gradient-primary" onClick={openNew}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    New Template
+                  </Button>
+                </DialogTrigger>
+              </div>
+
+              {loadingList ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : templates.length === 0 ? (
+                <div className="text-center py-4">
+                  <MessageSquareText className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
+                  <p className="text-muted-foreground text-sm">
+                    You don't have any templates yet
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {templates.map((t) => (
+                    <div key={t.id} className="border rounded-lg p-4 space-y-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="font-medium truncate">{t.title}</p>
+                          <p className="text-sm text-muted-foreground">{categoryLabel(t.category)}</p>
+                        </div>
+                        <div className="flex gap-1 shrink-0">
+                          <Button variant="ghost" size="icon" onClick={() => copy(t)} title="Copy">
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => openEdit(t)} title="Edit">
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => remove(t.id)} title="Delete">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      <p className="text-sm whitespace-pre-wrap line-clamp-4 text-muted-foreground">
+                        {t.content}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <DialogContent className="max-w-2xl">
                 <DialogHeader>
                   <DialogTitle>{editing ? 'Edit Template' : 'New Template'}</DialogTitle>

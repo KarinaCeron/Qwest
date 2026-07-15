@@ -231,7 +231,22 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
               />
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="salaryOffered">Salary included in the offer?</Label>
+                <Select
+                  value={formData.salaryOffered ? 'yes' : 'no'}
+                  onValueChange={(value) => handleChange('salaryOffered', value === 'yes')}
+                >
+                  <SelectTrigger id="salaryOffered">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="no">No</SelectItem>
+                    <SelectItem value="yes">Yes</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="salaryCurrency">Currency</Label>
                 <Select
@@ -259,21 +274,6 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                   <SelectContent>
                     <SelectItem value="annual">Annual</SelectItem>
                     <SelectItem value="monthly">Monthly</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2 col-span-2 md:col-span-2">
-                <Label htmlFor="salaryOffered">Salary included in the offer?</Label>
-                <Select
-                  value={formData.salaryOffered ? 'yes' : 'no'}
-                  onValueChange={(value) => handleChange('salaryOffered', value === 'yes')}
-                >
-                  <SelectTrigger id="salaryOffered">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="no">No</SelectItem>
-                    <SelectItem value="yes">Yes</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

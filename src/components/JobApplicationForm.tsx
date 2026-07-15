@@ -231,7 +231,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="salaryOffered">Salary included in the offer?</Label>
                 <Select
@@ -247,9 +247,6 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {formData.salaryOffered && (
                 <div className="space-y-2">
                   <Label htmlFor="salary">Offered Salary</Label>
@@ -263,6 +260,9 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                   />
                 </div>
               )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="requestedSalary">Requested Salary</Label>
                 <Input
@@ -274,9 +274,6 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                   min="0"
                 />
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="salaryCurrency">Currency</Label>
                 <Select

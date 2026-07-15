@@ -62,6 +62,8 @@ export const jobApplicationStorage = {
           salary: formData.salary,
           salary_offered: formData.salaryOffered ?? false,
           requested_salary: formData.requestedSalary,
+          salary_currency: formData.salaryCurrency ?? 'USD',
+          salary_period: formData.salaryPeriod ?? 'annual',
           job_link: formData.jobLink,
           status: formData.status,
           priority: formData.priority,

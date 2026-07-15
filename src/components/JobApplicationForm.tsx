@@ -665,8 +665,9 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
               </div>
             )}
 
-
+            <div className="space-y-2">
               <Label htmlFor="notes">Notes</Label>
+
               <Textarea
                 id="notes"
                 value={formData.notes}

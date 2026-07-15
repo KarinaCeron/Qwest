@@ -143,6 +143,37 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     }
   };
 
+  const handleAnswerQuestion = async () => {
+    if (!employerQuestion.trim()) {
+      toast({ title: "Error", description: "Please enter a question", variant: "destructive" });
+      return;
+    }
+    setIsAnswering(true);
+    setAnswerResult(null);
+    try {
+      const { data, error } = await supabase.functions.invoke('answer-question', {
+        body: {
+          question: employerQuestion,
+          role: formData.role,
+          company: formData.company,
+          jobContent: formData.jobContent,
+        },
+      });
+      if (error) throw new Error(error.message);
+      const answer = data?.answer || data?.response || data?.output || data?.text || data?.message || 'No answer received';
+      setAnswerResult(answer);
+    } catch (error) {
+      console.error('Error answering question:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Could not generate answer.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnswering(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <Card className="w-full max-w-2xl max-h-[90vh] overflow-auto bg-gradient-card">

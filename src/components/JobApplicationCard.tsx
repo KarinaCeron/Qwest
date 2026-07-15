@@ -76,7 +76,10 @@ export function JobApplicationCard({ application, onEdit, onDelete, draggable = 
             {application.salary && (
               <div className="flex items-center gap-1">
                 <DollarSign className="h-3 w-3" />
-                <span className="line-clamp-1">{formatCurrency(application.salary)}</span>
+                <span className="line-clamp-1">
+                  {formatCurrency(application.salary, application.salaryCurrency)}
+                  {application.salaryPeriod ? ` / ${application.salaryPeriod === 'monthly' ? 'mo' : 'yr'}` : ''}
+                </span>
               </div>
             )}
           </div>

@@ -22,6 +22,8 @@ export const jobApplicationStorage = {
         salary: app.salary,
         salaryOffered: (app as any).salary_offered ?? false,
         requestedSalary: (app as any).requested_salary ?? undefined,
+        salaryCurrency: ((app as any).salary_currency ?? 'USD') as JobApplication['salaryCurrency'],
+        salaryPeriod: ((app as any).salary_period ?? 'annual') as JobApplication['salaryPeriod'],
         jobLink: app.job_link,
         status: app.status as JobApplication['status'],
         priority: app.priority as JobApplication['priority'],
@@ -60,6 +62,8 @@ export const jobApplicationStorage = {
           salary: formData.salary,
           salary_offered: formData.salaryOffered ?? false,
           requested_salary: formData.requestedSalary,
+          salary_currency: formData.salaryCurrency ?? 'USD',
+          salary_period: formData.salaryPeriod ?? 'annual',
           job_link: formData.jobLink,
           status: formData.status,
           priority: formData.priority,
@@ -84,6 +88,8 @@ export const jobApplicationStorage = {
         salary: data.salary,
         salaryOffered: (data as any).salary_offered ?? false,
         requestedSalary: (data as any).requested_salary ?? undefined,
+        salaryCurrency: ((data as any).salary_currency ?? 'USD') as JobApplication['salaryCurrency'],
+        salaryPeriod: ((data as any).salary_period ?? 'annual') as JobApplication['salaryPeriod'],
         jobLink: data.job_link,
         status: data.status as JobApplication['status'],
         priority: data.priority as JobApplication['priority'],
@@ -110,6 +116,8 @@ export const jobApplicationStorage = {
       if (updates.salary !== undefined) updateData.salary = updates.salary;
       if (updates.salaryOffered !== undefined) updateData.salary_offered = updates.salaryOffered;
       if (updates.requestedSalary !== undefined) updateData.requested_salary = updates.requestedSalary;
+      if (updates.salaryCurrency !== undefined) updateData.salary_currency = updates.salaryCurrency;
+      if (updates.salaryPeriod !== undefined) updateData.salary_period = updates.salaryPeriod;
       if (updates.jobLink !== undefined) updateData.job_link = updates.jobLink;
       if (updates.status !== undefined) updateData.status = updates.status;
       if (updates.priority !== undefined) updateData.priority = updates.priority;
@@ -145,6 +153,8 @@ export const jobApplicationStorage = {
         salary: data.salary,
         salaryOffered: (data as any).salary_offered ?? false,
         requestedSalary: (data as any).requested_salary ?? undefined,
+        salaryCurrency: ((data as any).salary_currency ?? 'USD') as JobApplication['salaryCurrency'],
+        salaryPeriod: ((data as any).salary_period ?? 'annual') as JobApplication['salaryPeriod'],
         jobLink: data.job_link,
         status: data.status as JobApplication['status'],
         priority: data.priority as JobApplication['priority'],

@@ -9,6 +9,9 @@ export type ApplicationStatus =
 
 export type Priority = 'high' | 'medium' | 'low';
 
+export type SalaryCurrency = 'USD' | 'COP';
+export type SalaryPeriod = 'annual' | 'monthly';
+
 export interface JobApplication {
   id: string;
   company: string;
@@ -17,6 +20,8 @@ export interface JobApplication {
   salary?: string;
   salaryOffered?: boolean;
   requestedSalary?: string;
+  salaryCurrency?: SalaryCurrency;
+  salaryPeriod?: SalaryPeriod;
   jobLink?: string;
   status: ApplicationStatus;
   priority: Priority;
@@ -36,6 +41,8 @@ export interface JobApplicationFormData {
   salary?: string;
   salaryOffered?: boolean;
   requestedSalary?: string;
+  salaryCurrency?: SalaryCurrency;
+  salaryPeriod?: SalaryPeriod;
   jobLink?: string;
   status: ApplicationStatus;
   priority: Priority;

@@ -57,14 +57,14 @@ export const getPriorityConfig = (priority: Priority) => {
   return configs[priority];
 };
 
-export const formatCurrency = (amount?: string): string => {
+export const formatCurrency = (amount?: string, currency: string = 'USD'): string => {
   if (!amount) return '';
   const numericAmount = amount.replace(/[^\d.,]/g, '');
   if (!numericAmount) return amount;
   try {
     const number = parseFloat(numericAmount.replace(',', '.'));
     return new Intl.NumberFormat('en-US', {
-      style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0
+      style: 'currency', currency: currency || 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0
     }).format(number);
   } catch { return amount; }
 };

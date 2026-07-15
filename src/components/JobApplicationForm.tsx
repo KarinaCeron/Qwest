@@ -41,6 +41,8 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     salary: editingApplication?.salary || '',
     salaryOffered: editingApplication?.salaryOffered ?? false,
     requestedSalary: editingApplication?.requestedSalary || '',
+    salaryCurrency: editingApplication?.salaryCurrency || 'USD',
+    salaryPeriod: editingApplication?.salaryPeriod || 'annual',
     jobLink: editingApplication?.jobLink || '',
     status: editingApplication?.status || 'submitted',
     priority: editingApplication?.priority || 'medium',
@@ -229,8 +231,38 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="space-y-2">
+                <Label htmlFor="salaryCurrency">Currency</Label>
+                <Select
+                  value={formData.salaryCurrency || 'USD'}
+                  onValueChange={(value) => handleChange('salaryCurrency', value)}
+                >
+                  <SelectTrigger id="salaryCurrency">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="USD">USD</SelectItem>
+                    <SelectItem value="COP">COP</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="salaryPeriod">Period</Label>
+                <Select
+                  value={formData.salaryPeriod || 'annual'}
+                  onValueChange={(value) => handleChange('salaryPeriod', value)}
+                >
+                  <SelectTrigger id="salaryPeriod">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="annual">Annual</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2 col-span-2 md:col-span-2">
                 <Label htmlFor="salaryOffered">Salary included in the offer?</Label>
                 <Select
                   value={formData.salaryOffered ? 'yes' : 'no'}
@@ -245,9 +277,14 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {formData.salaryOffered && (
                 <div className="space-y-2">
-                  <Label htmlFor="salary">Offered Salary (USD)</Label>
+                  <Label htmlFor="salary">
+                    Offered Salary ({formData.salaryCurrency || 'USD'} / {formData.salaryPeriod === 'monthly' ? 'month' : 'year'})
+                  </Label>
                   <Input
                     id="salary"
                     type="number"
@@ -259,7 +296,9 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 </div>
               )}
               <div className="space-y-2">
-                <Label htmlFor="requestedSalary">Requested Salary (USD)</Label>
+                <Label htmlFor="requestedSalary">
+                  Requested Salary ({formData.salaryCurrency || 'USD'} / {formData.salaryPeriod === 'monthly' ? 'month' : 'year'})
+                </Label>
                 <Input
                   id="requestedSalary"
                   type="number"
@@ -270,6 +309,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 />
               </div>
             </div>
+
 
 
             <div className="space-y-2">

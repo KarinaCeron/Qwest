@@ -56,7 +56,9 @@ export type Database = {
           requested_salary: string | null
           role: string
           salary: string | null
+          salary_currency: string
           salary_offered: boolean
+          salary_period: string
           status: string
           status_changed_at: string
           updated_at: string
@@ -76,7 +78,9 @@ export type Database = {
           requested_salary?: string | null
           role: string
           salary?: string | null
+          salary_currency?: string
           salary_offered?: boolean
+          salary_period?: string
           status: string
           status_changed_at?: string
           updated_at?: string
@@ -96,7 +100,9 @@ export type Database = {
           requested_salary?: string | null
           role?: string
           salary?: string | null
+          salary_currency?: string
           salary_offered?: boolean
+          salary_period?: string
           status?: string
           status_changed_at?: string
           updated_at?: string

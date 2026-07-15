@@ -416,7 +416,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                     variant="outline" 
                     className="flex-1 min-w-[180px]"
                     onClick={handleGenerateCoverLetter}
-                    disabled={isGeneratingCoverLetter}
+                    disabled={isGeneratingCoverLetter || !formData.jobContent}
                   >
                     {isGeneratingCoverLetter ? 'Generating...' : '✉️ Create Cover Letter'}
                   </Button>

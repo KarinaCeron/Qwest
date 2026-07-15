@@ -7,7 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { X, Plus, Edit, FileText, Copy, Wand2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { X, Plus, Edit, FileText, Copy, Wand2, MessageCircleQuestion } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,6 +26,10 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const [isTailoringCV, setIsTailoringCV] = useState(false);
   const [tailoringResult, setTailoringResult] = useState<string | null>(null);
   const [isTailoringResultOpen, setIsTailoringResultOpen] = useState(false);
+  const [isAnswerOpen, setIsAnswerOpen] = useState(false);
+  const [employerQuestion, setEmployerQuestion] = useState('');
+  const [isAnswering, setIsAnswering] = useState(false);
+  const [answerResult, setAnswerResult] = useState<string | null>(null);
   const [generatedCoverLetter, setGeneratedCoverLetter] = useState<string | null>(
     editingApplication?.coverLetter || null
   );
@@ -135,6 +140,37 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
       });
     } finally {
       setIsTailoringCV(false);
+    }
+  };
+
+  const handleAnswerQuestion = async () => {
+    if (!employerQuestion.trim()) {
+      toast({ title: "Error", description: "Please enter a question", variant: "destructive" });
+      return;
+    }
+    setIsAnswering(true);
+    setAnswerResult(null);
+    try {
+      const { data, error } = await supabase.functions.invoke('answer-question', {
+        body: {
+          question: employerQuestion,
+          role: formData.role,
+          company: formData.company,
+          jobContent: formData.jobContent,
+        },
+      });
+      if (error) throw new Error(error.message);
+      const answer = data?.answer || data?.response || data?.output || data?.text || data?.message || 'No answer received';
+      setAnswerResult(answer);
+    } catch (error) {
+      console.error('Error answering question:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Could not generate answer.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnswering(false);
     }
   };
 
@@ -303,11 +339,11 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 className="min-h-[120px]"
               />
               {formData.jobContent && (
-                <div className="flex gap-2 mt-2">
+                <div className="flex flex-wrap gap-2 mt-2">
                   <Button 
                     type="button" 
                     variant="outline" 
-                    className="flex-1"
+                    className="flex-1 min-w-[180px]"
                     onClick={handleGenerateCoverLetter}
                     disabled={isGeneratingCoverLetter}
                   >
@@ -316,7 +352,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                   <Button
                     type="button"
                     variant="outline"
-                    className="flex-1"
+                    className="flex-1 min-w-[180px]"
                     onClick={handleTailorCV}
                     disabled={isTailoringCV}
                   >
@@ -327,6 +363,66 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                       </>
                     )}
                   </Button>
+                  <Dialog open={isAnswerOpen} onOpenChange={(open) => {
+                    setIsAnswerOpen(open);
+                    if (!open) { setEmployerQuestion(''); setAnswerResult(null); }
+                  }}>
+                    <DialogTrigger asChild>
+                      <Button type="button" variant="outline" className="flex-1 min-w-[180px]">
+                        <MessageCircleQuestion className="h-4 w-4 mr-2" />
+                        Answer Application Question
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                          <MessageCircleQuestion className="h-5 w-5" />
+                          Answer an employer question
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 mt-2">
+                        <p className="text-sm text-muted-foreground">
+                          Paste a question from the application form. We'll use your CV and this position's details to draft an answer.
+                        </p>
+                        <Textarea
+                          value={employerQuestion}
+                          onChange={(e) => setEmployerQuestion(e.target.value)}
+                          placeholder="e.g. Why are you interested in this role? Describe a time you led a project..."
+                          rows={4}
+                        />
+                        <Button
+                          type="button"
+                          onClick={handleAnswerQuestion}
+                          disabled={isAnswering || !employerQuestion.trim()}
+                          className="w-full bg-gradient-primary"
+                        >
+                          {isAnswering ? 'Generating answer...' : 'Generate Answer'}
+                        </Button>
+                        {answerResult && (
+                          <div className="space-y-2">
+                            <Label>Suggested Answer</Label>
+                            <div className="bg-background border rounded-lg p-4 max-h-[40vh] overflow-y-auto">
+                              <pre className="whitespace-pre-wrap text-sm text-foreground leading-relaxed font-sans">
+                                {answerResult}
+                              </pre>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="w-full"
+                              onClick={() => {
+                                navigator.clipboard.writeText(answerResult);
+                                toast({ title: "Copied", description: "Answer copied to clipboard" });
+                              }}
+                            >
+                              <Copy className="h-4 w-4 mr-2" />
+                              Copy to Clipboard
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               )}
             </div>

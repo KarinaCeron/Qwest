@@ -159,6 +159,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     }
     setIsAnswering(true);
     setAnswerResult(null);
+    setEditableAnswer('');
     try {
       const { data, error } = await supabase.functions.invoke('answer-question', {
         body: {
@@ -171,6 +172,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
       if (error) throw new Error(error.message);
       const answer = data?.answer || data?.response || data?.output || data?.text || data?.message || 'No answer received';
       setAnswerResult(answer);
+      setEditableAnswer(answer);
     } catch (error) {
       console.error('Error answering question:', error);
       toast({
@@ -182,6 +184,32 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
       setIsAnswering(false);
     }
   };
+
+  const handleSaveQuestion = () => {
+    const q = employerQuestion.trim();
+    const a = editableAnswer.trim();
+    if (!q || !a) {
+      toast({ title: "Missing info", description: "Both question and answer are required.", variant: "destructive" });
+      return;
+    }
+    const entry: ApplicationQA = {
+      id: (globalThis.crypto?.randomUUID?.() ?? String(Date.now())),
+      question: q,
+      answer: a,
+      createdAt: new Date().toISOString(),
+    };
+    setSavedQuestions(prev => [...prev, entry]);
+    toast({ title: "Saved", description: "Question and answer added to this application." });
+    setEmployerQuestion('');
+    setAnswerResult(null);
+    setEditableAnswer('');
+    setIsAnswerOpen(false);
+  };
+
+  const handleDeleteQuestion = (id: string) => {
+    setSavedQuestions(prev => prev.filter(q => q.id !== id));
+  };
+
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">

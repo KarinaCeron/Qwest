@@ -71,7 +71,8 @@ export const jobApplicationStorage = {
           application_date: formData.applicationDate,
           notes: formData.notes,
           job_content: formData.jobContent,
-          cover_letter: formData.coverLetter
+          cover_letter: formData.coverLetter,
+          questions: (formData.questions ?? []) as any,
         } as any)
         .select()
         .single();

@@ -62,9 +62,11 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     if (!formData.company.trim() || !formData.role.trim()) return;
     onSubmit({
       ...formData,
-      coverLetter: generatedCoverLetter || undefined
+      coverLetter: generatedCoverLetter || undefined,
+      questions: savedQuestions,
     });
   };
+
 
   const handleChange = (field: keyof JobApplicationFormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));

@@ -116,6 +116,8 @@ export const jobApplicationStorage = {
       if (updates.salary !== undefined) updateData.salary = updates.salary;
       if (updates.salaryOffered !== undefined) updateData.salary_offered = updates.salaryOffered;
       if (updates.requestedSalary !== undefined) updateData.requested_salary = updates.requestedSalary;
+      if (updates.salaryCurrency !== undefined) updateData.salary_currency = updates.salaryCurrency;
+      if (updates.salaryPeriod !== undefined) updateData.salary_period = updates.salaryPeriod;
       if (updates.jobLink !== undefined) updateData.job_link = updates.jobLink;
       if (updates.status !== undefined) updateData.status = updates.status;
       if (updates.priority !== undefined) updateData.priority = updates.priority;

@@ -436,7 +436,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                   </Button>
                   <Dialog open={isAnswerOpen} onOpenChange={(open) => {
                     setIsAnswerOpen(open);
-                    if (!open) { setEmployerQuestion(''); setAnswerResult(null); }
+                    if (!open) { setEmployerQuestion(''); setAnswerResult(null); setEditableAnswer(''); }
                   }}>
                     <DialogTrigger asChild>
                       <Button type="button" variant="outline" className="flex-1 min-w-[180px]">
@@ -453,14 +453,17 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                       </DialogHeader>
                       <div className="space-y-4 mt-2">
                         <p className="text-sm text-muted-foreground">
-                          Paste a question from the application form. We'll use your CV and this position's details to draft an answer.
+                          Paste a question from the application form. We'll use your CV and this position's details to draft an answer. You can edit the answer before saving it to this application.
                         </p>
-                        <Textarea
-                          value={employerQuestion}
-                          onChange={(e) => setEmployerQuestion(e.target.value)}
-                          placeholder="e.g. Why are you interested in this role? Describe a time you led a project..."
-                          rows={4}
-                        />
+                        <div className="space-y-2">
+                          <Label>Question</Label>
+                          <Textarea
+                            value={employerQuestion}
+                            onChange={(e) => setEmployerQuestion(e.target.value)}
+                            placeholder="e.g. Why are you interested in this role? Describe a time you led a project..."
+                            rows={3}
+                          />
+                        </div>
                         <Button
                           type="button"
                           onClick={handleAnswerQuestion}
@@ -469,31 +472,49 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                         >
                           {isAnswering ? 'Generating answer...' : 'Generate Answer'}
                         </Button>
-                        {answerResult && (
+                        {(answerResult || editableAnswer) && (
                           <div className="space-y-2">
-                            <Label>Suggested Answer</Label>
-                            <div className="bg-background border rounded-lg p-4 max-h-[40vh] overflow-y-auto">
-                              <pre className="whitespace-pre-wrap text-sm text-foreground leading-relaxed font-sans">
-                                {answerResult}
-                              </pre>
+                            <Label>Answer (editable)</Label>
+                            <Textarea
+                              value={editableAnswer}
+                              onChange={(e) => setEditableAnswer(e.target.value)}
+                              rows={8}
+                              className="min-h-[160px]"
+                            />
+                            <div className="flex gap-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="flex-1"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(editableAnswer);
+                                  toast({ title: "Copied", description: "Answer copied to clipboard" });
+                                }}
+                              >
+                                <Copy className="h-4 w-4 mr-2" />
+                                Copy
+                              </Button>
+                              <Button
+                                type="button"
+                                className="flex-1 bg-gradient-primary"
+                                onClick={handleSaveQuestion}
+                                disabled={!employerQuestion.trim() || !editableAnswer.trim()}
+                              >
+                                <Save className="h-4 w-4 mr-2" />
+                                Save to Application
+                              </Button>
                             </div>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              className="w-full"
-                              onClick={() => {
-                                navigator.clipboard.writeText(answerResult);
-                                toast({ title: "Copied", description: "Answer copied to clipboard" });
-                              }}
-                            >
-                              <Copy className="h-4 w-4 mr-2" />
-                              Copy to Clipboard
-                            </Button>
                           </div>
                         )}
+                        <div className="pt-2">
+                          <p className="text-xs text-muted-foreground">
+                            You can also skip generation and paste your own answer above, then click Save to Application.
+                          </p>
+                        </div>
                       </div>
                     </DialogContent>
                   </Dialog>
+
                 </div>
               )}
             </div>

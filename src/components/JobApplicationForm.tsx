@@ -409,14 +409,14 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 rows={6}
                 className="min-h-[120px]"
               />
-              {formData.jobContent && (
+              {(
                 <div className="flex flex-wrap gap-2 mt-2">
                   <Button 
                     type="button" 
                     variant="outline" 
                     className="flex-1 min-w-[180px]"
                     onClick={handleGenerateCoverLetter}
-                    disabled={isGeneratingCoverLetter}
+                    disabled={isGeneratingCoverLetter || !formData.jobContent}
                   >
                     {isGeneratingCoverLetter ? 'Generating...' : '✉️ Create Cover Letter'}
                   </Button>
@@ -425,7 +425,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                     variant="outline"
                     className="flex-1 min-w-[180px]"
                     onClick={handleTailorCV}
-                    disabled={isTailoringCV}
+                    disabled={isTailoringCV || !formData.jobContent}
                   >
                     {isTailoringCV ? 'Tailoring...' : (
                       <>

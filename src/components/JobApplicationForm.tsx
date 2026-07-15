@@ -339,11 +339,11 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 className="min-h-[120px]"
               />
               {formData.jobContent && (
-                <div className="flex gap-2 mt-2">
+                <div className="flex flex-wrap gap-2 mt-2">
                   <Button 
                     type="button" 
                     variant="outline" 
-                    className="flex-1"
+                    className="flex-1 min-w-[180px]"
                     onClick={handleGenerateCoverLetter}
                     disabled={isGeneratingCoverLetter}
                   >
@@ -352,7 +352,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                   <Button
                     type="button"
                     variant="outline"
-                    className="flex-1"
+                    className="flex-1 min-w-[180px]"
                     onClick={handleTailorCV}
                     disabled={isTailoringCV}
                   >
@@ -363,6 +363,66 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                       </>
                     )}
                   </Button>
+                  <Dialog open={isAnswerOpen} onOpenChange={(open) => {
+                    setIsAnswerOpen(open);
+                    if (!open) { setEmployerQuestion(''); setAnswerResult(null); }
+                  }}>
+                    <DialogTrigger asChild>
+                      <Button type="button" variant="outline" className="flex-1 min-w-[180px]">
+                        <MessageCircleQuestion className="h-4 w-4 mr-2" />
+                        Answer Application Question
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                          <MessageCircleQuestion className="h-5 w-5" />
+                          Answer an employer question
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 mt-2">
+                        <p className="text-sm text-muted-foreground">
+                          Paste a question from the application form. We'll use your CV and this position's details to draft an answer.
+                        </p>
+                        <Textarea
+                          value={employerQuestion}
+                          onChange={(e) => setEmployerQuestion(e.target.value)}
+                          placeholder="e.g. Why are you interested in this role? Describe a time you led a project..."
+                          rows={4}
+                        />
+                        <Button
+                          type="button"
+                          onClick={handleAnswerQuestion}
+                          disabled={isAnswering || !employerQuestion.trim()}
+                          className="w-full bg-gradient-primary"
+                        >
+                          {isAnswering ? 'Generating answer...' : 'Generate Answer'}
+                        </Button>
+                        {answerResult && (
+                          <div className="space-y-2">
+                            <Label>Suggested Answer</Label>
+                            <div className="bg-background border rounded-lg p-4 max-h-[40vh] overflow-y-auto">
+                              <pre className="whitespace-pre-wrap text-sm text-foreground leading-relaxed font-sans">
+                                {answerResult}
+                              </pre>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="w-full"
+                              onClick={() => {
+                                navigator.clipboard.writeText(answerResult);
+                                toast({ title: "Copied", description: "Answer copied to clipboard" });
+                              }}
+                            >
+                              <Copy className="h-4 w-4 mr-2" />
+                              Copy to Clipboard
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               )}
             </div>

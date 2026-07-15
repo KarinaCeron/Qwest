@@ -247,6 +247,36 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {formData.salaryOffered && (
+                <div className="space-y-2">
+                  <Label htmlFor="salary">Offered Salary</Label>
+                  <Input
+                    id="salary"
+                    type="number"
+                    value={formData.salary}
+                    onChange={(e) => handleChange('salary', e.target.value)}
+                    placeholder="45000"
+                    min="0"
+                  />
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label htmlFor="requestedSalary">Requested Salary</Label>
+                <Input
+                  id="requestedSalary"
+                  type="number"
+                  value={formData.requestedSalary}
+                  onChange={(e) => handleChange('requestedSalary', e.target.value)}
+                  placeholder="What you are asking for"
+                  min="0"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="salaryCurrency">Currency</Label>
                 <Select
@@ -276,37 +306,6 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                     <SelectItem value="monthly">Monthly</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {formData.salaryOffered && (
-                <div className="space-y-2">
-                  <Label htmlFor="salary">
-                    Offered Salary ({formData.salaryCurrency || 'USD'} / {formData.salaryPeriod === 'monthly' ? 'month' : 'year'})
-                  </Label>
-                  <Input
-                    id="salary"
-                    type="number"
-                    value={formData.salary}
-                    onChange={(e) => handleChange('salary', e.target.value)}
-                    placeholder="45000"
-                    min="0"
-                  />
-                </div>
-              )}
-              <div className="space-y-2">
-                <Label htmlFor="requestedSalary">
-                  Requested Salary ({formData.salaryCurrency || 'USD'} / {formData.salaryPeriod === 'monthly' ? 'month' : 'year'})
-                </Label>
-                <Input
-                  id="requestedSalary"
-                  type="number"
-                  value={formData.requestedSalary}
-                  onChange={(e) => handleChange('requestedSalary', e.target.value)}
-                  placeholder="What you are asking for"
-                  min="0"
-                />
               </div>
             </div>
 

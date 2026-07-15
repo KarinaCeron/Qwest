@@ -22,6 +22,8 @@ export const jobApplicationStorage = {
         salary: app.salary,
         salaryOffered: (app as any).salary_offered ?? false,
         requestedSalary: (app as any).requested_salary ?? undefined,
+        salaryCurrency: ((app as any).salary_currency ?? 'USD') as JobApplication['salaryCurrency'],
+        salaryPeriod: ((app as any).salary_period ?? 'annual') as JobApplication['salaryPeriod'],
         jobLink: app.job_link,
         status: app.status as JobApplication['status'],
         priority: app.priority as JobApplication['priority'],

@@ -219,7 +219,6 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                     onChange={(e) => handleChange('salary', e.target.value)}
                     placeholder="45000"
                     min="0"
-                    step="1000"
                   />
                 </div>
               )}
@@ -232,7 +231,6 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                   onChange={(e) => handleChange('requestedSalary', e.target.value)}
                   placeholder="What you are asking for"
                   min="0"
-                  step="1000"
                 />
               </div>
             </div>

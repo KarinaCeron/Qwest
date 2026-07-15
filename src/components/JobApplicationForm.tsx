@@ -26,6 +26,10 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const [isTailoringCV, setIsTailoringCV] = useState(false);
   const [tailoringResult, setTailoringResult] = useState<string | null>(null);
   const [isTailoringResultOpen, setIsTailoringResultOpen] = useState(false);
+  const [isAnswerOpen, setIsAnswerOpen] = useState(false);
+  const [employerQuestion, setEmployerQuestion] = useState('');
+  const [isAnswering, setIsAnswering] = useState(false);
+  const [answerResult, setAnswerResult] = useState<string | null>(null);
   const [generatedCoverLetter, setGeneratedCoverLetter] = useState<string | null>(
     editingApplication?.coverLetter || null
   );

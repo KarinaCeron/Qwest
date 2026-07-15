@@ -128,6 +128,7 @@ export const jobApplicationStorage = {
       if (updates.notes !== undefined) updateData.notes = updates.notes;
       if (updates.jobContent !== undefined) updateData.job_content = updates.jobContent;
       if (updates.coverLetter !== undefined) updateData.cover_letter = updates.coverLetter;
+      if (updates.questions !== undefined) updateData.questions = updates.questions;
 
       console.log('Updating job application:', id, 'with data:', updateData);
       

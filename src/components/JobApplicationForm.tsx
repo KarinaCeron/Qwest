@@ -410,11 +410,11 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 className="min-h-[120px]"
               />
               {(
-                <div className="flex flex-wrap gap-2 mt-2">
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 mt-2">
                   <Button 
                     type="button" 
                     variant="outline" 
-                    className="flex-1 min-w-[180px]"
+                    className="w-full min-h-10 h-auto whitespace-normal px-3 text-center"
                     onClick={handleGenerateCoverLetter}
                     disabled={isGeneratingCoverLetter || !formData.jobContent}
                   >
@@ -423,7 +423,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                   <Button
                     type="button"
                     variant="outline"
-                    className="flex-1 min-w-[180px]"
+                    className="w-full min-h-10 h-auto whitespace-normal px-3 text-center"
                     onClick={handleTailorCV}
                     disabled={isTailoringCV || !formData.jobContent}
                   >
@@ -439,7 +439,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                     if (!open) { setEmployerQuestion(''); setAnswerResult(null); setEditableAnswer(''); }
                   }}>
                     <DialogTrigger asChild>
-                      <Button type="button" variant="outline" className="flex-1 min-w-[180px]">
+                      <Button type="button" variant="outline" className="w-full min-h-10 h-auto whitespace-normal px-3 text-center">
                         <MessageCircleQuestion className="h-4 w-4 mr-2" />
                         Answer Application Question
                       </Button>

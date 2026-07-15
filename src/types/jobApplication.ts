@@ -12,6 +12,13 @@ export type Priority = 'high' | 'medium' | 'low';
 export type SalaryCurrency = 'USD' | 'COP';
 export type SalaryPeriod = 'annual' | 'monthly';
 
+export interface ApplicationQA {
+  id: string;
+  question: string;
+  answer: string;
+  createdAt: string;
+}
+
 export interface JobApplication {
   id: string;
   company: string;
@@ -29,6 +36,7 @@ export interface JobApplication {
   notes?: string;
   jobContent?: string;
   coverLetter?: string;
+  questions?: ApplicationQA[];
   createdAt: string;
   updatedAt: string;
   statusChangedAt: string;
@@ -50,4 +58,5 @@ export interface JobApplicationFormData {
   notes?: string;
   jobContent?: string;
   coverLetter?: string;
+  questions?: ApplicationQA[];
 }

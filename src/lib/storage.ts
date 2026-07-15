@@ -99,6 +99,7 @@ export const jobApplicationStorage = {
         notes: data.notes,
         jobContent: data.job_content,
         coverLetter: data.cover_letter,
+        questions: ((data as any).questions ?? []) as JobApplication['questions'],
         createdAt: data.created_at,
         updatedAt: data.updated_at,
         statusChangedAt: (data as any).status_changed_at ?? data.updated_at,

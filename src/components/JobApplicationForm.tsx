@@ -41,6 +41,8 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     salary: editingApplication?.salary || '',
     salaryOffered: editingApplication?.salaryOffered ?? false,
     requestedSalary: editingApplication?.requestedSalary || '',
+    salaryCurrency: editingApplication?.salaryCurrency || 'USD',
+    salaryPeriod: editingApplication?.salaryPeriod || 'annual',
     jobLink: editingApplication?.jobLink || '',
     status: editingApplication?.status || 'submitted',
     priority: editingApplication?.priority || 'medium',

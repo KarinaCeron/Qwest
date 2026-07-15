@@ -31,6 +31,7 @@ export const jobApplicationStorage = {
         notes: app.notes,
         jobContent: app.job_content,
         coverLetter: app.cover_letter,
+        questions: ((app as any).questions ?? []) as JobApplication['questions'],
         createdAt: app.created_at,
         updatedAt: app.updated_at,
         statusChangedAt: (app as any).status_changed_at ?? app.updated_at,
@@ -70,7 +71,8 @@ export const jobApplicationStorage = {
           application_date: formData.applicationDate,
           notes: formData.notes,
           job_content: formData.jobContent,
-          cover_letter: formData.coverLetter
+          cover_letter: formData.coverLetter,
+          questions: (formData.questions ?? []) as any,
         } as any)
         .select()
         .single();
@@ -97,6 +99,7 @@ export const jobApplicationStorage = {
         notes: data.notes,
         jobContent: data.job_content,
         coverLetter: data.cover_letter,
+        questions: ((data as any).questions ?? []) as JobApplication['questions'],
         createdAt: data.created_at,
         updatedAt: data.updated_at,
         statusChangedAt: (data as any).status_changed_at ?? data.updated_at,
@@ -125,6 +128,7 @@ export const jobApplicationStorage = {
       if (updates.notes !== undefined) updateData.notes = updates.notes;
       if (updates.jobContent !== undefined) updateData.job_content = updates.jobContent;
       if (updates.coverLetter !== undefined) updateData.cover_letter = updates.coverLetter;
+      if (updates.questions !== undefined) updateData.questions = updates.questions;
 
       console.log('Updating job application:', id, 'with data:', updateData);
       
@@ -162,6 +166,7 @@ export const jobApplicationStorage = {
         notes: data.notes,
         jobContent: data.job_content,
         coverLetter: data.cover_letter,
+        questions: ((data as any).questions ?? []) as JobApplication['questions'],
         createdAt: data.created_at,
         updatedAt: data.updated_at,
         statusChangedAt: (data as any).status_changed_at ?? data.updated_at,

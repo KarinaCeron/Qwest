@@ -52,6 +52,7 @@ export type Database = {
           job_link: string | null
           notes: string | null
           priority: string
+          questions: Json
           recruiter_name: string | null
           requested_salary: string | null
           role: string
@@ -74,6 +75,7 @@ export type Database = {
           job_link?: string | null
           notes?: string | null
           priority: string
+          questions?: Json
           recruiter_name?: string | null
           requested_salary?: string | null
           role: string
@@ -96,6 +98,7 @@ export type Database = {
           job_link?: string | null
           notes?: string | null
           priority?: string
+          questions?: Json
           recruiter_name?: string | null
           requested_salary?: string | null
           role?: string

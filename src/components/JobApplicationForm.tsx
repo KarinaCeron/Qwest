@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { JobApplicationFormData, JobApplication } from '@/types/jobApplication';
+import { JobApplicationFormData, JobApplication, ApplicationQA } from '@/types/jobApplication';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import { X, Plus, Edit, FileText, Copy, Wand2, MessageCircleQuestion } from 'lucide-react';
+import { X, Plus, Edit, FileText, Copy, Wand2, MessageCircleQuestion, Trash2, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -34,6 +34,10 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     editingApplication?.coverLetter || null
   );
   const [isCoverLetterOpen, setIsCoverLetterOpen] = useState(false);
+  const [savedQuestions, setSavedQuestions] = useState<ApplicationQA[]>(
+    editingApplication?.questions || []
+  );
+  const [editableAnswer, setEditableAnswer] = useState('');
   const [formData, setFormData] = useState<JobApplicationFormData>({
     company: editingApplication?.company || '',
     role: editingApplication?.role || '',
@@ -52,14 +56,17 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     coverLetter: editingApplication?.coverLetter || '',
   });
 
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.company.trim() || !formData.role.trim()) return;
     onSubmit({
       ...formData,
-      coverLetter: generatedCoverLetter || undefined
+      coverLetter: generatedCoverLetter || undefined,
+      questions: savedQuestions,
     });
   };
+
 
   const handleChange = (field: keyof JobApplicationFormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -152,6 +159,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     }
     setIsAnswering(true);
     setAnswerResult(null);
+    setEditableAnswer('');
     try {
       const { data, error } = await supabase.functions.invoke('answer-question', {
         body: {
@@ -164,6 +172,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
       if (error) throw new Error(error.message);
       const answer = data?.answer || data?.response || data?.output || data?.text || data?.message || 'No answer received';
       setAnswerResult(answer);
+      setEditableAnswer(answer);
     } catch (error) {
       console.error('Error answering question:', error);
       toast({
@@ -175,6 +184,32 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
       setIsAnswering(false);
     }
   };
+
+  const handleSaveQuestion = () => {
+    const q = employerQuestion.trim();
+    const a = editableAnswer.trim();
+    if (!q || !a) {
+      toast({ title: "Missing info", description: "Both question and answer are required.", variant: "destructive" });
+      return;
+    }
+    const entry: ApplicationQA = {
+      id: (globalThis.crypto?.randomUUID?.() ?? String(Date.now())),
+      question: q,
+      answer: a,
+      createdAt: new Date().toISOString(),
+    };
+    setSavedQuestions(prev => [...prev, entry]);
+    toast({ title: "Saved", description: "Question and answer added to this application." });
+    setEmployerQuestion('');
+    setAnswerResult(null);
+    setEditableAnswer('');
+    setIsAnswerOpen(false);
+  };
+
+  const handleDeleteQuestion = (id: string) => {
+    setSavedQuestions(prev => prev.filter(q => q.id !== id));
+  };
+
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
@@ -401,7 +436,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                   </Button>
                   <Dialog open={isAnswerOpen} onOpenChange={(open) => {
                     setIsAnswerOpen(open);
-                    if (!open) { setEmployerQuestion(''); setAnswerResult(null); }
+                    if (!open) { setEmployerQuestion(''); setAnswerResult(null); setEditableAnswer(''); }
                   }}>
                     <DialogTrigger asChild>
                       <Button type="button" variant="outline" className="flex-1 min-w-[180px]">
@@ -418,14 +453,17 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                       </DialogHeader>
                       <div className="space-y-4 mt-2">
                         <p className="text-sm text-muted-foreground">
-                          Paste a question from the application form. We'll use your CV and this position's details to draft an answer.
+                          Paste a question from the application form. We'll use your CV and this position's details to draft an answer. You can edit the answer before saving it to this application.
                         </p>
-                        <Textarea
-                          value={employerQuestion}
-                          onChange={(e) => setEmployerQuestion(e.target.value)}
-                          placeholder="e.g. Why are you interested in this role? Describe a time you led a project..."
-                          rows={4}
-                        />
+                        <div className="space-y-2">
+                          <Label>Question</Label>
+                          <Textarea
+                            value={employerQuestion}
+                            onChange={(e) => setEmployerQuestion(e.target.value)}
+                            placeholder="e.g. Why are you interested in this role? Describe a time you led a project..."
+                            rows={3}
+                          />
+                        </div>
                         <Button
                           type="button"
                           onClick={handleAnswerQuestion}
@@ -434,31 +472,49 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                         >
                           {isAnswering ? 'Generating answer...' : 'Generate Answer'}
                         </Button>
-                        {answerResult && (
+                        {(answerResult || editableAnswer) && (
                           <div className="space-y-2">
-                            <Label>Suggested Answer</Label>
-                            <div className="bg-background border rounded-lg p-4 max-h-[40vh] overflow-y-auto">
-                              <pre className="whitespace-pre-wrap text-sm text-foreground leading-relaxed font-sans">
-                                {answerResult}
-                              </pre>
+                            <Label>Answer (editable)</Label>
+                            <Textarea
+                              value={editableAnswer}
+                              onChange={(e) => setEditableAnswer(e.target.value)}
+                              rows={8}
+                              className="min-h-[160px]"
+                            />
+                            <div className="flex gap-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="flex-1"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(editableAnswer);
+                                  toast({ title: "Copied", description: "Answer copied to clipboard" });
+                                }}
+                              >
+                                <Copy className="h-4 w-4 mr-2" />
+                                Copy
+                              </Button>
+                              <Button
+                                type="button"
+                                className="flex-1 bg-gradient-primary"
+                                onClick={handleSaveQuestion}
+                                disabled={!employerQuestion.trim() || !editableAnswer.trim()}
+                              >
+                                <Save className="h-4 w-4 mr-2" />
+                                Save to Application
+                              </Button>
                             </div>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              className="w-full"
-                              onClick={() => {
-                                navigator.clipboard.writeText(answerResult);
-                                toast({ title: "Copied", description: "Answer copied to clipboard" });
-                              }}
-                            >
-                              <Copy className="h-4 w-4 mr-2" />
-                              Copy to Clipboard
-                            </Button>
                           </div>
                         )}
+                        <div className="pt-2">
+                          <p className="text-xs text-muted-foreground">
+                            You can also skip generation and paste your own answer above, then click Save to Application.
+                          </p>
+                        </div>
                       </div>
                     </DialogContent>
                   </Dialog>
+
                 </div>
               )}
             </div>
@@ -558,8 +614,60 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
               </Sheet>
             )}
 
+            {savedQuestions.length > 0 && (
+              <div className="space-y-2">
+                <Label>Saved Questions & Answers ({savedQuestions.length})</Label>
+                <div className="space-y-3">
+                  {savedQuestions.map((qa, idx) => (
+                    <div key={qa.id} className="border rounded-lg p-3 bg-background/50 space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-medium text-foreground flex-1">
+                          Q{idx + 1}. {qa.question}
+                        </p>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteQuestion(qa.id)}
+                          className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
+                          aria-label="Delete question"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <Textarea
+                        value={qa.answer}
+                        onChange={(e) =>
+                          setSavedQuestions(prev =>
+                            prev.map(q => (q.id === qa.id ? { ...q, answer: e.target.value } : q))
+                          )
+                        }
+                        rows={4}
+                        className="text-sm"
+                      />
+                      <div className="flex justify-end">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            navigator.clipboard.writeText(qa.answer);
+                            toast({ title: "Copied", description: "Answer copied to clipboard" });
+                          }}
+                        >
+                          <Copy className="h-3.5 w-3.5 mr-1" />
+                          Copy answer
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="notes">Notes</Label>
+
               <Textarea
                 id="notes"
                 value={formData.notes}

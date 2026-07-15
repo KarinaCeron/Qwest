@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { JobApplicationFormData, JobApplication } from '@/types/jobApplication';
+import { JobApplicationFormData, JobApplication, ApplicationQA } from '@/types/jobApplication';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

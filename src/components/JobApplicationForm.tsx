@@ -614,7 +614,58 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
               </Sheet>
             )}
 
-            <div className="space-y-2">
+            {savedQuestions.length > 0 && (
+              <div className="space-y-2">
+                <Label>Saved Questions & Answers ({savedQuestions.length})</Label>
+                <div className="space-y-3">
+                  {savedQuestions.map((qa, idx) => (
+                    <div key={qa.id} className="border rounded-lg p-3 bg-background/50 space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-medium text-foreground flex-1">
+                          Q{idx + 1}. {qa.question}
+                        </p>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteQuestion(qa.id)}
+                          className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
+                          aria-label="Delete question"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <Textarea
+                        value={qa.answer}
+                        onChange={(e) =>
+                          setSavedQuestions(prev =>
+                            prev.map(q => (q.id === qa.id ? { ...q, answer: e.target.value } : q))
+                          )
+                        }
+                        rows={4}
+                        className="text-sm"
+                      />
+                      <div className="flex justify-end">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            navigator.clipboard.writeText(qa.answer);
+                            toast({ title: "Copied", description: "Answer copied to clipboard" });
+                          }}
+                        >
+                          <Copy className="h-3.5 w-3.5 mr-1" />
+                          Copy answer
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+
               <Label htmlFor="notes">Notes</Label>
               <Textarea
                 id="notes"

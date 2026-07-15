@@ -409,7 +409,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 rows={6}
                 className="min-h-[120px]"
               />
-              {formData.jobContent && (
+              {(
                 <div className="flex flex-wrap gap-2 mt-2">
                   <Button 
                     type="button" 

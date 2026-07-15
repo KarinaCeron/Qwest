@@ -34,6 +34,10 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     editingApplication?.coverLetter || null
   );
   const [isCoverLetterOpen, setIsCoverLetterOpen] = useState(false);
+  const [savedQuestions, setSavedQuestions] = useState<ApplicationQA[]>(
+    editingApplication?.questions || []
+  );
+  const [editableAnswer, setEditableAnswer] = useState('');
   const [formData, setFormData] = useState<JobApplicationFormData>({
     company: editingApplication?.company || '',
     role: editingApplication?.role || '',
@@ -51,6 +55,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     jobContent: editingApplication?.jobContent || '',
     coverLetter: editingApplication?.coverLetter || '',
   });
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

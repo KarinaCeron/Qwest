@@ -425,7 +425,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                     variant="outline"
                     className="flex-1 min-w-[180px]"
                     onClick={handleTailorCV}
-                    disabled={isTailoringCV}
+                    disabled={isTailoringCV || !formData.jobContent}
                   >
                     {isTailoringCV ? 'Tailoring...' : (
                       <>

@@ -19,6 +19,9 @@ import {
   Plus, Pencil, Trash2, Copy, MessageSquareText, Loader2, FolderOpen,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import {
+  Tooltip, TooltipContent, TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 type Template = {
   id: string;

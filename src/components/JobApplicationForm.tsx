@@ -30,6 +30,10 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const [employerQuestion, setEmployerQuestion] = useState('');
   const [isAnswering, setIsAnswering] = useState(false);
   const [answerResult, setAnswerResult] = useState<string | null>(null);
+  const [isDiscussOfferOpen, setIsDiscussOfferOpen] = useState(false);
+  const [offerTopic, setOfferTopic] = useState('');
+  const [isDiscussingOffer, setIsDiscussingOffer] = useState(false);
+  const [offerDiscussionResult, setOfferDiscussionResult] = useState<string | null>(null);
   const [generatedCoverLetter, setGeneratedCoverLetter] = useState<string | null>(
     editingApplication?.coverLetter || null
   );
@@ -38,6 +42,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     editingApplication?.questions || []
   );
   const [editableAnswer, setEditableAnswer] = useState('');
+  const [editableOfferDiscussion, setEditableOfferDiscussion] = useState('');
   const [formData, setFormData] = useState<JobApplicationFormData>({
     company: editingApplication?.company || '',
     role: editingApplication?.role || '',

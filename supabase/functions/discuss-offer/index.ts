@@ -39,7 +39,7 @@ Deno.serve(async (req) => {
     }
 
     const { topic, role, company, jobContent, salary, requestedSalary, salaryCurrency, salaryPeriod } = await req.json();
-    if (!topic || typeof topic !== "ver"string") {
+    if (!topic || typeof topic !== "string") {
       return new Response(JSON.stringify({ error: "topic required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

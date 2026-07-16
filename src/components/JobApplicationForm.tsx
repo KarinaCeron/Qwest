@@ -290,7 +290,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                     type="number"
                     value={formData.salary}
                     onChange={(e) => handleChange('salary', e.target.value)}
-                    placeholder="45000"
+                    placeholder="What they are offering you"
                     min="0"
                   />
                 </div>

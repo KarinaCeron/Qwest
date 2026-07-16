@@ -292,9 +292,16 @@ export default function TemplatesPage() {
                           <div className="space-y-3">
                             <div className="flex items-start justify-between gap-3">
                               <div className="min-w-0">
-                                <p className="font-display text-lg font-semibold leading-snug text-foreground line-clamp-2">
-                                  {t.title}
-                                </p>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <p className="font-display text-lg font-semibold leading-snug text-foreground line-clamp-2 cursor-help">
+                                      {t.title}
+                                    </p>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="max-w-xs">
+                                    <p>{t.title}</p>
+                                  </TooltipContent>
+                                </Tooltip>
                                 <p className="mt-1 text-xs text-muted-foreground">
                                   Updated {new Date(t.updated_at).toLocaleDateString()}
                                 </p>

@@ -190,6 +190,43 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     }
   };
 
+  const handleDiscussOffer = async () => {
+    if (!offerTopic.trim()) {
+      toast({ title: "Error", description: "Please enter a topic to discuss", variant: "destructive" });
+      return;
+    }
+    setIsDiscussingOffer(true);
+    setOfferDiscussionResult(null);
+    setEditableOfferDiscussion('');
+    try {
+      const { data, error } = await supabase.functions.invoke('discuss-offer', {
+        body: {
+          topic: offerTopic,
+          role: formData.role,
+          company: formData.company,
+          jobContent: formData.jobContent,
+          salary: formData.salary,
+          requestedSalary: formData.requestedSalary,
+          salaryCurrency: formData.salaryCurrency,
+          salaryPeriod: formData.salaryPeriod,
+        },
+      });
+      if (error) throw new Error(error.message);
+      const answer = data?.answer || data?.response || data?.output || data?.text || data?.message || 'No response received';
+      setOfferDiscussionResult(answer);
+      setEditableOfferDiscussion(answer);
+    } catch (error) {
+      console.error('Error discussing offer:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Could not discuss the offer.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDiscussingOffer(false);
+    }
+  };
+
   const handleSaveQuestion = () => {
     const q = employerQuestion.trim();
     const a = editableAnswer.trim();

@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import { X, Plus, Edit, FileText, Copy, Wand2, MessageCircleQuestion, Trash2, Save } from 'lucide-react';
+import { X, Plus, Edit, FileText, Copy, Wand2, MessageCircleQuestion, Trash2, Save, Handshake } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -30,6 +30,10 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const [employerQuestion, setEmployerQuestion] = useState('');
   const [isAnswering, setIsAnswering] = useState(false);
   const [answerResult, setAnswerResult] = useState<string | null>(null);
+  const [isDiscussOfferOpen, setIsDiscussOfferOpen] = useState(false);
+  const [offerTopic, setOfferTopic] = useState('');
+  const [isDiscussingOffer, setIsDiscussingOffer] = useState(false);
+  const [offerDiscussionResult, setOfferDiscussionResult] = useState<string | null>(null);
   const [generatedCoverLetter, setGeneratedCoverLetter] = useState<string | null>(
     editingApplication?.coverLetter || null
   );
@@ -38,6 +42,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     editingApplication?.questions || []
   );
   const [editableAnswer, setEditableAnswer] = useState('');
+  const [editableOfferDiscussion, setEditableOfferDiscussion] = useState('');
   const [formData, setFormData] = useState<JobApplicationFormData>({
     company: editingApplication?.company || '',
     role: editingApplication?.role || '',
@@ -182,6 +187,43 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
       });
     } finally {
       setIsAnswering(false);
+    }
+  };
+
+  const handleDiscussOffer = async () => {
+    if (!offerTopic.trim()) {
+      toast({ title: "Error", description: "Please enter a topic to discuss", variant: "destructive" });
+      return;
+    }
+    setIsDiscussingOffer(true);
+    setOfferDiscussionResult(null);
+    setEditableOfferDiscussion('');
+    try {
+      const { data, error } = await supabase.functions.invoke('discuss-offer', {
+        body: {
+          topic: offerTopic,
+          role: formData.role,
+          company: formData.company,
+          jobContent: formData.jobContent,
+          salary: formData.salary,
+          requestedSalary: formData.requestedSalary,
+          salaryCurrency: formData.salaryCurrency,
+          salaryPeriod: formData.salaryPeriod,
+        },
+      });
+      if (error) throw new Error(error.message);
+      const answer = data?.answer || data?.response || data?.output || data?.text || data?.message || 'No response received';
+      setOfferDiscussionResult(answer);
+      setEditableOfferDiscussion(answer);
+    } catch (error) {
+      console.error('Error discussing offer:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Could not discuss the offer.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDiscussingOffer(false);
     }
   };
 
@@ -410,7 +452,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 className="min-h-[120px]"
               />
               {(
-                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 mt-2">
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 mt-2">
                   <Button 
                     type="button" 
                     variant="outline" 
@@ -515,6 +557,70 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                     </DialogContent>
                   </Dialog>
 
+                  <Dialog open={isDiscussOfferOpen} onOpenChange={(open) => {
+                    setIsDiscussOfferOpen(open);
+                    if (!open) { setOfferTopic(''); setOfferDiscussionResult(null); setEditableOfferDiscussion(''); }
+                  }}>
+                    <DialogTrigger asChild>
+                      <Button type="button" variant="outline" className="w-full min-h-10 h-auto whitespace-normal px-3 text-center">
+                        <Handshake className="h-4 w-4 mr-2" />
+                        Discuss the Offer
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                          <Handshake className="h-5 w-5" />
+                          Discuss the Offer
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 mt-2">
+                        <p className="text-sm text-muted-foreground">
+                          Describe what you'd like to discuss or negotiate about this offer. We'll use your CV and the position details to draft a professional response.
+                        </p>
+                        <div className="space-y-2">
+                          <Label>Topic</Label>
+                          <Textarea
+                            value={offerTopic}
+                            onChange={(e) => setOfferTopic(e.target.value)}
+                            placeholder="e.g. I'd like to negotiate a higher salary or ask about the start date and benefits package..."
+                            rows={3}
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          onClick={handleDiscussOffer}
+                          disabled={isDiscussingOffer || !offerTopic.trim()}
+                          className="w-full bg-gradient-primary"
+                        >
+                          {isDiscussingOffer ? 'Drafting response...' : 'Draft Response'}
+                        </Button>
+                        {(offerDiscussionResult || editableOfferDiscussion) && (
+                          <div className="space-y-2">
+                            <Label>Response (editable)</Label>
+                            <Textarea
+                              value={editableOfferDiscussion}
+                              onChange={(e) => setEditableOfferDiscussion(e.target.value)}
+                              rows={8}
+                              className="min-h-[160px]"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="w-full"
+                              onClick={() => {
+                                navigator.clipboard.writeText(editableOfferDiscussion);
+                                toast({ title: "Copied", description: "Response copied to clipboard" });
+                              }}
+                            >
+                              <Copy className="h-4 w-4 mr-2" />
+                              Copy to Clipboard
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               )}
             </div>

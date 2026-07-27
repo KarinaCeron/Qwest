@@ -791,6 +791,13 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
               </div>
             )}
 
+            {editingApplication && user && (
+              <ApplicationActionLog
+                applicationId={editingApplication.id}
+                userId={user.id}
+              />
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="notes">Notes</Label>
 

@@ -387,13 +387,32 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
 
             <div className="space-y-2">
               <Label htmlFor="jobLink">Job Link</Label>
-              <Input
-                id="jobLink"
-                type="url"
-                value={formData.jobLink}
-                onChange={(e) => handleChange('jobLink', e.target.value)}
-                placeholder="https://..."
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="jobLink"
+                  type="url"
+                  value={formData.jobLink}
+                  onChange={(e) => handleChange('jobLink', e.target.value)}
+                  placeholder="https://..."
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  disabled={!formData.jobLink}
+                  asChild
+                >
+                  <a
+                    href={formData.jobLink || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Open job posting"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                </Button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -791,13 +791,6 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
               </div>
             )}
 
-            {editingApplication && user && (
-              <ApplicationActionLog
-                applicationId={editingApplication.id}
-                userId={user.id}
-              />
-            )}
-
             <div className="space-y-2">
               <Label htmlFor="notes">Notes</Label>
 
@@ -809,6 +802,13 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 rows={3}
               />
             </div>
+
+            {editingApplication && user && (
+              <ApplicationActionLog
+                applicationId={editingApplication.id}
+                userId={user.id}
+              />
+            )}
 
             <div className="flex gap-3 pt-4">
               <Button type="submit" className="flex-1 bg-gradient-primary">

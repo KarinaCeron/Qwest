@@ -94,32 +94,6 @@ export function ApplicationActionLog({ applicationId, userId }: Props) {
       </p>
 
       <div className="space-y-2">
-        <Textarea
-          value={newEntry}
-          onChange={(e) => setNewEntry(e.target.value)}
-          placeholder="e.g. Sent follow-up email to recruiter"
-          rows={2}
-          onKeyDown={(e) => {
-            if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-              e.preventDefault();
-              handleAdd();
-            }
-          }}
-        />
-        <div className="flex justify-end">
-          <Button
-            type="button"
-            size="sm"
-            onClick={handleAdd}
-            disabled={saving || !newEntry.trim()}
-          >
-            <Plus className="h-4 w-4 mr-1" />
-            Add entry
-          </Button>
-        </div>
-      </div>
-
-      <div className="space-y-2">
         {loading && <p className="text-sm text-muted-foreground">Loading...</p>}
         {!loading && entries.length === 0 && (
           <p className="text-sm text-muted-foreground italic">No entries yet.</p>
@@ -145,6 +119,32 @@ export function ApplicationActionLog({ applicationId, userId }: Props) {
             </Button>
           </div>
         ))}
+      </div>
+
+      <div className="space-y-2">
+        <Textarea
+          value={newEntry}
+          onChange={(e) => setNewEntry(e.target.value)}
+          placeholder="e.g. Sent follow-up email to recruiter"
+          rows={2}
+          onKeyDown={(e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+              e.preventDefault();
+              handleAdd();
+            }
+          }}
+        />
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            size="sm"
+            onClick={handleAdd}
+            disabled={saving || !newEntry.trim()}
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Add entry
+          </Button>
+        </div>
       </div>
     </div>
   );

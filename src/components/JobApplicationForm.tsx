@@ -12,6 +12,7 @@ import { X, Plus, Edit, FileText, Copy, Wand2, MessageCircleQuestion, Trash2, Sa
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { ApplicationActionLog } from '@/components/ApplicationActionLog';
 
 interface JobApplicationFormProps {
   onSubmit: (data: JobApplicationFormData) => void;
@@ -788,6 +789,13 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                   ))}
                 </div>
               </div>
+            )}
+
+            {editingApplication && user && (
+              <ApplicationActionLog
+                applicationId={editingApplication.id}
+                userId={user.id}
+              />
             )}
 
             <div className="space-y-2">

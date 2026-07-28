@@ -116,6 +116,13 @@ const Tasks = () => {
     return map;
   }, [applications]);
 
+  const logAction = async (applicationId: string, content: string) => {
+    if (!user) return;
+    await supabase
+      .from('application_actions')
+      .insert({ application_id: applicationId, user_id: user.id, content });
+  };
+
   const persistManual = (list: ManualTask[]) => {
     setManual(list);
     localStorage.setItem(MANUAL_KEY, JSON.stringify(list));
@@ -133,6 +140,7 @@ const Tasks = () => {
       applicationId: newAppId,
     };
     persistManual([task, ...manual]);
+    logAction(newAppId, `Task created: ${title}${newDue ? ` (due ${newDue})` : ''}`);
     setNewTitle('');
     setNewDue('');
     setNewAppId('');
@@ -143,6 +151,7 @@ const Tasks = () => {
   };
 
   const deleteTask = (task: Task) => {
+    logAction(task.applicationId, `Task deleted: ${task.title}`);
     if (task.kind === 'manual') {
       removeManual(task.id);
       return;
@@ -184,12 +193,16 @@ const Tasks = () => {
     [tasks, completed, showDone],
   );
 
-  const toggle = (id: string) => {
+  const toggle = (task: Task) => {
+    const willBeDone = !completed[task.id];
     setCompleted(prev => {
-      const next = { ...prev, [id]: !prev[id] };
+      const next = { ...prev, [task.id]: willBeDone };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
       return next;
     });
+    if (willBeDone) {
+      logAction(task.applicationId, `Task completed: ${task.title}`);
+    }
   };
 
   const pendingCount = tasks.filter(t => !completed[t.id]).length;

@@ -101,6 +101,7 @@ const Tasks = () => {
   const [newTitle, setNewTitle] = useState('');
   const [newDue, setNewDue] = useState('');
   const [newAppId, setNewAppId] = useState('');
+  const [appOpen, setAppOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) navigate('/auth');

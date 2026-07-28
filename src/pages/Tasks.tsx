@@ -77,6 +77,7 @@ const Tasks = () => {
   const [completed, setCompleted] = useState<Record<string, boolean>>(loadCompleted);
   const [showDone, setShowDone] = useState(false);
   const [manual, setManual] = useState<ManualTask[]>(loadManual);
+  const [deleted, setDeleted] = useState<Record<string, boolean>>(loadDeleted);
   const [newTitle, setNewTitle] = useState('');
   const [newDue, setNewDue] = useState('');
 

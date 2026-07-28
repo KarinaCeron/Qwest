@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { jobApplicationStorage } from '@/lib/storage';
@@ -26,25 +26,47 @@ import { ExternalLink, ListChecks, Plus, Trash2, ChevronsUpDown, Check } from 'l
 import { cn } from '@/lib/utils';
 import { getStatusConfig } from '@/utils/statusHelpers';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+type ManualTaskRow = {
+  id: string;
+  kind: 'manual';
+  application_id: string;
+  title: string;
+  due_date: string | null;
+  completed: boolean;
+  created_at: string;
+};
+
+type AutoOverrideRow = {
+  id: string;
+  kind: 'auto_override';
+  application_id: string;
+  auto_key: string;
+  completed: boolean;
+  deleted: boolean;
+};
 
 type AutoTask = {
   kind: 'auto';
-  id: string;
+  id: string; // auto_key
   applicationId: string;
   company: string;
   role: string;
   title: string;
   status: JobApplication['status'];
   createdAt: string;
+  completed: boolean;
 };
 
 type ManualTask = {
   kind: 'manual';
   id: string;
+  applicationId: string;
   title: string;
   dueDate?: string;
   createdAt: string;
-  applicationId: string;
+  completed: boolean;
 };
 
 type Task = AutoTask | ManualTask;
@@ -57,47 +79,15 @@ const TASK_BY_STATUS: Partial<Record<JobApplication['status'], string>> = {
   offer: 'Review and respond to the offer',
 };
 
-const STORAGE_KEY = 'qwest.completedTasks';
-const MANUAL_KEY = 'qwest.manualTasks';
-const DELETED_KEY = 'qwest.deletedAutoTasks';
-
-const loadCompleted = (): Record<string, boolean> => {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-  } catch {
-    return {};
-  }
-};
-
-const loadManual = (): ManualTask[] => {
-  try {
-    const raw = JSON.parse(localStorage.getItem(MANUAL_KEY) || '[]');
-    // Drop legacy manual tasks that were not linked to a job application.
-    return Array.isArray(raw)
-      ? raw.filter((t: ManualTask) => t && typeof t.applicationId === 'string' && t.applicationId)
-      : [];
-  } catch {
-    return [];
-  }
-};
-
-const loadDeleted = (): Record<string, boolean> => {
-  try {
-    return JSON.parse(localStorage.getItem(DELETED_KEY) || '{}');
-  } catch {
-    return {};
-  }
-};
-
 const Tasks = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [applications, setApplications] = useState<JobApplication[]>([]);
+  const [manualRows, setManualRows] = useState<ManualTaskRow[]>([]);
+  const [autoOverrides, setAutoOverrides] = useState<AutoOverrideRow[]>([]);
   const [loadingData, setLoadingData] = useState(true);
-  const [completed, setCompleted] = useState<Record<string, boolean>>(loadCompleted);
   const [showDone, setShowDone] = useState(false);
-  const [manual, setManual] = useState<ManualTask[]>(loadManual);
-  const [deleted, setDeleted] = useState<Record<string, boolean>>(loadDeleted);
   const [newTitle, setNewTitle] = useState('');
   const [newDue, setNewDue] = useState('');
   const [newAppId, setNewAppId] = useState('');
@@ -107,16 +97,55 @@ const Tasks = () => {
     if (!loading && !user) navigate('/auth');
   }, [user, loading, navigate]);
 
+  const loadTasks = useCallback(async () => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('id, kind, application_id, title, due_date, auto_key, completed, deleted, created_at')
+      .eq('user_id', user.id);
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      return;
+    }
+    const manual: ManualTaskRow[] = [];
+    const overrides: AutoOverrideRow[] = [];
+    for (const row of data || []) {
+      if (row.kind === 'manual') {
+        manual.push({
+          id: row.id,
+          kind: 'manual',
+          application_id: row.application_id,
+          title: row.title || '',
+          due_date: row.due_date,
+          completed: row.completed,
+          created_at: row.created_at,
+        });
+      } else if (row.kind === 'auto_override') {
+        overrides.push({
+          id: row.id,
+          kind: 'auto_override',
+          application_id: row.application_id,
+          auto_key: row.auto_key!,
+          completed: row.completed,
+          deleted: row.deleted,
+        });
+      }
+    }
+    setManualRows(manual);
+    setAutoOverrides(overrides);
+  }, [user, toast]);
+
   useEffect(() => {
     const load = async () => {
       if (!user) return;
       setLoadingData(true);
       const apps = await jobApplicationStorage.getAll();
       setApplications(apps);
+      await loadTasks();
       setLoadingData(false);
     };
     load();
-  }, [user]);
+  }, [user, loadTasks]);
 
   const appById = useMemo(() => {
     const map: Record<string, JobApplication> = {};
@@ -131,89 +160,181 @@ const Tasks = () => {
       .insert({ application_id: applicationId, user_id: user.id, content });
   };
 
-  const persistManual = (list: ManualTask[]) => {
-    setManual(list);
-    localStorage.setItem(MANUAL_KEY, JSON.stringify(list));
-  };
-
-  const addManual = () => {
+  const addManual = async () => {
+    if (!user) return;
     const title = newTitle.trim();
     if (!title || !newAppId) return;
-    const task: ManualTask = {
-      kind: 'manual',
-      id: `manual:${crypto.randomUUID()}`,
-      title,
-      dueDate: newDue || undefined,
-      createdAt: new Date().toISOString(),
-      applicationId: newAppId,
-    };
-    persistManual([task, ...manual]);
+    const { data, error } = await supabase
+      .from('tasks')
+      .insert({
+        user_id: user.id,
+        application_id: newAppId,
+        kind: 'manual',
+        title,
+        due_date: newDue || null,
+      })
+      .select('id, kind, application_id, title, due_date, completed, created_at')
+      .single();
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      return;
+    }
+    setManualRows((prev) => [
+      {
+        id: data.id,
+        kind: 'manual',
+        application_id: data.application_id,
+        title: data.title || '',
+        due_date: data.due_date,
+        completed: data.completed,
+        created_at: data.created_at,
+      },
+      ...prev,
+    ]);
     logAction(newAppId, `Task created: ${title}${newDue ? ` (due ${newDue})` : ''}`);
     setNewTitle('');
     setNewDue('');
     setNewAppId('');
   };
 
-  const removeManual = (id: string) => {
-    persistManual(manual.filter(t => t.id !== id));
+  const overrideByKey = useMemo(() => {
+    const map: Record<string, AutoOverrideRow> = {};
+    for (const o of autoOverrides) map[o.auto_key] = o;
+    return map;
+  }, [autoOverrides]);
+
+  const upsertAutoOverride = async (
+    autoKey: string,
+    applicationId: string,
+    patch: { completed?: boolean; deleted?: boolean },
+  ) => {
+    if (!user) return;
+    const existing = overrideByKey[autoKey];
+    if (existing) {
+      const next = { ...existing, ...patch };
+      const prev = autoOverrides;
+      setAutoOverrides((a) => a.map((o) => (o.id === existing.id ? next : o)));
+      const { error } = await supabase
+        .from('tasks')
+        .update(patch)
+        .eq('id', existing.id);
+      if (error) {
+        setAutoOverrides(prev);
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      }
+    } else {
+      const { data, error } = await supabase
+        .from('tasks')
+        .insert({
+          user_id: user.id,
+          application_id: applicationId,
+          kind: 'auto_override',
+          auto_key: autoKey,
+          completed: patch.completed ?? false,
+          deleted: patch.deleted ?? false,
+        })
+        .select('id, kind, application_id, auto_key, completed, deleted')
+        .single();
+      if (error) {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+        return;
+      }
+      setAutoOverrides((a) => [
+        ...a,
+        {
+          id: data.id,
+          kind: 'auto_override',
+          application_id: data.application_id,
+          auto_key: data.auto_key!,
+          completed: data.completed,
+          deleted: data.deleted,
+        },
+      ]);
+    }
   };
 
-  const deleteTask = (task: Task) => {
+  const deleteTask = async (task: Task) => {
     logAction(task.applicationId, `Task deleted: ${task.title}`);
     if (task.kind === 'manual') {
-      removeManual(task.id);
+      const prev = manualRows;
+      setManualRows((r) => r.filter((x) => x.id !== task.id));
+      const { error } = await supabase.from('tasks').delete().eq('id', task.id);
+      if (error) {
+        setManualRows(prev);
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      }
       return;
     }
-    setDeleted(prev => {
-      const next = { ...prev, [task.id]: true };
-      localStorage.setItem(DELETED_KEY, JSON.stringify(next));
-      return next;
-    });
+    await upsertAutoOverride(task.id, task.applicationId, { deleted: true });
   };
 
-  const tasks = useMemo<Task[]>(() => {
-    const auto: AutoTask[] = applications
-      .filter(app => TASK_BY_STATUS[app.status])
-      .map(
-        app =>
-          ({
-            kind: 'auto' as const,
-            id: `${app.id}:${app.status}`,
-            applicationId: app.id,
-            company: app.company,
-            role: app.role,
-            title: TASK_BY_STATUS[app.status]!,
-            status: app.status,
-            createdAt: app.createdAt,
-          }) satisfies AutoTask,
-      )
-      .filter(task => !deleted[task.id]);
-    // Only surface manual tasks whose linked application still exists.
-    const linkedManual = manual.filter(t => appById[t.applicationId]);
-    const dateOf = (t: Task) => (t.kind === 'manual' ? t.dueDate || t.createdAt : t.createdAt);
-    return [...auto, ...linkedManual].sort(
-      (a, b) => new Date(dateOf(b)).getTime() - new Date(dateOf(a)).getTime(),
-    );
-  }, [applications, manual, deleted, appById]);
-
-  const visibleTasks = useMemo(
-    () => tasks.filter(t => showDone || !completed[t.id]),
-    [tasks, completed, showDone],
-  );
-
-  const toggle = (task: Task) => {
-    const willBeDone = !completed[task.id];
-    setCompleted(prev => {
-      const next = { ...prev, [task.id]: willBeDone };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      return next;
-    });
+  const toggle = async (task: Task) => {
+    const willBeDone = !task.completed;
+    if (task.kind === 'manual') {
+      const prev = manualRows;
+      setManualRows((r) => r.map((x) => (x.id === task.id ? { ...x, completed: willBeDone } : x)));
+      const { error } = await supabase
+        .from('tasks')
+        .update({ completed: willBeDone })
+        .eq('id', task.id);
+      if (error) {
+        setManualRows(prev);
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+        return;
+      }
+    } else {
+      await upsertAutoOverride(task.id, task.applicationId, { completed: willBeDone });
+    }
     if (willBeDone) {
       logAction(task.applicationId, `Task completed: ${task.title}`);
     }
   };
 
-  const pendingCount = tasks.filter(t => !completed[t.id]).length;
+  const tasks = useMemo<Task[]>(() => {
+    const auto: AutoTask[] = applications
+      .filter((app) => TASK_BY_STATUS[app.status])
+      .map((app) => {
+        const key = `${app.id}:${app.status}`;
+        return {
+          kind: 'auto' as const,
+          id: key,
+          applicationId: app.id,
+          company: app.company,
+          role: app.role,
+          title: TASK_BY_STATUS[app.status]!,
+          status: app.status,
+          createdAt: app.createdAt,
+          completed: !!overrideByKey[key]?.completed,
+        };
+      })
+      .filter((task) => !overrideByKey[task.id]?.deleted);
+
+    const manualTasks: ManualTask[] = manualRows
+      .filter((t) => appById[t.application_id])
+      .map((t) => ({
+        kind: 'manual',
+        id: t.id,
+        applicationId: t.application_id,
+        title: t.title,
+        dueDate: t.due_date || undefined,
+        createdAt: t.created_at,
+        completed: t.completed,
+      }));
+
+    const dateOf = (t: Task) =>
+      t.kind === 'manual' ? t.dueDate || t.createdAt : t.createdAt;
+
+    return [...auto, ...manualTasks].sort(
+      (a, b) => new Date(dateOf(b)).getTime() - new Date(dateOf(a)).getTime(),
+    );
+  }, [applications, manualRows, overrideByKey, appById]);
+
+  const visibleTasks = useMemo(
+    () => tasks.filter((t) => showDone || !t.completed),
+    [tasks, showDone],
+  );
+
+  const pendingCount = tasks.filter((t) => !t.completed).length;
 
   if (loading || !user) {
     return (
@@ -228,7 +349,7 @@ const Tasks = () => {
       <AppHeader
         subtitle={`${pendingCount} pending task${pendingCount === 1 ? '' : 's'}`}
         actions={
-          <Button variant="outline" onClick={() => setShowDone(v => !v)}>
+          <Button variant="outline" onClick={() => setShowDone((v) => !v)}>
             {showDone ? 'Hide completed' : 'Show completed'}
           </Button>
         }
@@ -242,14 +363,14 @@ const Tasks = () => {
               <Input
                 placeholder="What do you need to do?"
                 value={newTitle}
-                onChange={e => setNewTitle(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && addManual()}
+                onChange={(e) => setNewTitle(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && addManual()}
                 className="flex-1"
               />
               <Input
                 type="date"
                 value={newDue}
-                onChange={e => setNewDue(e.target.value)}
+                onChange={(e) => setNewDue(e.target.value)}
                 className="sm:w-44"
               />
             </div>
@@ -279,7 +400,7 @@ const Tasks = () => {
                     <CommandList>
                       <CommandEmpty>No application found.</CommandEmpty>
                       <CommandGroup>
-                        {applications.map(app => (
+                        {applications.map((app) => (
                           <CommandItem
                             key={app.id}
                             value={app.id}
@@ -330,8 +451,8 @@ const Tasks = () => {
           </Card>
         ) : (
           <div className="space-y-3">
-            {visibleTasks.map(task => {
-              const isDone = !!completed[task.id];
+            {visibleTasks.map((task) => {
+              const isDone = task.completed;
               const linkedApp =
                 task.kind === 'auto'
                   ? { company: task.company, role: task.role, id: task.applicationId }

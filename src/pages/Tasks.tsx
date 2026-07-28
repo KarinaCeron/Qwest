@@ -43,6 +43,7 @@ const TASK_BY_STATUS: Partial<Record<JobApplication['status'], string>> = {
 
 const STORAGE_KEY = 'qwest.completedTasks';
 const MANUAL_KEY = 'qwest.manualTasks';
+const DELETED_KEY = 'qwest.deletedAutoTasks';
 
 const loadCompleted = (): Record<string, boolean> => {
   try {
@@ -57,6 +58,14 @@ const loadManual = (): ManualTask[] => {
     return JSON.parse(localStorage.getItem(MANUAL_KEY) || '[]');
   } catch {
     return [];
+  }
+};
+
+const loadDeleted = (): Record<string, boolean> => {
+  try {
+    return JSON.parse(localStorage.getItem(DELETED_KEY) || '{}');
+  } catch {
+    return {};
   }
 };
 

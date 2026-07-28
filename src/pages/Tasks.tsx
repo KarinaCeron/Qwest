@@ -144,12 +144,13 @@ const Tasks = () => {
         title: TASK_BY_STATUS[app.status]!,
         status: app.status,
         createdAt: app.createdAt,
-      }));
+      }))
+      .filter(task => !deleted[task.id]);
     const dateOf = (t: Task) => (t.kind === 'manual' ? t.dueDate || t.createdAt : t.createdAt);
     return [...auto, ...manual].sort(
       (a, b) => new Date(dateOf(b)).getTime() - new Date(dateOf(a)).getTime(),
     );
-  }, [applications, manual]);
+  }, [applications, manual, deleted]);
 
   const visibleTasks = useMemo(
     () => tasks.filter(t => showDone || !completed[t.id]),

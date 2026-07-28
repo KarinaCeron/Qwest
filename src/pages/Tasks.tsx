@@ -10,13 +10,20 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { ExternalLink, ListChecks, Plus, Trash2 } from 'lucide-react';
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import { ExternalLink, ListChecks, Plus, Trash2, ChevronsUpDown, Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { getStatusConfig } from '@/utils/statusHelpers';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -94,6 +101,7 @@ const Tasks = () => {
   const [newTitle, setNewTitle] = useState('');
   const [newDue, setNewDue] = useState('');
   const [newAppId, setNewAppId] = useState('');
+  const [appOpen, setAppOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) navigate('/auth');
@@ -246,24 +254,54 @@ const Tasks = () => {
               />
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
-              <Select value={newAppId} onValueChange={setNewAppId}>
-                <SelectTrigger className="flex-1">
-                  <SelectValue
-                    placeholder={
-                      applications.length
-                        ? 'Link to a job application'
-                        : 'Create a job application first'
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {applications.map(app => (
-                    <SelectItem key={app.id} value={app.id}>
-                      {app.role} @ {app.company}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={appOpen} onOpenChange={setAppOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={appOpen}
+                    disabled={!applications.length}
+                    className="flex-1 justify-between font-normal"
+                  >
+                    <span className={cn('truncate', !newAppId && 'text-muted-foreground')}>
+                      {newAppId && appById[newAppId]
+                        ? `${appById[newAppId].role} @ ${appById[newAppId].company}`
+                        : applications.length
+                          ? 'Link to a job application'
+                          : 'Create a job application first'}
+                    </span>
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Search job application..." />
+                    <CommandList>
+                      <CommandEmpty>No application found.</CommandEmpty>
+                      <CommandGroup>
+                        {applications.map(app => (
+                          <CommandItem
+                            key={app.id}
+                            value={app.id}
+                            onSelect={() => {
+                              setNewAppId(app.id);
+                              setAppOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                'mr-2 h-4 w-4',
+                                newAppId === app.id ? 'opacity-100' : 'opacity-0',
+                              )}
+                            />
+                            {app.role} @ {app.company}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
               <Button
                 onClick={addManual}
                 disabled={!newTitle.trim() || !newAppId}

@@ -261,8 +261,9 @@ const Tasks = () => {
                       ) : (
                         <p className="text-xs text-muted-foreground mt-1">
                           {task.dueDate
-                            ? `Due ${new Date(task.dueDate).toLocaleDateString()}`
+                            ? `Due ${new Date(`${task.dueDate}T00:00:00`).toLocaleDateString()}`
                             : `Added ${new Date(task.createdAt).toLocaleDateString()}`}
+
                         </p>
                       )}
                     </div>

@@ -250,6 +250,56 @@ export type Database = {
         }
         Relationships: []
       }
+      tasks: {
+        Row: {
+          application_id: string
+          auto_key: string | null
+          completed: boolean
+          created_at: string
+          deleted: boolean
+          due_date: string | null
+          id: string
+          kind: string
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          application_id: string
+          auto_key?: string | null
+          completed?: boolean
+          created_at?: string
+          deleted?: boolean
+          due_date?: string | null
+          id?: string
+          kind: string
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          application_id?: string
+          auto_key?: string | null
+          completed?: boolean
+          created_at?: string
+          deleted?: boolean
+          due_date?: string | null
+          id?: string
+          kind?: string
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "job_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

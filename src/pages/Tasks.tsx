@@ -266,25 +266,26 @@ const Tasks = () => {
                         </p>
                       )}
                     </div>
-                    {task.kind === 'auto' ? (
+                    <div className="flex items-center gap-1">
+                      {task.kind === 'auto' && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => navigate(`/?open=${task.applicationId}`)}
+                          title="Open application"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => navigate(`/?open=${task.applicationId}`)}
-                        title="Open application"
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeManual(task.id)}
+                        onClick={() => deleteTask(task)}
                         title="Delete task"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
-                    )}
+                    </div>
                   </CardContent>
                 </Card>
               );

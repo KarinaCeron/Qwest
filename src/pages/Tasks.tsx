@@ -135,16 +135,19 @@ const Tasks = () => {
   const tasks = useMemo<Task[]>(() => {
     const auto: AutoTask[] = applications
       .filter(app => TASK_BY_STATUS[app.status])
-      .map(app => ({
-        kind: 'auto',
-        id: `${app.id}:${app.status}`,
-        applicationId: app.id,
-        company: app.company,
-        role: app.role,
-        title: TASK_BY_STATUS[app.status]!,
-        status: app.status,
-        createdAt: app.createdAt,
-      }))
+      .map(
+        app =>
+          ({
+            kind: 'auto' as const,
+            id: `${app.id}:${app.status}`,
+            applicationId: app.id,
+            company: app.company,
+            role: app.role,
+            title: TASK_BY_STATUS[app.status]!,
+            status: app.status,
+            createdAt: app.createdAt,
+          }) satisfies AutoTask,
+      )
       .filter(task => !deleted[task.id]);
     const dateOf = (t: Task) => (t.kind === 'manual' ? t.dueDate || t.createdAt : t.createdAt);
     return [...auto, ...manual].sort(

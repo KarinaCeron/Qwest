@@ -9,7 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, ListChecks } from 'lucide-react';
-import { getStatusLabel } from '@/utils/statusHelpers';
+import { getStatusConfig } from '@/utils/statusHelpers';
 
 type Task = {
   id: string;
@@ -141,7 +141,7 @@ const Tasks = () => {
                         <p className={`font-semibold ${isDone ? 'line-through text-muted-foreground' : ''}`}>
                           {task.title}
                         </p>
-                        <Badge variant="secondary">{getStatusLabel(task.status)}</Badge>
+                        <Badge variant="secondary">{getStatusConfig(task.status).label}</Badge>
                       </div>
                       <p className="text-sm text-muted-foreground mt-1">
                         {task.role} @ {task.company}

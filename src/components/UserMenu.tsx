@@ -13,7 +13,7 @@ import {
 import { NotificationsBell } from '@/components/NotificationsBell';
 import { Button } from '@/components/ui/button';
 import { useLocation } from 'react-router-dom';
-import { CircleHelp, User, FileText, LogOut, Briefcase, MessageSquareText } from 'lucide-react';
+import { CircleHelp, User, FileText, LogOut, Briefcase, MessageSquareText, ListChecks } from 'lucide-react';
 
 export const UserMenu = () => {
   const { user, signOut } = useAuth();
@@ -53,6 +53,10 @@ export const UserMenu = () => {
           <DropdownMenuItem onClick={() => navigate('/')} className="cursor-pointer">
             <Briefcase className="mr-2 h-4 w-4" />
             My Job Apps
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => navigate('/tasks')} className="cursor-pointer">
+            <ListChecks className="mr-2 h-4 w-4" />
+            My Pending Tasks
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer">
             <User className="mr-2 h-4 w-4" />

@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/select';
 import { ExternalLink, ListChecks, Plus, Trash2 } from 'lucide-react';
 import { getStatusConfig } from '@/utils/statusHelpers';
+import { supabase } from '@/integrations/supabase/client';
 
 type AutoTask = {
   kind: 'auto';

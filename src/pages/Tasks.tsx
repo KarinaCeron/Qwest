@@ -9,6 +9,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { ExternalLink, ListChecks, Plus, Trash2 } from 'lucide-react';
 import { getStatusConfig } from '@/utils/statusHelpers';
 
@@ -29,6 +36,7 @@ type ManualTask = {
   title: string;
   dueDate?: string;
   createdAt: string;
+  applicationId: string;
 };
 
 type Task = AutoTask | ManualTask;
@@ -55,7 +63,11 @@ const loadCompleted = (): Record<string, boolean> => {
 
 const loadManual = (): ManualTask[] => {
   try {
-    return JSON.parse(localStorage.getItem(MANUAL_KEY) || '[]');
+    const raw = JSON.parse(localStorage.getItem(MANUAL_KEY) || '[]');
+    // Drop legacy manual tasks that were not linked to a job application.
+    return Array.isArray(raw)
+      ? raw.filter((t: ManualTask) => t && typeof t.applicationId === 'string' && t.applicationId)
+      : [];
   } catch {
     return [];
   }
@@ -80,6 +92,7 @@ const Tasks = () => {
   const [deleted, setDeleted] = useState<Record<string, boolean>>(loadDeleted);
   const [newTitle, setNewTitle] = useState('');
   const [newDue, setNewDue] = useState('');
+  const [newAppId, setNewAppId] = useState('');
 
   useEffect(() => {
     if (!loading && !user) navigate('/auth');
@@ -96,6 +109,12 @@ const Tasks = () => {
     load();
   }, [user]);
 
+  const appById = useMemo(() => {
+    const map: Record<string, JobApplication> = {};
+    for (const a of applications) map[a.id] = a;
+    return map;
+  }, [applications]);
+
   const persistManual = (list: ManualTask[]) => {
     setManual(list);
     localStorage.setItem(MANUAL_KEY, JSON.stringify(list));
@@ -103,17 +122,19 @@ const Tasks = () => {
 
   const addManual = () => {
     const title = newTitle.trim();
-    if (!title) return;
+    if (!title || !newAppId) return;
     const task: ManualTask = {
       kind: 'manual',
       id: `manual:${crypto.randomUUID()}`,
       title,
       dueDate: newDue || undefined,
       createdAt: new Date().toISOString(),
+      applicationId: newAppId,
     };
     persistManual([task, ...manual]);
     setNewTitle('');
     setNewDue('');
+    setNewAppId('');
   };
 
   const removeManual = (id: string) => {
@@ -149,11 +170,13 @@ const Tasks = () => {
           }) satisfies AutoTask,
       )
       .filter(task => !deleted[task.id]);
+    // Only surface manual tasks whose linked application still exists.
+    const linkedManual = manual.filter(t => appById[t.applicationId]);
     const dateOf = (t: Task) => (t.kind === 'manual' ? t.dueDate || t.createdAt : t.createdAt);
-    return [...auto, ...manual].sort(
+    return [...auto, ...linkedManual].sort(
       (a, b) => new Date(dateOf(b)).getTime() - new Date(dateOf(a)).getTime(),
     );
-  }, [applications, manual, deleted]);
+  }, [applications, manual, deleted, appById]);
 
   const visibleTasks = useMemo(
     () => tasks.filter(t => showDone || !completed[t.id]),
@@ -207,10 +230,37 @@ const Tasks = () => {
                 onChange={e => setNewDue(e.target.value)}
                 className="sm:w-44"
               />
-              <Button onClick={addManual} disabled={!newTitle.trim()}>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Select value={newAppId} onValueChange={setNewAppId}>
+                <SelectTrigger className="flex-1">
+                  <SelectValue
+                    placeholder={
+                      applications.length
+                        ? 'Link to a job application'
+                        : 'Create a job application first'
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {applications.map(app => (
+                    <SelectItem key={app.id} value={app.id}>
+                      {app.role} @ {app.company}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                onClick={addManual}
+                disabled={!newTitle.trim() || !newAppId}
+                className="sm:w-32"
+              >
                 <Plus className="h-4 w-4 mr-1" /> Add
               </Button>
             </div>
+            <p className="text-xs text-muted-foreground">
+              Every task must be linked to a job application.
+            </p>
           </CardContent>
         </Card>
 
@@ -230,6 +280,10 @@ const Tasks = () => {
           <div className="space-y-3">
             {visibleTasks.map(task => {
               const isDone = !!completed[task.id];
+              const linkedApp =
+                task.kind === 'auto'
+                  ? { company: task.company, role: task.role, id: task.applicationId }
+                  : appById[task.applicationId];
               return (
                 <Card key={task.id} className="bg-gradient-card">
                   <CardContent className="p-4 flex items-start gap-4">
@@ -249,30 +303,23 @@ const Tasks = () => {
                           <Badge variant="outline">Manual</Badge>
                         )}
                       </div>
-                      {task.kind === 'auto' ? (
-                        <>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {task.role} @ {task.company}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Created {new Date(task.createdAt).toLocaleDateString()}
-                          </p>
-                        </>
-                      ) : (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {task.dueDate
-                            ? `Due ${new Date(`${task.dueDate}T00:00:00`).toLocaleDateString()}`
-                            : `Added ${new Date(task.createdAt).toLocaleDateString()}`}
-
+                      {linkedApp && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {linkedApp.role} @ {linkedApp.company}
                         </p>
                       )}
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {task.kind === 'manual' && task.dueDate
+                          ? `Due ${new Date(`${task.dueDate}T00:00:00`).toLocaleDateString()}`
+                          : `Created ${new Date(task.createdAt).toLocaleDateString()}`}
+                      </p>
                     </div>
                     <div className="flex items-center gap-1">
-                      {task.kind === 'auto' && (
+                      {linkedApp && (
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => navigate(`/?open=${task.applicationId}`)}
+                          onClick={() => navigate(`/?open=${linkedApp.id}`)}
                           title="Open application"
                         >
                           <ExternalLink className="h-4 w-4" />

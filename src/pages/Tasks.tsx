@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/select';
 import { ExternalLink, ListChecks, Plus, Trash2 } from 'lucide-react';
 import { getStatusConfig } from '@/utils/statusHelpers';
+import { supabase } from '@/integrations/supabase/client';
 
 type AutoTask = {
   kind: 'auto';
@@ -115,6 +116,13 @@ const Tasks = () => {
     return map;
   }, [applications]);
 
+  const logAction = async (applicationId: string, content: string) => {
+    if (!user) return;
+    await supabase
+      .from('application_actions')
+      .insert({ application_id: applicationId, user_id: user.id, content });
+  };
+
   const persistManual = (list: ManualTask[]) => {
     setManual(list);
     localStorage.setItem(MANUAL_KEY, JSON.stringify(list));
@@ -132,6 +140,7 @@ const Tasks = () => {
       applicationId: newAppId,
     };
     persistManual([task, ...manual]);
+    logAction(newAppId, `Task created: ${title}${newDue ? ` (due ${newDue})` : ''}`);
     setNewTitle('');
     setNewDue('');
     setNewAppId('');
@@ -142,6 +151,7 @@ const Tasks = () => {
   };
 
   const deleteTask = (task: Task) => {
+    logAction(task.applicationId, `Task deleted: ${task.title}`);
     if (task.kind === 'manual') {
       removeManual(task.id);
       return;
@@ -183,12 +193,16 @@ const Tasks = () => {
     [tasks, completed, showDone],
   );
 
-  const toggle = (id: string) => {
+  const toggle = (task: Task) => {
+    const willBeDone = !completed[task.id];
     setCompleted(prev => {
-      const next = { ...prev, [id]: !prev[id] };
+      const next = { ...prev, [task.id]: willBeDone };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
       return next;
     });
+    if (willBeDone) {
+      logAction(task.applicationId, `Task completed: ${task.title}`);
+    }
   };
 
   const pendingCount = tasks.filter(t => !completed[t.id]).length;
@@ -289,7 +303,7 @@ const Tasks = () => {
                   <CardContent className="p-4 flex items-start gap-4">
                     <Checkbox
                       checked={isDone}
-                      onCheckedChange={() => toggle(task.id)}
+                      onCheckedChange={() => toggle(task)}
                       className="mt-1"
                     />
                     <div className="flex-1 min-w-0">

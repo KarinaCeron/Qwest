@@ -43,6 +43,7 @@ const TASK_BY_STATUS: Partial<Record<JobApplication['status'], string>> = {
 
 const STORAGE_KEY = 'qwest.completedTasks';
 const MANUAL_KEY = 'qwest.manualTasks';
+const DELETED_KEY = 'qwest.deletedAutoTasks';
 
 const loadCompleted = (): Record<string, boolean> => {
   try {
@@ -60,6 +61,14 @@ const loadManual = (): ManualTask[] => {
   }
 };
 
+const loadDeleted = (): Record<string, boolean> => {
+  try {
+    return JSON.parse(localStorage.getItem(DELETED_KEY) || '{}');
+  } catch {
+    return {};
+  }
+};
+
 const Tasks = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -68,6 +77,7 @@ const Tasks = () => {
   const [completed, setCompleted] = useState<Record<string, boolean>>(loadCompleted);
   const [showDone, setShowDone] = useState(false);
   const [manual, setManual] = useState<ManualTask[]>(loadManual);
+  const [deleted, setDeleted] = useState<Record<string, boolean>>(loadDeleted);
   const [newTitle, setNewTitle] = useState('');
   const [newDue, setNewDue] = useState('');
 
@@ -110,24 +120,40 @@ const Tasks = () => {
     persistManual(manual.filter(t => t.id !== id));
   };
 
+  const deleteTask = (task: Task) => {
+    if (task.kind === 'manual') {
+      removeManual(task.id);
+      return;
+    }
+    setDeleted(prev => {
+      const next = { ...prev, [task.id]: true };
+      localStorage.setItem(DELETED_KEY, JSON.stringify(next));
+      return next;
+    });
+  };
+
   const tasks = useMemo<Task[]>(() => {
     const auto: AutoTask[] = applications
       .filter(app => TASK_BY_STATUS[app.status])
-      .map(app => ({
-        kind: 'auto',
-        id: `${app.id}:${app.status}`,
-        applicationId: app.id,
-        company: app.company,
-        role: app.role,
-        title: TASK_BY_STATUS[app.status]!,
-        status: app.status,
-        createdAt: app.createdAt,
-      }));
+      .map(
+        app =>
+          ({
+            kind: 'auto' as const,
+            id: `${app.id}:${app.status}`,
+            applicationId: app.id,
+            company: app.company,
+            role: app.role,
+            title: TASK_BY_STATUS[app.status]!,
+            status: app.status,
+            createdAt: app.createdAt,
+          }) satisfies AutoTask,
+      )
+      .filter(task => !deleted[task.id]);
     const dateOf = (t: Task) => (t.kind === 'manual' ? t.dueDate || t.createdAt : t.createdAt);
     return [...auto, ...manual].sort(
       (a, b) => new Date(dateOf(b)).getTime() - new Date(dateOf(a)).getTime(),
     );
-  }, [applications, manual]);
+  }, [applications, manual, deleted]);
 
   const visibleTasks = useMemo(
     () => tasks.filter(t => showDone || !completed[t.id]),
@@ -240,25 +266,26 @@ const Tasks = () => {
                         </p>
                       )}
                     </div>
-                    {task.kind === 'auto' ? (
+                    <div className="flex items-center gap-1">
+                      {task.kind === 'auto' && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => navigate(`/?open=${task.applicationId}`)}
+                          title="Open application"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => navigate(`/?open=${task.applicationId}`)}
-                        title="Open application"
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeManual(task.id)}
+                        onClick={() => deleteTask(task)}
                         title="Delete task"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
-                    )}
+                    </div>
                   </CardContent>
                 </Card>
               );

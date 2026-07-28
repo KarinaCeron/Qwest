@@ -303,7 +303,7 @@ const Tasks = () => {
                   <CardContent className="p-4 flex items-start gap-4">
                     <Checkbox
                       checked={isDone}
-                      onCheckedChange={() => toggle(task.id)}
+                      onCheckedChange={() => toggle(task)}
                       className="mt-1"
                     />
                     <div className="flex-1 min-w-0">

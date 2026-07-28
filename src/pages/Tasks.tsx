@@ -120,6 +120,18 @@ const Tasks = () => {
     persistManual(manual.filter(t => t.id !== id));
   };
 
+  const deleteTask = (task: Task) => {
+    if (task.kind === 'manual') {
+      removeManual(task.id);
+      return;
+    }
+    setDeleted(prev => {
+      const next = { ...prev, [task.id]: true };
+      localStorage.setItem(DELETED_KEY, JSON.stringify(next));
+      return next;
+    });
+  };
+
   const tasks = useMemo<Task[]>(() => {
     const auto: AutoTask[] = applications
       .filter(app => TASK_BY_STATUS[app.status])

@@ -69,6 +69,20 @@ const Index = () => {
     loadApplications();
   }, [user]);
 
+  // Open application from ?open=<id> query param
+  useEffect(() => {
+    const openId = searchParams.get('open');
+    if (!openId || applications.length === 0) return;
+    const app = applications.find((a) => a.id === openId);
+    if (app) {
+      setEditingApplication(app);
+      setShowForm(true);
+    }
+    searchParams.delete('open');
+    setSearchParams(searchParams, { replace: true });
+  }, [applications, searchParams, setSearchParams]);
+
+
   // Filter applications
   const filteredApplications = useMemo(() => {
     const fromTs = filters.dateFrom ? new Date(filters.dateFrom).getTime() : null;

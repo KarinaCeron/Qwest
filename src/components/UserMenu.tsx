@@ -13,7 +13,7 @@ import {
 import { NotificationsBell } from '@/components/NotificationsBell';
 import { Button } from '@/components/ui/button';
 import { useLocation } from 'react-router-dom';
-import { CircleHelp, User, FileText, LogOut, Briefcase, MessageSquareText, ListChecks } from 'lucide-react';
+import { CircleHelp, User, FileText, LogOut, Briefcase, MessageSquareText, ListChecks, CreditCard } from 'lucide-react';
 
 export const UserMenu = () => {
   const { user, signOut } = useAuth();
@@ -73,6 +73,10 @@ export const UserMenu = () => {
           <DropdownMenuItem onClick={() => navigate('/questions')} className="cursor-pointer">
             <CircleHelp className="mr-2 h-4 w-4" />
             Question Bank
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => navigate('/billing')} className="cursor-pointer">
+            <CreditCard className="mr-2 h-4 w-4" />
+            Billing
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">

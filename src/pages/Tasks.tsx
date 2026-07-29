@@ -153,8 +153,8 @@ const Tasks = () => {
     return map;
   }, [applications]);
 
-  const logAction = async (applicationId: string, content: string) => {
-    if (!user) return;
+  const logAction = async (applicationId: string | null, content: string) => {
+    if (!user || !applicationId) return;
     await supabase
       .from('application_actions')
       .insert({ application_id: applicationId, user_id: user.id, content });
@@ -163,12 +163,12 @@ const Tasks = () => {
   const addManual = async () => {
     if (!user) return;
     const title = newTitle.trim();
-    if (!title || !newAppId) return;
+    if (!title) return;
     const { data, error } = await supabase
       .from('tasks')
       .insert({
         user_id: user.id,
-        application_id: newAppId,
+        application_id: newAppId || null,
         kind: 'manual',
         title,
         due_date: newDue || null,
@@ -191,7 +191,9 @@ const Tasks = () => {
       },
       ...prev,
     ]);
-    logAction(newAppId, `Task created: ${title}${newDue ? ` (due ${newDue})` : ''}`);
+    if (newAppId) {
+      logAction(newAppId, `Task created: ${title}${newDue ? ` (due ${newDue})` : ''}`);
+    }
     setNewTitle('');
     setNewDue('');
     setNewAppId('');

@@ -383,7 +383,6 @@ const Tasks = () => {
                     variant="outline"
                     role="combobox"
                     aria-expanded={appOpen}
-                    disabled={!applications.length}
                     className="flex-1 justify-between font-normal"
                   >
                     <span className={cn('truncate', !newAppId && 'text-muted-foreground')}>

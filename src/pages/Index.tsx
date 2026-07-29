@@ -13,7 +13,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { Plus, Briefcase, Clock, MessageSquare, Gift, X, FileX, FlaskConical } from 'lucide-react';
 
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import emptyStateImage from '@/assets/empty-state.jpg';
 
 type DateField = 'created' | 'statusChanged';

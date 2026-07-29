@@ -403,7 +403,7 @@ const Tasks = () => {
                         {applications.map((app) => (
                           <CommandItem
                             key={app.id}
-                            value={app.id}
+                            value={`${app.id} ${app.role} ${app.company}`}
                             onSelect={() => {
                               setNewAppId(app.id);
                               setAppOpen(false);

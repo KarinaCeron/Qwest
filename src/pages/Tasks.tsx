@@ -31,7 +31,7 @@ import { useToast } from '@/hooks/use-toast';
 type ManualTaskRow = {
   id: string;
   kind: 'manual';
-  application_id: string;
+  application_id: string | null;
   title: string;
   due_date: string | null;
   completed: boolean;
@@ -62,7 +62,7 @@ type AutoTask = {
 type ManualTask = {
   kind: 'manual';
   id: string;
-  applicationId: string;
+  applicationId: string | null;
   title: string;
   dueDate?: string;
   createdAt: string;

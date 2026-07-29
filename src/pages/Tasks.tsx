@@ -312,7 +312,7 @@ const Tasks = () => {
       .filter((task) => !overrideByKey[task.id]?.deleted);
 
     const manualTasks: ManualTask[] = manualRows
-      .filter((t) => appById[t.application_id])
+      .filter((t) => !t.application_id || appById[t.application_id])
       .map((t) => ({
         kind: 'manual',
         id: t.id,

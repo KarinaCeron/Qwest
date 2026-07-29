@@ -13,7 +13,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { Plus, Briefcase, Clock, MessageSquare, Gift, X, FileX, FlaskConical } from 'lucide-react';
 
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import emptyStateImage from '@/assets/empty-state.jpg';
 
 type DateField = 'created' | 'statusChanged';
@@ -31,6 +31,7 @@ interface FiltersState {
 const Index = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -67,6 +68,20 @@ const Index = () => {
     
     loadApplications();
   }, [user]);
+
+  // Open application from ?open=<id> query param
+  useEffect(() => {
+    const openId = searchParams.get('open');
+    if (!openId || applications.length === 0) return;
+    const app = applications.find((a) => a.id === openId);
+    if (app) {
+      setEditingApplication(app);
+      setShowForm(true);
+    }
+    searchParams.delete('open');
+    setSearchParams(searchParams, { replace: true });
+  }, [applications, searchParams, setSearchParams]);
+
 
   // Filter applications
   const filteredApplications = useMemo(() => {

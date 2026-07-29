@@ -390,8 +390,8 @@ const Tasks = () => {
                       {newAppId && appById[newAppId]
                         ? `${appById[newAppId].role} @ ${appById[newAppId].company}`
                         : applications.length
-                          ? 'Link to a job application'
-                          : 'Create a job application first'}
+                          ? 'Link to a job application (optional)'
+                          : 'No job applications yet'}
                     </span>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
@@ -406,6 +406,21 @@ const Tasks = () => {
                     <CommandList>
                       <CommandEmpty>No application found.</CommandEmpty>
                       <CommandGroup>
+                        <CommandItem
+                          value="__none__ no application unlinked"
+                          onSelect={() => {
+                            setNewAppId('');
+                            setAppOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              'mr-2 h-4 w-4',
+                              !newAppId ? 'opacity-100' : 'opacity-0',
+                            )}
+                          />
+                          <span className="text-muted-foreground">No application</span>
+                        </CommandItem>
                         {applications.map((app) => (
                           <CommandItem
                             key={app.id}
@@ -431,14 +446,14 @@ const Tasks = () => {
               </Popover>
               <Button
                 onClick={addManual}
-                disabled={!newTitle.trim() || !newAppId}
+                disabled={!newTitle.trim()}
                 className="sm:w-32"
               >
                 <Plus className="h-4 w-4 mr-1" /> Add
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              Every task must be linked to a job application.
+              Linking to a job application is optional.
             </p>
           </CardContent>
         </Card>

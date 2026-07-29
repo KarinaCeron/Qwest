@@ -395,7 +395,11 @@ const Tasks = () => {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-                  <Command>
+                  <Command
+                    filter={(value, search) =>
+                      value.toLowerCase().includes(search.toLowerCase()) ? 1 : 0
+                    }
+                  >
                     <CommandInput placeholder="Search job application..." />
                     <CommandList>
                       <CommandEmpty>No application found.</CommandEmpty>
@@ -403,7 +407,7 @@ const Tasks = () => {
                         {applications.map((app) => (
                           <CommandItem
                             key={app.id}
-                            value={`${app.id} ${app.role} ${app.company}`}
+                            value={`${app.role} @ ${app.company}`}
                             onSelect={() => {
                               setNewAppId(app.id);
                               setAppOpen(false);

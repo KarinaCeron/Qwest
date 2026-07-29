@@ -252,7 +252,7 @@ export type Database = {
       }
       tasks: {
         Row: {
-          application_id: string
+          application_id: string | null
           auto_key: string | null
           completed: boolean
           created_at: string
@@ -265,7 +265,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          application_id: string
+          application_id?: string | null
           auto_key?: string | null
           completed?: boolean
           created_at?: string
@@ -278,7 +278,7 @@ export type Database = {
           user_id: string
         }
         Update: {
-          application_id?: string
+          application_id?: string | null
           auto_key?: string | null
           completed?: boolean
           created_at?: string

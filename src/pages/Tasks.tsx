@@ -31,7 +31,7 @@ import { useToast } from '@/hooks/use-toast';
 type ManualTaskRow = {
   id: string;
   kind: 'manual';
-  application_id: string;
+  application_id: string | null;
   title: string;
   due_date: string | null;
   completed: boolean;
@@ -62,7 +62,7 @@ type AutoTask = {
 type ManualTask = {
   kind: 'manual';
   id: string;
-  applicationId: string;
+  applicationId: string | null;
   title: string;
   dueDate?: string;
   createdAt: string;
@@ -153,8 +153,8 @@ const Tasks = () => {
     return map;
   }, [applications]);
 
-  const logAction = async (applicationId: string, content: string) => {
-    if (!user) return;
+  const logAction = async (applicationId: string | null, content: string) => {
+    if (!user || !applicationId) return;
     await supabase
       .from('application_actions')
       .insert({ application_id: applicationId, user_id: user.id, content });
@@ -163,12 +163,12 @@ const Tasks = () => {
   const addManual = async () => {
     if (!user) return;
     const title = newTitle.trim();
-    if (!title || !newAppId) return;
+    if (!title) return;
     const { data, error } = await supabase
       .from('tasks')
       .insert({
         user_id: user.id,
-        application_id: newAppId,
+        application_id: newAppId || null,
         kind: 'manual',
         title,
         due_date: newDue || null,
@@ -191,7 +191,9 @@ const Tasks = () => {
       },
       ...prev,
     ]);
-    logAction(newAppId, `Task created: ${title}${newDue ? ` (due ${newDue})` : ''}`);
+    if (newAppId) {
+      logAction(newAppId, `Task created: ${title}${newDue ? ` (due ${newDue})` : ''}`);
+    }
     setNewTitle('');
     setNewDue('');
     setNewAppId('');
@@ -310,7 +312,7 @@ const Tasks = () => {
       .filter((task) => !overrideByKey[task.id]?.deleted);
 
     const manualTasks: ManualTask[] = manualRows
-      .filter((t) => appById[t.application_id])
+      .filter((t) => !t.application_id || appById[t.application_id])
       .map((t) => ({
         kind: 'manual',
         id: t.id,
@@ -381,15 +383,14 @@ const Tasks = () => {
                     variant="outline"
                     role="combobox"
                     aria-expanded={appOpen}
-                    disabled={!applications.length}
                     className="flex-1 justify-between font-normal"
                   >
                     <span className={cn('truncate', !newAppId && 'text-muted-foreground')}>
                       {newAppId && appById[newAppId]
                         ? `${appById[newAppId].role} @ ${appById[newAppId].company}`
                         : applications.length
-                          ? 'Link to a job application'
-                          : 'Create a job application first'}
+                          ? 'Link to a job application (optional)'
+                          : 'No job applications yet'}
                     </span>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
@@ -404,6 +405,21 @@ const Tasks = () => {
                     <CommandList>
                       <CommandEmpty>No application found.</CommandEmpty>
                       <CommandGroup>
+                        <CommandItem
+                          value="__none__ no application unlinked"
+                          onSelect={() => {
+                            setNewAppId('');
+                            setAppOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              'mr-2 h-4 w-4',
+                              !newAppId ? 'opacity-100' : 'opacity-0',
+                            )}
+                          />
+                          <span className="text-muted-foreground">No application</span>
+                        </CommandItem>
                         {applications.map((app) => (
                           <CommandItem
                             key={app.id}
@@ -429,14 +445,14 @@ const Tasks = () => {
               </Popover>
               <Button
                 onClick={addManual}
-                disabled={!newTitle.trim() || !newAppId}
+                disabled={!newTitle.trim()}
                 className="sm:w-32"
               >
                 <Plus className="h-4 w-4 mr-1" /> Add
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              Every task must be linked to a job application.
+              Linking to a job application is optional.
             </p>
           </CardContent>
         </Card>
@@ -460,7 +476,9 @@ const Tasks = () => {
               const linkedApp =
                 task.kind === 'auto'
                   ? { company: task.company, role: task.role, id: task.applicationId }
-                  : appById[task.applicationId];
+                  : task.applicationId
+                    ? appById[task.applicationId]
+                    : undefined;
               return (
                 <Card key={task.id} className="bg-gradient-card">
                   <CardContent className="p-4 flex items-start gap-4">

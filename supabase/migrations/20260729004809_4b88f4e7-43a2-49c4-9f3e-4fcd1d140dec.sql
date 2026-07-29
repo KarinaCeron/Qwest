@@ -1,0 +1,1 @@
+ALTER TABLE public.tasks ALTER COLUMN application_id DROP NOT NULL;

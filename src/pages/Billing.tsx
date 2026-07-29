@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Check, Sparkles, Zap, Crown } from 'lucide-react';
+import { ArrowLeft, Check, Sparkles, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,7 +7,7 @@ import { UserMenu } from '@/components/UserMenu';
 import { useToast } from '@/hooks/use-toast';
 
 type Plan = {
-  id: 'free' | 'pro' | 'premium';
+  id: 'free' | 'pro';
   name: string;
   price: string;
   period: string;
@@ -47,25 +47,11 @@ const plans: Plan[] = [
       'Answer application questions with AI',
       'Unlimited templates & question bank',
       'Advanced filters & analytics',
+      'Offer negotiation assistant',
+      'Priority support',
     ],
     cta: 'Upgrade to Pro',
     highlight: true,
-  },
-  {
-    id: 'premium',
-    name: 'Premium',
-    price: '$19',
-    period: 'per month',
-    description: 'Everything, plus coaching AI.',
-    icon: <Crown className="h-5 w-5" />,
-    features: [
-      'Everything in Pro',
-      'Offer negotiation assistant',
-      'Priority AI responses',
-      'Export & reporting',
-      'Priority support',
-    ],
-    cta: 'Upgrade to Premium',
   },
 ];
 
@@ -107,7 +93,7 @@ const Billing = () => {
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3 max-w-6xl mx-auto">
+        <div className="grid gap-6 md:grid-cols-2 max-w-4xl mx-auto">
           {plans.map((plan) => (
             <Card
               key={plan.id}
@@ -146,7 +132,7 @@ const Billing = () => {
               <CardFooter>
                 <Button
                   className="w-full"
-                  variant={plan.highlight ? 'default' : plan.id === 'free' ? 'outline' : 'secondary'}
+                  variant={plan.highlight ? 'default' : 'outline'}
                   disabled={plan.id === 'free'}
                   onClick={() => handleSelect(plan)}
                 >

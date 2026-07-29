@@ -462,7 +462,9 @@ const Tasks = () => {
               const linkedApp =
                 task.kind === 'auto'
                   ? { company: task.company, role: task.role, id: task.applicationId }
-                  : appById[task.applicationId];
+                  : task.applicationId
+                    ? appById[task.applicationId]
+                    : undefined;
               return (
                 <Card key={task.id} className="bg-gradient-card">
                   <CardContent className="p-4 flex items-start gap-4">

@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Trash2, Loader2, Coins, Gift, Pencil } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 
 type Kind = 'salary' | 'benefit';
 
@@ -21,6 +22,7 @@ interface CompensationItem {
   currency: string;
   period: string;
   notes: string | null;
+  required: boolean;
 }
 
 function formatMoney(amount: string | null, currency: string): string | null {
@@ -61,7 +63,12 @@ function ItemRow({
           </>
         ) : (
           <>
-            <p className="font-medium truncate">{item.label}</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="font-medium truncate">{item.label}</p>
+              <Badge variant={item.required ? 'default' : 'outline'} className="text-xs">
+                {item.required ? 'Required' : 'Optional'}
+              </Badge>
+            </div>
             {item.value && <p className="text-sm text-muted-foreground">{item.value}</p>}
           </>
         )}
@@ -104,6 +111,7 @@ export function CompensationPlanner() {
   const [benefitSaving, setBenefitSaving] = useState(false);
   const [benefitLabel, setBenefitLabel] = useState('');
   const [benefitDetail, setBenefitDetail] = useState('');
+  const [benefitRequired, setBenefitRequired] = useState(false);
 
   useEffect(() => {
     if (user) fetchItems();
@@ -196,6 +204,7 @@ export function CompensationPlanner() {
   const resetBenefitForm = () => {
     setBenefitLabel('');
     setBenefitDetail('');
+    setBenefitRequired(false);
     setEditingBenefitId(null);
   };
 
@@ -204,6 +213,7 @@ export function CompensationPlanner() {
     setEditingBenefitId(item.id);
     setBenefitLabel(item.label || '');
     setBenefitDetail(item.value || '');
+    setBenefitRequired(item.required);
   };
 
   const handleSaveBenefit = async () => {
@@ -213,6 +223,7 @@ export function CompensationPlanner() {
     const payload = {
       label: benefitLabel.trim(),
       value: benefitDetail.trim() || null,
+      required: benefitRequired,
     };
 
     let error;
@@ -406,6 +417,16 @@ export function CompensationPlanner() {
                 placeholder="e.g. 20 days per year"
               />
             </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <Switch
+              id="benefitRequired"
+              checked={benefitRequired}
+              onCheckedChange={setBenefitRequired}
+            />
+            <Label htmlFor="benefitRequired" className="cursor-pointer">
+              This benefit is required
+            </Label>
           </div>
           <div className="flex gap-2">
             <Button

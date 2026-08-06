@@ -35,11 +35,13 @@ Deno.serve(async (req) => {
     });
 
     let text = await res.text();
+    console.log(`research-company: n8n responded [${res.status}] body length ${text.length}`);
 
     if (!res.ok && (res.status === 404 || res.status === 405)) {
       console.log("research-company: POST rejected, retrying with GET");
       res = await fetch(url.toString(), { method: "GET" });
       text = await res.text();
+      console.log(`research-company: n8n GET responded [${res.status}] body length ${text.length}`);
     }
 
     if (!res.ok) {

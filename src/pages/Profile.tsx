@@ -50,7 +50,7 @@ const Profile = () => {
   const [profile, setProfile] = useState<ProfileData>(emptyProfile);
   const [original, setOriginal] = useState<ProfileData>(emptyProfile);
   const [loadingProfile, setLoadingProfile] = useState(true);
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(true);
   const [saving, setSaving] = useState(false);
   const [roles, setRoles] = useState<[string, string]>(['', '']);
   const [originalRoles, setOriginalRoles] = useState<[string, string]>(['', '']);

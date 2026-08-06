@@ -106,19 +106,28 @@ export function ProfileHero() {
           </div>
         </div>
 
-        {(profile?.target_roles ?? []).length > 0 && (
+        {loading ? (
+          <Skeleton className="h-6 w-56" />
+        ) : (
           <div className="flex flex-wrap items-center gap-2">
             <span className="flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
               <Target className="h-3.5 w-3.5 text-primary" />
               Chasing
             </span>
-            {(profile?.target_roles ?? []).slice(0, 2).map((role) => (
-              <Badge key={role} className="bg-gradient-primary text-primary-foreground">
-                {role}
-              </Badge>
-            ))}
+            {(profile?.target_roles ?? []).filter(Boolean).length > 0 ? (
+              (profile?.target_roles ?? []).filter(Boolean).slice(0, 2).map((role) => (
+                <Badge key={role} className="bg-gradient-primary text-primary-foreground">
+                  {role}
+                </Badge>
+              ))
+            ) : (
+              <Link to="/profile" className="text-sm text-primary underline">
+                Add the roles you're chasing
+              </Link>
+            )}
           </div>
         )}
+
 
         {loading ? (
           <Skeleton className="h-16 w-full" />

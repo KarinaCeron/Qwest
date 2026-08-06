@@ -87,7 +87,6 @@ export function CompensationPlanner() {
   const [benefitSaving, setBenefitSaving] = useState(false);
   const [benefitLabel, setBenefitLabel] = useState('');
   const [benefitDetail, setBenefitDetail] = useState('');
-  const [benefitNotes, setBenefitNotes] = useState('');
 
   useEffect(() => {
     if (user) fetchItems();

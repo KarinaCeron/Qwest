@@ -313,15 +313,6 @@ export function CompensationPlanner() {
                 placeholder="e.g. 20 days per year"
               />
             </div>
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="benefitNotes">Notes</Label>
-              <Input
-                id="benefitNotes"
-                value={benefitNotes}
-                onChange={(e) => setBenefitNotes(e.target.value)}
-                placeholder="Why it matters to you"
-              />
-            </div>
           </div>
           <Button
             onClick={handleAddBenefit}

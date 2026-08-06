@@ -498,7 +498,9 @@ export function CompensationPlanner() {
             Benefits
             <Badge variant="secondary">{benefits.length}</Badge>
           </CardTitle>
-          <CardDescription>The perks and conditions that matter to you beyond salary.</CardDescription>
+          <CardDescription>
+            The perks and conditions that matter to you beyond salary. Drag the handle to reorder — your order is saved.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-3 md:grid-cols-2">

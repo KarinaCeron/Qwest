@@ -301,8 +301,21 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="recruiterName">Recruiter / Contact</Label>
+            {showFullForm && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="role">Role / Position *</Label>
+                  <Input
+                    id="role"
+                    value={formData.role}
+                    onChange={(e) => handleChange('role', e.target.value)}
+                    placeholder="e.g. Frontend Developer..."
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="recruiterName">Recruiter / Contact</Label>
               <Input
                 id="recruiterName"
                 value={formData.recruiterName}

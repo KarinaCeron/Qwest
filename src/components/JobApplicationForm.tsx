@@ -47,6 +47,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const [editableOfferDiscussion, setEditableOfferDiscussion] = useState('');
   const [showFullForm, setShowFullForm] = useState(!!editingApplication);
   const [isResearching, setIsResearching] = useState(false);
+  const [companyWebsite, setCompanyWebsite] = useState('');
   const [companyResearch, setCompanyResearch] = useState<CompanyResearch | null>(null);
   const [formData, setFormData] = useState<JobApplicationFormData>({
     company: editingApplication?.company || '',

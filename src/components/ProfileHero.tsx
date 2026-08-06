@@ -55,19 +55,17 @@ export function ProfileHero() {
     .toUpperCase();
 
   return (
-    <Card className="overflow-hidden border-none shadow-lg">
-      <div className="h-24 bg-gradient-primary" />
-      <CardContent className="space-y-4 pb-6 pt-0">
+    <Card className="border shadow-sm">
+      <CardContent className="space-y-5 p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex items-end gap-4">
-            <Avatar className="-mt-12 h-24 w-24 border-4 border-card shadow-md">
+          <div className="flex items-start gap-4">
+            <Avatar className="h-20 w-20 border-2 border-border">
               <AvatarImage src={profile?.avatar_url ?? undefined} alt={fullName} />
-              <AvatarFallback className="bg-gradient-primary text-2xl text-primary-foreground">
+              <AvatarFallback className="bg-gradient-primary text-xl text-primary-foreground">
                 {initials || '?'}
               </AvatarFallback>
             </Avatar>
-            <div className="pb-1 pt-3">
-
+            <div className="pt-1">
               {loading ? (
                 <Skeleton className="h-7 w-40" />
               ) : (
@@ -83,7 +81,7 @@ export function ProfileHero() {
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2 pt-3">
+          <div className="flex flex-wrap gap-2">
             {profile?.linkedin_url && (
               <Button variant="outline" size="sm" asChild>
                 <a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer">
@@ -127,7 +125,6 @@ export function ProfileHero() {
             )}
           </div>
         )}
-
 
         {loading ? (
           <Skeleton className="h-16 w-full" />

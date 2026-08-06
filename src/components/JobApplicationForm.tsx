@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import { X, Plus, Edit, FileText, Copy, Wand2, MessageCircleQuestion, Trash2, Save, Handshake, ExternalLink } from 'lucide-react';
+import { X, Plus, Edit, FileText, Copy, Wand2, MessageCircleQuestion, Trash2, Save, Handshake, ExternalLink, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -44,6 +44,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   );
   const [editableAnswer, setEditableAnswer] = useState('');
   const [editableOfferDiscussion, setEditableOfferDiscussion] = useState('');
+  const [showFullForm, setShowFullForm] = useState(!!editingApplication);
   const [formData, setFormData] = useState<JobApplicationFormData>({
     company: editingApplication?.company || '',
     role: editingApplication?.role || '',
@@ -276,31 +277,45 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
 
         <CardContent className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="company">Company *</Label>
+            <div className="space-y-2">
+              <Label htmlFor="company">Company *</Label>
+              <div className="flex gap-2">
                 <Input
                   id="company"
                   value={formData.company}
                   onChange={(e) => handleChange('company', e.target.value)}
                   placeholder="e.g. Google, Microsoft..."
                   required
+                  className="flex-1"
                 />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="role">Role / Position *</Label>
-                <Input
-                  id="role"
-                  value={formData.role}
-                  onChange={(e) => handleChange('role', e.target.value)}
-                  placeholder="e.g. Frontend Developer..."
-                  required
-                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowFullForm(true)}
+                  disabled={!formData.company.trim()}
+                  className="shrink-0"
+                >
+                  <Search className="h-4 w-4 mr-2" />
+                  Research company
+                </Button>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="recruiterName">Recruiter / Contact</Label>
+            {showFullForm && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="role">Role / Position *</Label>
+                  <Input
+                    id="role"
+                    value={formData.role}
+                    onChange={(e) => handleChange('role', e.target.value)}
+                    placeholder="e.g. Frontend Developer..."
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="recruiterName">Recruiter / Contact</Label>
               <Input
                 id="recruiterName"
                 value={formData.recruiterName}
@@ -818,6 +833,8 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 Cancel
               </Button>
             </div>
+          </>
+        )}
           </form>
         </CardContent>
       </Card>

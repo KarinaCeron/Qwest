@@ -238,7 +238,7 @@ export function CompensationPlanner() {
           </div>
           <Button
             onClick={handleAddSalary}
-            disabled={salarySaving || !salaryLabel.trim()}
+            disabled={salarySaving}
             className="w-full bg-gradient-primary"
           >
             {salarySaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}

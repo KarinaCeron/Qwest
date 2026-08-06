@@ -835,7 +835,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
             </div>
           </>
         )}
-        </form>
+          </form>
         </CardContent>
       </Card>
     </div>

@@ -17,6 +17,7 @@ interface CompensationItem {
   kind: Kind;
   label: string;
   value: string | null;
+  min_value: string | null;
   currency: string;
   period: string;
   notes: string | null;
@@ -27,13 +28,19 @@ function ItemRow({ item, onDelete }: { item: CompensationItem; onDelete: (id: st
     <div className="flex items-start justify-between gap-3 rounded-lg border p-3">
       <div className="min-w-0">
         <p className="font-medium truncate">{item.label}</p>
-        {item.value && (
-          <p className="text-sm text-muted-foreground">
-            {item.kind === 'salary'
-              ? `${item.value} ${item.currency} · ${item.period === 'annual' ? 'Annual' : 'Monthly'}`
-              : item.value}
-          </p>
+        {item.kind === 'salary' ? (
+          (item.value || item.min_value) && (
+            <p className="text-sm text-muted-foreground">
+              {item.value && `Desired ${item.value}`}
+              {item.value && item.min_value && ' · '}
+              {item.min_value && `Minimum ${item.min_value}`}
+              {` ${item.currency} · ${item.period === 'annual' ? 'Annual' : 'Monthly'}`}
+            </p>
+          )
+        ) : (
+          item.value && <p className="text-sm text-muted-foreground">{item.value}</p>
         )}
+
         {item.notes && <p className="mt-1 text-xs text-muted-foreground">{item.notes}</p>}
       </div>
       <Button variant="ghost" size="icon" onClick={() => onDelete(item.id)} aria-label="Delete item">

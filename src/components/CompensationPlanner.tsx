@@ -31,7 +31,15 @@ function formatMoney(amount: string | null, currency: string): string | null {
   return new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: 0 }).format(numeric);
 }
 
-function ItemRow({ item, onDelete }: { item: CompensationItem; onDelete: (id: string) => void }) {
+function ItemRow({
+  item,
+  onDelete,
+  onEdit,
+}: {
+  item: CompensationItem;
+  onDelete: (id: string) => void;
+  onEdit?: (item: CompensationItem) => void;
+}) {
   return (
     <div className="flex items-start justify-between gap-3 rounded-lg border p-3">
       <div className="min-w-0 flex-1">
@@ -60,9 +68,16 @@ function ItemRow({ item, onDelete }: { item: CompensationItem; onDelete: (id: st
 
         {item.notes && <p className="mt-1 text-xs text-muted-foreground">{item.notes}</p>}
       </div>
-      <Button variant="ghost" size="icon" onClick={() => onDelete(item.id)} aria-label="Delete item">
-        <Trash2 className="h-4 w-4" />
-      </Button>
+      <div className="flex items-start">
+        {item.kind === 'salary' && onEdit && (
+          <Button variant="ghost" size="icon" onClick={() => onEdit(item)} aria-label="Edit item">
+            <Pencil className="h-4 w-4" />
+          </Button>
+        )}
+        <Button variant="ghost" size="icon" onClick={() => onDelete(item.id)} aria-label="Delete item">
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
     </div>
   );
 }

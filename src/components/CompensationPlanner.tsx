@@ -270,7 +270,7 @@ export function CompensationPlanner() {
   ) : (
     <div className="space-y-2">
       {benefits.map((item) => (
-        <ItemRow key={item.id} item={item} onDelete={handleDelete} />
+        <ItemRow key={item.id} item={item} onDelete={handleDelete} onEdit={handleEditBenefit} />
       ))}
     </div>
   );

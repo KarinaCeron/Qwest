@@ -213,6 +213,7 @@ export function CompensationPlanner() {
     setEditingBenefitId(item.id);
     setBenefitLabel(item.label || '');
     setBenefitDetail(item.value || '');
+    setBenefitRequired(item.required);
   };
 
   const handleSaveBenefit = async () => {

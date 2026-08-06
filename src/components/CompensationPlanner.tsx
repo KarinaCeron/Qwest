@@ -60,6 +60,8 @@ export function CompensationPlanner() {
   const [salarySaving, setSalarySaving] = useState(false);
   const [salaryLabel, setSalaryLabel] = useState('');
   const [salaryAmount, setSalaryAmount] = useState('');
+  const [salaryMinAmount, setSalaryMinAmount] = useState('');
+
   const [currency, setCurrency] = useState('USD');
   const [period, setPeriod] = useState('annual');
   const [salaryNotes, setSalaryNotes] = useState('');

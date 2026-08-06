@@ -51,7 +51,25 @@ Deno.serve(async (req) => {
       );
     }
 
-    return new Response(JSON.stringify({ text }), {
+    // Unwrap JSON envelopes like {"output":"..."} / {"text":"..."} / {"response":"..."} and arrays
+    let clean = text.trim();
+    try {
+      let parsed: unknown = JSON.parse(clean);
+      if (Array.isArray(parsed)) parsed = parsed[0];
+      if (typeof parsed === "string") {
+        clean = parsed;
+      } else if (parsed && typeof parsed === "object") {
+        const obj = parsed as Record<string, unknown>;
+        const val = obj.output ?? obj.text ?? obj.response ?? obj.result ?? obj.message;
+        if (typeof val === "string") clean = val;
+      }
+    } catch {
+      // not JSON: strip a leading {"output":" wrapper and trailing "} if present
+      const m = clean.match(/^\{\s*"(?:output|text|response|result|message)"\s*:\s*"([\s\S]*)"\s*\}$/);
+      if (m) clean = m[1].replace(/\\n/g, "\n").replace(/\\"/g, '"').replace(/\\\\/g, "\\");
+    }
+
+    return new Response(JSON.stringify({ text: clean }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

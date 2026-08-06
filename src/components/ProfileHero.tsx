@@ -83,7 +83,7 @@ export function ProfileHero() {
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 pt-3">
             {profile?.linkedin_url && (
               <Button variant="outline" size="sm" asChild>
                 <a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer">

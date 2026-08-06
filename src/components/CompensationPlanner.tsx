@@ -299,9 +299,44 @@ export function CompensationPlanner() {
   const benefits = items
     .filter((i) => i.kind === 'benefit')
     .sort((a, b) => {
-      if (a.required === b.required) return 0;
+      if (a.required === b.required) return a.sort_order - b.sort_order;
       return a.required ? -1 : 1;
     });
+
+  const persistBenefitOrder = async (ordered: CompensationItem[]) => {
+    const updates = ordered.map((item, index) =>
+      supabase.from('compensation_items').update({ sort_order: index + 1 }).eq('id', item.id)
+    );
+    const results = await Promise.all(updates);
+    const failed = results.find((r) => r.error);
+    if (failed?.error) {
+      toast({ title: 'Could not save the new order', description: failed.error.message, variant: 'destructive' });
+      await fetchItems();
+    }
+  };
+
+  const handleBenefitDrop = async (targetId: string) => {
+    if (!dragId || dragId === targetId) return;
+    const source = benefits.find((b) => b.id === dragId);
+    const target = benefits.find((b) => b.id === targetId);
+    if (!source || !target || source.required !== target.required) return;
+
+    const group = benefits.filter((b) => b.required === source.required);
+    const others = benefits.filter((b) => b.required !== source.required);
+    const from = group.findIndex((b) => b.id === dragId);
+    const to = group.findIndex((b) => b.id === targetId);
+    const reordered = [...group];
+    reordered.splice(to, 0, reordered.splice(from, 1)[0]);
+
+    const merged = source.required ? [...reordered, ...others] : [...others, ...reordered];
+    const withOrder = merged.map((item, index) => ({ ...item, sort_order: index + 1 }));
+
+    setItems((prev) => [
+      ...prev.filter((i) => i.kind !== 'benefit'),
+      ...withOrder,
+    ]);
+    await persistBenefitOrder(merged);
+  };
 
   const salaryList = loading ? (
     <div className="flex justify-center py-6">
@@ -326,10 +361,34 @@ export function CompensationPlanner() {
   ) : (
     <div className="space-y-2">
       {benefits.map((item) => (
-        <ItemRow key={item.id} item={item} onDelete={handleDelete} onEdit={handleEditBenefit} />
+        <ItemRow
+          key={item.id}
+          item={item}
+          onDelete={handleDelete}
+          onEdit={handleEditBenefit}
+          draggable
+          isDragging={dragId === item.id}
+          isDropTarget={dragOverId === item.id && dragId !== item.id}
+          onDragStart={() => setDragId(item.id)}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragOverId(item.id);
+          }}
+          onDragEnd={() => {
+            setDragId(null);
+            setDragOverId(null);
+          }}
+          onDrop={(e) => {
+            e.preventDefault();
+            handleBenefitDrop(item.id);
+            setDragId(null);
+            setDragOverId(null);
+          }}
+        />
       ))}
     </div>
   );
+
 
   return (
     <div className="space-y-6">

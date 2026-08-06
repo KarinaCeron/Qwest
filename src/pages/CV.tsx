@@ -236,9 +236,14 @@ const CV = () => {
             )}
           </CardContent>
         </Card>
+          </TabsContent>
 
-        <CompensationPlanner />
+          <TabsContent value="compensation">
+            <CompensationPlanner />
+          </TabsContent>
+        </Tabs>
       </main>
+
     </div>
   );
 };

@@ -50,6 +50,11 @@ export const UserMenu = () => {
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
+          <DropdownMenuLabel className="text-xs text-muted-foreground font-normal px-2 py-1.5">My Qwest</DropdownMenuLabel>
+          <DropdownMenuItem onClick={() => navigate('/cv')} className="cursor-pointer">
+            <FileText className="mr-2 h-4 w-4" />
+            My Qwest
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => navigate('/')} className="cursor-pointer">
             <Briefcase className="mr-2 h-4 w-4" />
             My Job Apps
@@ -58,14 +63,8 @@ export const UserMenu = () => {
             <ListChecks className="mr-2 h-4 w-4" />
             My Pending Tasks
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer">
-            <User className="mr-2 h-4 w-4" />
-            My Profile
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => navigate('/cv')} className="cursor-pointer">
-            <FileText className="mr-2 h-4 w-4" />
-            My Qwest
-          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuLabel className="text-xs text-muted-foreground font-normal px-2 py-1.5">Resources</DropdownMenuLabel>
           <DropdownMenuItem onClick={() => navigate('/templates')} className="cursor-pointer">
             <MessageSquareText className="mr-2 h-4 w-4" />
             My Templates
@@ -73,6 +72,12 @@ export const UserMenu = () => {
           <DropdownMenuItem onClick={() => navigate('/questions')} className="cursor-pointer">
             <CircleHelp className="mr-2 h-4 w-4" />
             Question Bank
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuLabel className="text-xs text-muted-foreground font-normal px-2 py-1.5">Settings</DropdownMenuLabel>
+          <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer">
+            <User className="mr-2 h-4 w-4" />
+            My Profile
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => navigate('/billing')} className="cursor-pointer">
             <CreditCard className="mr-2 h-4 w-4" />

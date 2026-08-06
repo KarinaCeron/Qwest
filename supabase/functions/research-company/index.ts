@@ -128,14 +128,21 @@ Deno.serve(async (req) => {
     url.searchParams.set("company", companyInput);
     if (websiteInput) url.searchParams.set("website", websiteInput);
 
-    // POST with body, and also pass query params so GET-configured n8n nodes work.
-    const res = await fetch(url.toString(), {
+    // POST with body first; if the n8n node is GET-only, retry as GET with query params.
+    let res = await fetch(url.toString(), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ company: companyInput, website: websiteInput }),
     });
 
-    const text = await res.text();
+    let text = await res.text();
+
+    if (!res.ok && (res.status === 404 || res.status === 405)) {
+      console.log("research-company: POST rejected, retrying with GET");
+      res = await fetch(url.toString(), { method: "GET" });
+      text = await res.text();
+    }
+
     if (!res.ok) {
       console.error(`research-company n8n error [${res.status}]: ${text}`);
       return new Response(

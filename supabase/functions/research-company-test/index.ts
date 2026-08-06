@@ -14,35 +14,25 @@ Deno.serve(async (req) => {
       ? website.trim()
       : "https://acme.example.com";
 
-    const mockResearch = {
-      website: companyWebsite,
-      foundation_year: "2015",
-      founders: ["Alice Smith", "Bob Jones"],
-      investing_rounds: ["Seed 2016", "Series A 2018", "Series B 2021"],
-      number_of_employees: "250",
-      cpo_name: "Alice Smith",
-      cpo_linkedin: "https://linkedin.com/in/alicesmith",
-      cto_name: "Bob Jones",
-      cto_linkedin: "https://linkedin.com/in/bobjones",
-      product_organization:
-        "Product teams are organized into autonomous squads, each owning a specific product line. They follow a dual-track Agile approach with discovery and delivery phases.",
-      culture:
-        "Remote-first, async communication, strong emphasis on ownership and psychological safety. Regular offsites and transparent OKRs.",
-      employee_reviews:
-        "Employees praise the flexible schedule and talented colleagues. Some mention fast growth can make processes feel chaotic at times.",
-    };
+    const plainText = `Company: ${companyName}
+Website: ${companyWebsite}
+Foundation year: 2015
+Founders: Alice Smith, Bob Jones
+Investing rounds: Seed 2016, Series A 2018, Series B 2021
+Number of employees: 250
+CPO: Alice Smith (https://linkedin.com/in/alicesmith)
+CTO: Bob Jones (https://linkedin.com/in/bobjones)
+Product organization: Product teams are organized into autonomous squads, each owning a specific product line. They follow a dual-track Agile approach with discovery and delivery phases.
+Culture: Remote-first, async communication, strong emphasis on ownership and psychological safety. Regular offsites and transparent OKRs.
+Employee reviews: Employees praise the flexible schedule and talented colleagues. Some mention fast growth can make processes feel chaotic at times.
+Sources:
+- ${companyName} homepage: ${companyWebsite}
+- ${companyName} LinkedIn: https://linkedin.com/company/acme-example
+- Glassdoor reviews: https://glassdoor.com/Overview/Acme-Example-E12345.htm`;
 
-    const mockSources = [
-      { title: `${companyName} homepage`, uri: companyWebsite },
-      { title: `${companyName} LinkedIn`, uri: "https://linkedin.com/company/acme-example" },
-      { title: "Glassdoor reviews", uri: "https://glassdoor.com/Overview/Acme-Example-E12345.htm" },
-    ];
-
-    const plainTextBody = JSON.stringify({ research: mockResearch, sources: mockSources }, null, 2);
-
-    return new Response(plainTextBody, {
+    return new Response(JSON.stringify({ text: plainText }), {
       status: 200,
-      headers: { ...corsHeaders, "Content-Type": "text/plain" },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
     console.error("research-company-test error:", e);

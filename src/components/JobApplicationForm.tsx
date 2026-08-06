@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { ApplicationActionLog } from '@/components/ApplicationActionLog';
-import { CompanyResearchPanel, CompanyResearch, ResearchSource } from '@/components/CompanyResearchPanel';
+import { CompanyResearchPanel } from '@/components/CompanyResearchPanel';
 
 const STEPS = ['Company', 'Application', 'Questions', 'Action log'];
 

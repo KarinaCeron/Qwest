@@ -183,7 +183,9 @@ export function CompensationPlanner() {
             Salary expectations
             <Badge variant="secondary">{salaries.length}</Badge>
           </CardTitle>
-          <CardDescription>Track the numbers you are aiming for, by currency and period.</CardDescription>
+          <CardDescription>
+            Track the numbers you are aiming for, by currency and period. Add one entry per currency — for example, one in USD and another in COP.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-3 md:grid-cols-2">

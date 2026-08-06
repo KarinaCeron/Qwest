@@ -1,12 +1,8 @@
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response("ok", { headers: corsHeaders });
   }
 
   try {
@@ -42,17 +38,12 @@ Deno.serve(async (req) => {
       { title: "Glassdoor reviews", uri: "https://glassdoor.com/Overview/Acme-Example-E12345.htm" },
     ];
 
-    // Return the exact shape n8n should produce.
-    return new Response(
-      JSON.stringify({
-        research: mockResearch,
-        sources: mockSources,
-      }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      },
-    );
+    const plainTextBody = JSON.stringify({ research: mockResearch, sources: mockSources }, null, 2);
+
+    return new Response(plainTextBody, {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "text/plain" },
+    });
   } catch (e) {
     console.error("research-company-test error:", e);
     return new Response(

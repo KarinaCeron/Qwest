@@ -191,7 +191,7 @@ export function CompensationPlanner() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="salaryAmount">Amount</Label>
+              <Label htmlFor="salaryAmount">Desired amount</Label>
               <Input
                 id="salaryAmount"
                 value={salaryAmount}
@@ -199,6 +199,16 @@ export function CompensationPlanner() {
                 placeholder="120000"
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="salaryMinAmount">Minimum to accept</Label>
+              <Input
+                id="salaryMinAmount"
+                value={salaryMinAmount}
+                onChange={(e) => setSalaryMinAmount(e.target.value)}
+                placeholder="100000"
+              />
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="salaryCurrency">Currency</Label>
               <Select value={currency} onValueChange={setCurrency}>

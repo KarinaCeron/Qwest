@@ -57,16 +57,17 @@ export function ProfileHero() {
   return (
     <Card className="overflow-hidden border-none shadow-lg">
       <div className="h-24 bg-gradient-primary" />
-      <CardContent className="-mt-12 space-y-4 pb-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <CardContent className="space-y-4 pb-6 pt-0">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-end gap-4">
-            <Avatar className="h-24 w-24 border-4 border-card shadow-md">
+            <Avatar className="-mt-12 h-24 w-24 border-4 border-card shadow-md">
               <AvatarImage src={profile?.avatar_url ?? undefined} alt={fullName} />
               <AvatarFallback className="bg-gradient-primary text-2xl text-primary-foreground">
                 {initials || '?'}
               </AvatarFallback>
             </Avatar>
-            <div className="pb-1">
+            <div className="pb-1 pt-3">
+
               {loading ? (
                 <Skeleton className="h-7 w-40" />
               ) : (

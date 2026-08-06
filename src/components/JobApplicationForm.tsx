@@ -207,17 +207,14 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     if (!company) return;
     setStep(0);
     setIsResearching(true);
-    setCompanyResearch(null);
-    setResearchSources([]);
+    setCompanyResearchText(null);
     try {
       const { data, error } = await supabase.functions.invoke('research-company', {
         body: { company, website: companyWebsite.trim() || undefined },
       });
       if (error) throw error;
-      if (!data?.research) throw new Error('No research data returned');
-      setCompanyResearch(data.research as CompanyResearch);
-      setResearchSources((data.sources ?? []) as ResearchSource[]);
-
+      if (typeof data?.text !== 'string') throw new Error('No research data returned');
+      setCompanyResearchText(data.text);
     } catch (error) {
       toast({
         title: 'Error',

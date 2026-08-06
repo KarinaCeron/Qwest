@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Trash2, Loader2, Coins, Gift } from 'lucide-react';
+import { Plus, Trash2, Loader2, Coins, Gift, Pencil } from 'lucide-react';
 
 type Kind = 'salary' | 'benefit';
 
@@ -31,7 +31,15 @@ function formatMoney(amount: string | null, currency: string): string | null {
   return new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: 0 }).format(numeric);
 }
 
-function ItemRow({ item, onDelete }: { item: CompensationItem; onDelete: (id: string) => void }) {
+function ItemRow({
+  item,
+  onDelete,
+  onEdit,
+}: {
+  item: CompensationItem;
+  onDelete: (id: string) => void;
+  onEdit?: (item: CompensationItem) => void;
+}) {
   return (
     <div className="flex items-start justify-between gap-3 rounded-lg border p-3">
       <div className="min-w-0 flex-1">
@@ -60,9 +68,16 @@ function ItemRow({ item, onDelete }: { item: CompensationItem; onDelete: (id: st
 
         {item.notes && <p className="mt-1 text-xs text-muted-foreground">{item.notes}</p>}
       </div>
-      <Button variant="ghost" size="icon" onClick={() => onDelete(item.id)} aria-label="Delete item">
-        <Trash2 className="h-4 w-4" />
-      </Button>
+      <div className="flex items-start">
+        {item.kind === 'salary' && onEdit && (
+          <Button variant="ghost" size="icon" onClick={() => onEdit(item)} aria-label="Edit item">
+            <Pencil className="h-4 w-4" />
+          </Button>
+        )}
+        <Button variant="ghost" size="icon" onClick={() => onDelete(item.id)} aria-label="Delete item">
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
     </div>
   );
 }
@@ -75,6 +90,7 @@ export function CompensationPlanner() {
 
   // Salary expectation form
   const [showSalaryForm, setShowSalaryForm] = useState(false);
+  const [editingSalaryId, setEditingSalaryId] = useState<string | null>(null);
   const [salarySaving, setSalarySaving] = useState(false);
   const [salaryAmount, setSalaryAmount] = useState('');
   const [salaryMinAmount, setSalaryMinAmount] = useState('');
@@ -116,28 +132,62 @@ export function CompensationPlanner() {
     setItems((prev) => prev.filter((i) => i.id !== id));
   };
 
-  const handleAddSalary = async () => {
+  const resetSalaryForm = () => {
+    setSalaryAmount('');
+    setSalaryMinAmount('');
+    setSalaryNotes('');
+    setCurrency('USD');
+    setPeriod('annual');
+    setEditingSalaryId(null);
+    setShowSalaryForm(false);
+  };
+
+  const handleEditSalary = (item: CompensationItem) => {
+    if (item.kind !== 'salary') return;
+    setEditingSalaryId(item.id);
+    setSalaryAmount(item.value || '');
+    setSalaryMinAmount(item.min_value || '');
+    setCurrency(item.currency);
+    setPeriod(item.period);
+    setSalaryNotes(item.notes || '');
+    setShowSalaryForm(true);
+  };
+
+  const handleSaveSalary = async () => {
     if (!user) return;
     setSalarySaving(true);
-    const { error } = await supabase.from('compensation_items').insert({
-      user_id: user.id,
-      kind: 'salary',
-      label: null,
+
+    const payload = {
       value: salaryAmount.trim() || null,
       min_value: salaryMinAmount.trim() || null,
       currency,
       period,
       notes: salaryNotes.trim() || null,
-    });
-    if (error) {
-      toast({ title: 'Could not add the salary expectation', description: error.message, variant: 'destructive' });
-    } else {
-      setSalaryAmount('');
-      setSalaryMinAmount('');
-      setSalaryNotes('');
-      setShowSalaryForm(false);
-      await fetchItems();
+    };
 
+    let error;
+    if (editingSalaryId) {
+      const result = await supabase.from('compensation_items').update(payload).eq('id', editingSalaryId);
+      error = result.error;
+    } else {
+      const result = await supabase.from('compensation_items').insert({
+        user_id: user.id,
+        kind: 'salary',
+        label: null,
+        ...payload,
+      });
+      error = result.error;
+    }
+
+    if (error) {
+      toast({
+        title: editingSalaryId ? 'Could not update the salary expectation' : 'Could not add the salary expectation',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } else {
+      resetSalaryForm();
+      await fetchItems();
     }
     setSalarySaving(false);
   };
@@ -167,20 +217,33 @@ export function CompensationPlanner() {
   const salaries = items.filter((i) => i.kind === 'salary');
   const benefits = items.filter((i) => i.kind === 'benefit');
 
-  const listState = (list: CompensationItem[], emptyText: string) =>
-    loading ? (
-      <div className="flex justify-center py-6">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    ) : list.length === 0 ? (
-      <p className="text-sm text-muted-foreground">{emptyText}</p>
-    ) : (
-      <div className="space-y-2">
-        {list.map((item) => (
-          <ItemRow key={item.id} item={item} onDelete={handleDelete} />
-        ))}
-      </div>
-    );
+  const salaryList = loading ? (
+    <div className="flex justify-center py-6">
+      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+    </div>
+  ) : salaries.length === 0 ? (
+    <p className="text-sm text-muted-foreground">No salary expectations yet.</p>
+  ) : (
+    <div className="space-y-2">
+      {salaries.map((item) => (
+        <ItemRow key={item.id} item={item} onDelete={handleDelete} onEdit={handleEditSalary} />
+      ))}
+    </div>
+  );
+
+  const benefitList = loading ? (
+    <div className="flex justify-center py-6">
+      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+    </div>
+  ) : benefits.length === 0 ? (
+    <p className="text-sm text-muted-foreground">No benefits yet.</p>
+  ) : (
+    <div className="space-y-2">
+      {benefits.map((item) => (
+        <ItemRow key={item.id} item={item} onDelete={handleDelete} />
+      ))}
+    </div>
+  );
 
   return (
     <div className="space-y-6">
@@ -196,7 +259,7 @@ export function CompensationPlanner() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {listState(salaries, 'No salary expectations yet.')}
+          {salaryList}
           {showSalaryForm ? (
             <div className="space-y-4">
               <div className="grid gap-3 md:grid-cols-2">
@@ -255,16 +318,16 @@ export function CompensationPlanner() {
               </div>
               <div className="flex gap-2">
                 <Button
-                  onClick={handleAddSalary}
+                  onClick={handleSaveSalary}
                   disabled={salarySaving}
                   className="flex-1 bg-gradient-primary"
                 >
                   {salarySaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-                  Add salary expectation
+                  {editingSalaryId ? 'Save changes' : 'Add salary expectation'}
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => setShowSalaryForm(false)}
+                  onClick={resetSalaryForm}
                   disabled={salarySaving}
                 >
                   Cancel
@@ -322,7 +385,7 @@ export function CompensationPlanner() {
             {benefitSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
             Add benefit
           </Button>
-          {listState(benefits, 'No benefits yet.')}
+          {benefitList}
         </CardContent>
       </Card>
     </div>

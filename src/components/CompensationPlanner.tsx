@@ -66,6 +66,7 @@ export function CompensationPlanner() {
   const [loading, setLoading] = useState(true);
 
   // Salary expectation form
+  const [showSalaryForm, setShowSalaryForm] = useState(false);
   const [salarySaving, setSalarySaving] = useState(false);
   const [salaryAmount, setSalaryAmount] = useState('');
   const [salaryMinAmount, setSalaryMinAmount] = useState('');

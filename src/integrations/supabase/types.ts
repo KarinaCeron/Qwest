@@ -57,6 +57,7 @@ export type Database = {
           notes: string | null
           period: string
           required: boolean
+          sort_order: number
           updated_at: string
           user_id: string
           value: string | null
@@ -71,6 +72,7 @@ export type Database = {
           notes?: string | null
           period?: string
           required?: boolean
+          sort_order?: number
           updated_at?: string
           user_id: string
           value?: string | null
@@ -85,6 +87,7 @@ export type Database = {
           notes?: string | null
           period?: string
           required?: boolean
+          sort_order?: number
           updated_at?: string
           user_id?: string
           value?: string | null

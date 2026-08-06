@@ -833,8 +833,8 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 Cancel
               </Button>
             </div>
-              </>
-            )}
+          </>
+        )}
           </form>
         </CardContent>
       </Card>

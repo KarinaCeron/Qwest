@@ -15,7 +15,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { ApplicationActionLog } from '@/components/ApplicationActionLog';
 import { CompanyResearchPanel, CompanyResearch, ResearchSource } from '@/components/CompanyResearchPanel';
 
+const STEPS = ['Company', 'Application', 'Questions', 'Action log'];
+
 interface JobApplicationFormProps {
+
   onSubmit: (data: JobApplicationFormData) => void;
   onCancel: () => void;
   editingApplication?: JobApplication | null;

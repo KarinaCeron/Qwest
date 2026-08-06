@@ -204,7 +204,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     setCompanyResearch(null);
     try {
       const { data, error } = await supabase.functions.invoke('research-company', {
-        body: { company },
+        body: { company, website: companyWebsite.trim() || undefined },
       });
       if (error) throw error;
       if (!data?.research) throw new Error('No research data returned');

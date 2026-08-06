@@ -143,6 +143,10 @@ export function CompensationPlanner() {
   const [benefitDetail, setBenefitDetail] = useState('');
   const [benefitRequired, setBenefitRequired] = useState(false);
 
+  // Drag and drop reordering for benefits
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
+
   useEffect(() => {
     if (user) fetchItems();
   }, [user]);
@@ -153,7 +157,8 @@ export function CompensationPlanner() {
     const { data, error } = await supabase
       .from('compensation_items')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: true });
     if (error) {
       toast({ title: 'Could not load your list', description: error.message, variant: 'destructive' });
     } else {
@@ -161,6 +166,7 @@ export function CompensationPlanner() {
     }
     setLoading(false);
   };
+
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from('compensation_items').delete().eq('id', id);

@@ -27,18 +27,23 @@ function ItemRow({ item, onDelete }: { item: CompensationItem; onDelete: (id: st
   return (
     <div className="flex items-start justify-between gap-3 rounded-lg border p-3">
       <div className="min-w-0">
-        <p className="font-medium truncate">{item.label}</p>
         {item.kind === 'salary' ? (
-          (item.value || item.min_value) && (
-            <p className="text-sm text-muted-foreground">
-              {item.value && `Desired ${item.value}`}
-              {item.value && item.min_value && ' · '}
-              {item.min_value && `Minimum ${item.min_value}`}
-              {` ${item.currency} · ${item.period === 'annual' ? 'Annual' : 'Monthly'}`}
-            </p>
-          )
+          <>
+            <p className="font-medium">Salary expectation</p>
+            {(item.value || item.min_value) && (
+              <p className="text-sm text-muted-foreground">
+                {item.value && `Desired ${item.value}`}
+                {item.value && item.min_value && ' · '}
+                {item.min_value && `Minimum ${item.min_value}`}
+                {` ${item.currency} · ${item.period === 'annual' ? 'Annual' : 'Monthly'}`}
+              </p>
+            )}
+          </>
         ) : (
-          item.value && <p className="text-sm text-muted-foreground">{item.value}</p>
+          <>
+            <p className="font-medium truncate">{item.label}</p>
+            {item.value && <p className="text-sm text-muted-foreground">{item.value}</p>}
+          </>
         )}
 
         {item.notes && <p className="mt-1 text-xs text-muted-foreground">{item.notes}</p>}

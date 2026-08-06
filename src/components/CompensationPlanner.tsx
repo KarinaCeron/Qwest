@@ -15,7 +15,7 @@ type Kind = 'salary' | 'benefit';
 interface CompensationItem {
   id: string;
   kind: Kind;
-  label: string;
+  label: string | null;
   value: string | null;
   min_value: string | null;
   currency: string;

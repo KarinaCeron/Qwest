@@ -196,33 +196,29 @@ const CV = () => {
               <div className="space-y-3">
                 {cvs.map((cv) => (
                   <div key={cv.id} className="border rounded-lg p-4 space-y-3">
-                    <div className="flex items-center gap-3">
-                      <FileText className="h-10 w-10 text-red-500 shrink-0" />
-                      <div className="min-w-0">
+                    <div className="flex items-start gap-3">
+                      <FileText className="h-10 w-10 text-red-500 shrink-0 mt-0.5" />
+                      <div className="min-w-0 flex-1">
                         <p className="font-medium truncate">{cv.file_name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {new Date(cv.created_at).toLocaleDateString('en-US')}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor={`desc-${cv.id}`}>Description</Label>
-                      <div className="flex gap-2">
-                        <Input
-                          id={`desc-${cv.id}`}
-                          value={drafts[cv.id] ?? ''}
-                          onChange={(e) => setDrafts((prev) => ({ ...prev, [cv.id]: e.target.value }))}
-                          placeholder="What is this CV for?"
-                          maxLength={200}
-                        />
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => handleSaveDescription(cv)}
-                          aria-label="Save description"
-                        >
-                          <Save className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Input
+                            id={`desc-${cv.id}`}
+                            value={drafts[cv.id] ?? ''}
+                            onChange={(e) => setDrafts((prev) => ({ ...prev, [cv.id]: e.target.value }))}
+                            placeholder="What is this CV for?"
+                            maxLength={200}
+                            className="h-8 text-sm"
+                          />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 shrink-0"
+                            onClick={() => handleSaveDescription(cv)}
+                            aria-label="Save description"
+                          >
+                            <Save className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
                     <div className="flex gap-2">

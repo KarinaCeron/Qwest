@@ -100,6 +100,7 @@ export function CompensationPlanner() {
   const [salaryNotes, setSalaryNotes] = useState('');
 
   // Benefit form
+  const [editingBenefitId, setEditingBenefitId] = useState<string | null>(null);
   const [benefitSaving, setBenefitSaving] = useState(false);
   const [benefitLabel, setBenefitLabel] = useState('');
   const [benefitDetail, setBenefitDetail] = useState('');

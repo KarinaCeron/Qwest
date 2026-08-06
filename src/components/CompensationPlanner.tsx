@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Trash2, Loader2, Coins, Gift } from 'lucide-react';
+import { Plus, Trash2, Loader2, Coins, Gift, Pencil } from 'lucide-react';
 
 type Kind = 'salary' | 'benefit';
 

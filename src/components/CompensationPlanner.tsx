@@ -418,6 +418,16 @@ export function CompensationPlanner() {
               />
             </div>
           </div>
+          <div className="flex items-center gap-3">
+            <Switch
+              id="benefitRequired"
+              checked={benefitRequired}
+              onCheckedChange={setBenefitRequired}
+            />
+            <Label htmlFor="benefitRequired" className="cursor-pointer">
+              This benefit is required
+            </Label>
+          </div>
           <div className="flex gap-2">
             <Button
               onClick={handleSaveBenefit}

@@ -58,6 +58,8 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     company: editingApplication?.company || '',
     role: editingApplication?.role || '',
     recruiterName: editingApplication?.recruiterName || '',
+    hiringManagerName: editingApplication?.hiringManagerName || '',
+    hiringManagerLinkedIn: editingApplication?.hiringManagerLinkedIn || '',
     salary: editingApplication?.salary || '',
     salaryOffered: editingApplication?.salaryOffered ?? false,
     requestedSalary: editingApplication?.requestedSalary || '',
@@ -451,6 +453,47 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 onChange={(e) => handleChange('recruiterName', e.target.value)}
                 placeholder="Recruiter name"
               />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="hiringManagerName">Hiring Manager</Label>
+                <Input
+                  id="hiringManagerName"
+                  value={formData.hiringManagerName || ''}
+                  onChange={(e) => handleChange('hiringManagerName', e.target.value)}
+                  placeholder="Hiring manager name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="hiringManagerLinkedIn">Hiring Manager LinkedIn</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="hiringManagerLinkedIn"
+                    type="url"
+                    value={formData.hiringManagerLinkedIn || ''}
+                    onChange={(e) => handleChange('hiringManagerLinkedIn', e.target.value)}
+                    placeholder="https://linkedin.com/in/..."
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    disabled={!formData.hiringManagerLinkedIn}
+                    asChild
+                  >
+                    <a
+                      href={formData.hiringManagerLinkedIn || '#'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Open hiring manager LinkedIn"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  </Button>
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

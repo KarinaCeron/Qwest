@@ -46,6 +46,78 @@ export type Database = {
           },
         ]
       }
+      compensation_items: {
+        Row: {
+          created_at: string
+          currency: string
+          id: string
+          kind: string
+          label: string
+          notes: string | null
+          period: string
+          updated_at: string
+          user_id: string
+          value: string | null
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          id?: string
+          kind?: string
+          label: string
+          notes?: string | null
+          period?: string
+          updated_at?: string
+          user_id: string
+          value?: string | null
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          id?: string
+          kind?: string
+          label?: string
+          notes?: string | null
+          period?: string
+          updated_at?: string
+          user_id?: string
+          value?: string | null
+        }
+        Relationships: []
+      }
+      cv_documents: {
+        Row: {
+          created_at: string
+          description: string | null
+          file_name: string
+          id: string
+          size: number | null
+          storage_path: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          file_name: string
+          id?: string
+          size?: number | null
+          storage_path: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          file_name?: string
+          id?: string
+          size?: number | null
+          storage_path?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       cv_rag: {
         Row: {
           content: string | null
@@ -79,6 +151,8 @@ export type Database = {
           company: string
           cover_letter: string | null
           created_at: string
+          hiring_manager_linkedin: string | null
+          hiring_manager_name: string | null
           id: string
           job_content: string | null
           job_link: string | null
@@ -102,6 +176,8 @@ export type Database = {
           company: string
           cover_letter?: string | null
           created_at?: string
+          hiring_manager_linkedin?: string | null
+          hiring_manager_name?: string | null
           id?: string
           job_content?: string | null
           job_link?: string | null
@@ -125,6 +201,8 @@ export type Database = {
           company?: string
           cover_letter?: string | null
           created_at?: string
+          hiring_manager_linkedin?: string | null
+          hiring_manager_name?: string | null
           id?: string
           job_content?: string | null
           job_link?: string | null

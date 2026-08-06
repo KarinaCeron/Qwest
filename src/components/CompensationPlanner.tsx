@@ -318,16 +318,16 @@ export function CompensationPlanner() {
               </div>
               <div className="flex gap-2">
                 <Button
-                  onClick={handleAddSalary}
+                  onClick={handleSaveSalary}
                   disabled={salarySaving}
                   className="flex-1 bg-gradient-primary"
                 >
                   {salarySaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-                  Add salary expectation
+                  {editingSalaryId ? 'Save changes' : 'Add salary expectation'}
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => setShowSalaryForm(false)}
+                  onClick={resetSalaryForm}
                   disabled={salarySaving}
                 >
                   Cancel

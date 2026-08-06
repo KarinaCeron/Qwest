@@ -64,7 +64,7 @@ export const UserMenu = () => {
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => navigate('/cv')} className="cursor-pointer">
             <FileText className="mr-2 h-4 w-4" />
-            My CV
+            My Qwest
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => navigate('/templates')} className="cursor-pointer">
             <MessageSquareText className="mr-2 h-4 w-4" />

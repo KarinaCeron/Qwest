@@ -105,12 +105,12 @@ export function CompensationPlanner() {
   };
 
   const handleAddSalary = async () => {
-    if (!user || !salaryLabel.trim()) return;
+    if (!user) return;
     setSalarySaving(true);
     const { error } = await supabase.from('compensation_items').insert({
       user_id: user.id,
       kind: 'salary',
-      label: salaryLabel.trim(),
+      label: null,
       value: salaryAmount.trim() || null,
       min_value: salaryMinAmount.trim() || null,
       currency,
@@ -120,7 +120,6 @@ export function CompensationPlanner() {
     if (error) {
       toast({ title: 'Could not add the salary expectation', description: error.message, variant: 'destructive' });
     } else {
-      setSalaryLabel('');
       setSalaryAmount('');
       setSalaryMinAmount('');
       setSalaryNotes('');

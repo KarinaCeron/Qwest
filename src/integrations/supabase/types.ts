@@ -53,6 +53,7 @@ export type Database = {
           id: string
           kind: string
           label: string
+          min_value: string | null
           notes: string | null
           period: string
           updated_at: string
@@ -65,6 +66,7 @@ export type Database = {
           id?: string
           kind?: string
           label: string
+          min_value?: string | null
           notes?: string | null
           period?: string
           updated_at?: string
@@ -77,6 +79,7 @@ export type Database = {
           id?: string
           kind?: string
           label?: string
+          min_value?: string | null
           notes?: string | null
           period?: string
           updated_at?: string

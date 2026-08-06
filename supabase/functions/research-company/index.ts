@@ -128,14 +128,14 @@ Deno.serve(async (req) => {
     url.searchParams.set("company", companyInput);
     if (websiteInput) url.searchParams.set("website", websiteInput);
 
-    const payload = { company: companyInput, website: websiteInput };
-    console.log("research-company: sending to n8n:", JSON.stringify(payload));
+    const requestPayload = { company: companyInput, website: websiteInput };
+    console.log("research-company: sending to n8n:", JSON.stringify(requestPayload));
 
     // POST with body first; if the n8n node is GET-only, retry as GET with query params.
     let res = await fetch(url.toString(), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(requestPayload),
     });
 
     let text = await res.text();
@@ -154,15 +154,15 @@ Deno.serve(async (req) => {
       );
     }
 
-    let payload: unknown;
+    let responsePayload: unknown;
     try {
-      payload = JSON.parse(text);
+      responsePayload = JSON.parse(text);
     } catch {
-      payload = extractJson(text);
+      responsePayload = extractJson(text);
     }
 
-    const research = normalizeResearch(payload, websiteInput);
-    const sources = normalizeSources(payload);
+    const research = normalizeResearch(responsePayload, websiteInput);
+    const sources = normalizeSources(responsePayload);
 
     if (!research) {
       console.error("research-company: unexpected webhook payload:", text.slice(0, 800));

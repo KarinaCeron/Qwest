@@ -5,7 +5,7 @@ const corsHeaders = {
 };
 
 const N8N_WEBHOOK_URL =
-  "https://karinaceron.app.n8n.cloud/webhook-test/dd564ef4-d017-43cb-bac2-e6c9efc57ac0";
+  "https://karinaceron.app.n8n.cloud/webhook/dd564ef4-d017-43cb-bac2-e6c9efc57ac0";
 
 const FIELDS = [
   "website",

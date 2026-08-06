@@ -130,7 +130,15 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader subtitle="My Profile" />
+      <AppHeader
+        subtitle="My Profile"
+        actions={
+          <Button variant="outline" size="sm" onClick={() => navigate('/cv')}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to My Qwest
+          </Button>
+        }
+      />
 
       <main className="container mx-auto px-4 py-8 max-w-2xl">
         {loadingProfile ? (

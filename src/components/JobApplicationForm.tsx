@@ -319,15 +319,23 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setShowFullForm(true)}
-                  disabled={!formData.company.trim()}
+                  onClick={handleResearchCompany}
+                  disabled={!formData.company.trim() || isResearching}
                   className="shrink-0"
                 >
                   <Search className="h-4 w-4 mr-2" />
-                  Research company
+                  {isResearching ? 'Researching...' : 'Research company'}
                 </Button>
               </div>
             </div>
+
+            <CompanyResearchPanel
+              company={formData.company}
+              isLoading={isResearching}
+              research={companyResearch}
+            />
+
+
 
             {showFullForm && (
               <>

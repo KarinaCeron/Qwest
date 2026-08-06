@@ -69,7 +69,7 @@ function ItemRow({
         {item.notes && <p className="mt-1 text-xs text-muted-foreground">{item.notes}</p>}
       </div>
       <div className="flex items-start">
-        {item.kind === 'salary' && onEdit && (
+        {onEdit && (
           <Button variant="ghost" size="icon" onClick={() => onEdit(item)} aria-label="Edit item">
             <Pencil className="h-4 w-4" />
           </Button>
@@ -100,6 +100,7 @@ export function CompensationPlanner() {
   const [salaryNotes, setSalaryNotes] = useState('');
 
   // Benefit form
+  const [editingBenefitId, setEditingBenefitId] = useState<string | null>(null);
   const [benefitSaving, setBenefitSaving] = useState(false);
   const [benefitLabel, setBenefitLabel] = useState('');
   const [benefitDetail, setBenefitDetail] = useState('');
@@ -192,23 +193,52 @@ export function CompensationPlanner() {
     setSalarySaving(false);
   };
 
-  const handleAddBenefit = async () => {
+  const resetBenefitForm = () => {
+    setBenefitLabel('');
+    setBenefitDetail('');
+    setEditingBenefitId(null);
+  };
+
+  const handleEditBenefit = (item: CompensationItem) => {
+    if (item.kind !== 'benefit') return;
+    setEditingBenefitId(item.id);
+    setBenefitLabel(item.label || '');
+    setBenefitDetail(item.value || '');
+  };
+
+  const handleSaveBenefit = async () => {
     if (!user || !benefitLabel.trim()) return;
     setBenefitSaving(true);
-    const { error } = await supabase.from('compensation_items').insert({
-      user_id: user.id,
-      kind: 'benefit',
+
+    const payload = {
       label: benefitLabel.trim(),
       value: benefitDetail.trim() || null,
-      currency: 'USD',
-      period: 'annual',
-      notes: null,
-    });
-    if (error) {
-      toast({ title: 'Could not add the benefit', description: error.message, variant: 'destructive' });
+    };
+
+    let error;
+    if (editingBenefitId) {
+      const result = await supabase.from('compensation_items').update(payload).eq('id', editingBenefitId);
+      error = result.error;
     } else {
-      setBenefitLabel('');
-      setBenefitDetail('');
+      const result = await supabase.from('compensation_items').insert({
+        user_id: user.id,
+        kind: 'benefit',
+        currency: 'USD',
+        period: 'annual',
+        notes: null,
+        ...payload,
+      });
+      error = result.error;
+    }
+
+    if (error) {
+      toast({
+        title: editingBenefitId ? 'Could not update the benefit' : 'Could not add the benefit',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } else {
+      resetBenefitForm();
       await fetchItems();
     }
     setBenefitSaving(false);
@@ -240,7 +270,7 @@ export function CompensationPlanner() {
   ) : (
     <div className="space-y-2">
       {benefits.map((item) => (
-        <ItemRow key={item.id} item={item} onDelete={handleDelete} />
+        <ItemRow key={item.id} item={item} onDelete={handleDelete} onEdit={handleEditBenefit} />
       ))}
     </div>
   );
@@ -377,14 +407,21 @@ export function CompensationPlanner() {
               />
             </div>
           </div>
-          <Button
-            onClick={handleAddBenefit}
-            disabled={benefitSaving || !benefitLabel.trim()}
-            className="w-full bg-gradient-primary"
-          >
-            {benefitSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-            Add benefit
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={handleSaveBenefit}
+              disabled={benefitSaving || !benefitLabel.trim()}
+              className="flex-1 bg-gradient-primary"
+            >
+              {benefitSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
+              {editingBenefitId ? 'Save changes' : 'Add benefit'}
+            </Button>
+            {editingBenefitId && (
+              <Button variant="outline" onClick={resetBenefitForm} disabled={benefitSaving}>
+                Cancel
+              </Button>
+            )}
+          </div>
           {benefitList}
         </CardContent>
       </Card>

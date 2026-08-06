@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { ApplicationActionLog } from '@/components/ApplicationActionLog';
-import { CompanyResearchPanel, CompanyResearch } from '@/components/CompanyResearchPanel';
+import { CompanyResearchPanel, CompanyResearch, ResearchSource } from '@/components/CompanyResearchPanel';
 
 interface JobApplicationFormProps {
   onSubmit: (data: JobApplicationFormData) => void;
@@ -49,6 +49,8 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const [isResearching, setIsResearching] = useState(false);
   const [companyWebsite, setCompanyWebsite] = useState('');
   const [companyResearch, setCompanyResearch] = useState<CompanyResearch | null>(null);
+  const [researchSources, setResearchSources] = useState<ResearchSource[]>([]);
+
   const [formData, setFormData] = useState<JobApplicationFormData>({
     company: editingApplication?.company || '',
     role: editingApplication?.role || '',
@@ -202,6 +204,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     setShowFullForm(true);
     setIsResearching(true);
     setCompanyResearch(null);
+    setResearchSources([]);
     try {
       const { data, error } = await supabase.functions.invoke('research-company', {
         body: { company, website: companyWebsite.trim() || undefined },
@@ -209,6 +212,8 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
       if (error) throw error;
       if (!data?.research) throw new Error('No research data returned');
       setCompanyResearch(data.research as CompanyResearch);
+      setResearchSources((data.sources ?? []) as ResearchSource[]);
+
     } catch (error) {
       toast({
         title: 'Error',
@@ -348,7 +353,9 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
               company={formData.company}
               isLoading={isResearching}
               research={companyResearch}
+              sources={researchSources}
             />
+
 
 
 

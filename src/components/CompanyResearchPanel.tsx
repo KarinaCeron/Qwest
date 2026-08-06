@@ -59,14 +59,21 @@ function ListField({ label, values }: { label: string; values?: string[] }) {
   );
 }
 
+export interface ResearchSource {
+  title: string;
+  uri: string;
+}
+
 interface Props {
   company: string;
   isLoading: boolean;
   research: CompanyResearch | null;
+  sources?: ResearchSource[];
 }
 
-export function CompanyResearchPanel({ company, isLoading, research }: Props) {
+export function CompanyResearchPanel({ company, isLoading, research, sources = [] }: Props) {
   if (!isLoading && !research) return null;
+
 
   return (
     <Card className="border-primary/20 bg-muted/30">
@@ -103,7 +110,27 @@ export function CompanyResearchPanel({ company, isLoading, research }: Props) {
             <div className="sm:col-span-2">
               <Field label="Employee reviews" value={research.employee_reviews} />
             </div>
+            {sources.length > 0 && (
+              <div className="sm:col-span-2">
+                <p className="mb-1 text-xs font-medium text-muted-foreground">Sources</p>
+                <ul className="space-y-1">
+                  {sources.map((s, i) => (
+                    <li key={i}>
+                      <a
+                        href={s.uri}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-primary underline break-all"
+                      >
+                        {s.title || s.uri}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
+
         ) : null}
       </CardContent>
     </Card>

@@ -56,6 +56,7 @@ export type Database = {
           min_value: string | null
           notes: string | null
           period: string
+          required: boolean
           updated_at: string
           user_id: string
           value: string | null
@@ -69,6 +70,7 @@ export type Database = {
           min_value?: string | null
           notes?: string | null
           period?: string
+          required?: boolean
           updated_at?: string
           user_id: string
           value?: string | null
@@ -82,6 +84,7 @@ export type Database = {
           min_value?: string | null
           notes?: string | null
           period?: string
+          required?: boolean
           updated_at?: string
           user_id?: string
           value?: string | null

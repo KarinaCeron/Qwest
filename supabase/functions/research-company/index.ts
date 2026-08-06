@@ -28,18 +28,19 @@ Deno.serve(async (req) => {
     const requestPayload = { company: companyInput, website: websiteInput };
     console.log("research-company: sending to n8n:", JSON.stringify(requestPayload));
 
-    let res = await fetch(url.toString(), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(requestPayload),
-    });
-
+    let res = await fetch(url.toString(), { method: "GET" });
     let text = await res.text();
+    console.log(`research-company: n8n GET responded [${res.status}] body length ${text.length}`);
 
     if (!res.ok && (res.status === 404 || res.status === 405)) {
-      console.log("research-company: POST rejected, retrying with GET");
-      res = await fetch(url.toString(), { method: "GET" });
+      console.log("research-company: GET rejected, retrying with POST");
+      res = await fetch(url.toString(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestPayload),
+      });
       text = await res.text();
+      console.log(`research-company: n8n POST responded [${res.status}] body length ${text.length}`);
     }
 
     if (!res.ok) {

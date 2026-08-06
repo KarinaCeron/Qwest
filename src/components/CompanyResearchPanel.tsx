@@ -1,6 +1,7 @@
-import { Building2 } from 'lucide-react';
+import { Building2, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface Props {
   company: string;
@@ -9,7 +10,8 @@ interface Props {
 }
 
 export function CompanyResearchPanel({ company, isLoading, text }: Props) {
-  if (!isLoading && !text) return null;
+  const hasRun = isLoading || text !== null;
+  if (!hasRun) return null;
 
   return (
     <Card className="border-primary/20 bg-muted/30">
@@ -32,7 +34,14 @@ export function CompanyResearchPanel({ company, isLoading, text }: Props) {
               {text}
             </pre>
           </div>
-        ) : null}
+        ) : (
+          <Alert variant="destructive" className="bg-background">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              The webhook returned an empty response. Check your n8n workflow and make sure the final node outputs a body.
+            </AlertDescription>
+          </Alert>
+        )}
       </CardContent>
     </Card>
   );

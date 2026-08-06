@@ -407,14 +407,21 @@ export function CompensationPlanner() {
               />
             </div>
           </div>
-          <Button
-            onClick={handleAddBenefit}
-            disabled={benefitSaving || !benefitLabel.trim()}
-            className="w-full bg-gradient-primary"
-          >
-            {benefitSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-            Add benefit
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={handleSaveBenefit}
+              disabled={benefitSaving || !benefitLabel.trim()}
+              className="flex-1 bg-gradient-primary"
+            >
+              {benefitSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
+              {editingBenefitId ? 'Save changes' : 'Add benefit'}
+            </Button>
+            {editingBenefitId && (
+              <Button variant="outline" onClick={resetBenefitForm} disabled={benefitSaving}>
+                Cancel
+              </Button>
+            )}
+          </div>
           {benefitList}
         </CardContent>
       </Card>

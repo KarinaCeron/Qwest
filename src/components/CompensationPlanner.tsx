@@ -217,20 +217,33 @@ export function CompensationPlanner() {
   const salaries = items.filter((i) => i.kind === 'salary');
   const benefits = items.filter((i) => i.kind === 'benefit');
 
-  const listState = (list: CompensationItem[], emptyText: string) =>
-    loading ? (
-      <div className="flex justify-center py-6">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    ) : list.length === 0 ? (
-      <p className="text-sm text-muted-foreground">{emptyText}</p>
-    ) : (
-      <div className="space-y-2">
-        {list.map((item) => (
-          <ItemRow key={item.id} item={item} onDelete={handleDelete} />
-        ))}
-      </div>
-    );
+  const salaryList = loading ? (
+    <div className="flex justify-center py-6">
+      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+    </div>
+  ) : salaries.length === 0 ? (
+    <p className="text-sm text-muted-foreground">No salary expectations yet.</p>
+  ) : (
+    <div className="space-y-2">
+      {salaries.map((item) => (
+        <ItemRow key={item.id} item={item} onDelete={handleDelete} onEdit={handleEditSalary} />
+      ))}
+    </div>
+  );
+
+  const benefitList = loading ? (
+    <div className="flex justify-center py-6">
+      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+    </div>
+  ) : benefits.length === 0 ? (
+    <p className="text-sm text-muted-foreground">No benefits yet.</p>
+  ) : (
+    <div className="space-y-2">
+      {benefits.map((item) => (
+        <ItemRow key={item.id} item={item} onDelete={handleDelete} />
+      ))}
+    </div>
+  );
 
   return (
     <div className="space-y-6">

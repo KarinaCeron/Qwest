@@ -854,57 +854,6 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
               </Sheet>
             )}
 
-            {savedQuestions.length > 0 && (
-              <div className="space-y-2">
-                <Label>Saved Questions & Answers ({savedQuestions.length})</Label>
-                <div className="space-y-3">
-                  {savedQuestions.map((qa, idx) => (
-                    <div key={qa.id} className="border rounded-lg p-3 bg-background/50 space-y-2">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm font-medium text-foreground flex-1">
-                          Q{idx + 1}. {qa.question}
-                        </p>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteQuestion(qa.id)}
-                          className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
-                          aria-label="Delete question"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <Textarea
-                        value={qa.answer}
-                        onChange={(e) =>
-                          setSavedQuestions(prev =>
-                            prev.map(q => (q.id === qa.id ? { ...q, answer: e.target.value } : q))
-                          )
-                        }
-                        rows={4}
-                        className="text-sm"
-                      />
-                      <div className="flex justify-end">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            navigator.clipboard.writeText(qa.answer);
-                            toast({ title: "Copied", description: "Answer copied to clipboard" });
-                          }}
-                        >
-                          <Copy className="h-3.5 w-3.5 mr-1" />
-                          Copy answer
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
             <div className="space-y-2">
               <Label htmlFor="notes">Notes</Label>
 
@@ -917,24 +866,216 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
               />
             </div>
 
-            {editingApplication && user && (
-              <ApplicationActionLog
-                applicationId={editingApplication.id}
-                userId={user.id}
-              />
-            )}
-
-            <div className="flex gap-3 pt-4">
-              <Button type="submit" className="flex-1 bg-gradient-primary">
+            <div className="flex flex-wrap gap-3 pt-4">
+              <Button type="button" variant="outline" onClick={() => setStep(0)}>
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back
+              </Button>
+              <Button
+                type="button"
+                className="flex-1 bg-gradient-primary"
+                onClick={() => setStep(2)}
+                disabled={!formData.role.trim()}
+              >
+                Continue to questions
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+              <Button type="submit" variant="outline">
                 {editingApplication ? 'Update' : 'Save'} Application
               </Button>
-              <Button type="button" variant="outline" onClick={onCancel}>
-                Cancel
-              </Button>
             </div>
-          </>
-        )}
+              </>
+            )}
+
+            {step === 2 && (
+              <>
+                <p className="text-sm text-muted-foreground">
+                  Draft and store the questions the employer asked in the application form.
+                </p>
+
+                <Dialog open={isAnswerOpen} onOpenChange={(open) => {
+                  setIsAnswerOpen(open);
+                  if (!open) { setEmployerQuestion(''); setAnswerResult(null); setEditableAnswer(''); }
+                }}>
+                  <DialogTrigger asChild>
+                    <Button type="button" variant="outline" className="w-full">
+                      <MessageCircleQuestion className="h-4 w-4 mr-2" />
+                      Answer Application Question
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center gap-2">
+                        <MessageCircleQuestion className="h-5 w-5" />
+                        Answer an employer question
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 mt-2">
+                      <p className="text-sm text-muted-foreground">
+                        Paste a question from the application form. We'll use your CV and this position's details to draft an answer. You can edit the answer before saving it to this application.
+                      </p>
+                      <div className="space-y-2">
+                        <Label>Question</Label>
+                        <Textarea
+                          value={employerQuestion}
+                          onChange={(e) => setEmployerQuestion(e.target.value)}
+                          placeholder="e.g. Why are you interested in this role? Describe a time you led a project..."
+                          rows={3}
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        onClick={handleAnswerQuestion}
+                        disabled={isAnswering || !employerQuestion.trim()}
+                        className="w-full bg-gradient-primary"
+                      >
+                        {isAnswering ? 'Generating answer...' : 'Generate Answer'}
+                      </Button>
+                      {(answerResult || editableAnswer) && (
+                        <div className="space-y-2">
+                          <Label>Answer (editable)</Label>
+                          <Textarea
+                            value={editableAnswer}
+                            onChange={(e) => setEditableAnswer(e.target.value)}
+                            rows={8}
+                            className="min-h-[160px]"
+                          />
+                          <div className="flex gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="flex-1"
+                              onClick={() => {
+                                navigator.clipboard.writeText(editableAnswer);
+                                toast({ title: "Copied", description: "Answer copied to clipboard" });
+                              }}
+                            >
+                              <Copy className="h-4 w-4 mr-2" />
+                              Copy
+                            </Button>
+                            <Button
+                              type="button"
+                              className="flex-1 bg-gradient-primary"
+                              onClick={handleSaveQuestion}
+                              disabled={!employerQuestion.trim() || !editableAnswer.trim()}
+                            >
+                              <Save className="h-4 w-4 mr-2" />
+                              Save to Application
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                      <div className="pt-2">
+                        <p className="text-xs text-muted-foreground">
+                          You can also skip generation and paste your own answer above, then click Save to Application.
+                        </p>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
+                {savedQuestions.length > 0 ? (
+                  <div className="space-y-2">
+                    <Label>Saved Questions & Answers ({savedQuestions.length})</Label>
+                    <div className="space-y-3">
+                      {savedQuestions.map((qa, idx) => (
+                        <div key={qa.id} className="border rounded-lg p-3 bg-background/50 space-y-2">
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="text-sm font-medium text-foreground flex-1">
+                              Q{idx + 1}. {qa.question}
+                            </p>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteQuestion(qa.id)}
+                              className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
+                              aria-label="Delete question"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <Textarea
+                            value={qa.answer}
+                            onChange={(e) =>
+                              setSavedQuestions(prev =>
+                                prev.map(q => (q.id === qa.id ? { ...q, answer: e.target.value } : q))
+                              )
+                            }
+                            rows={4}
+                            className="text-sm"
+                          />
+                          <div className="flex justify-end">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                navigator.clipboard.writeText(qa.answer);
+                                toast({ title: "Copied", description: "Answer copied to clipboard" });
+                              }}
+                            >
+                              <Copy className="h-3.5 w-3.5 mr-1" />
+                              Copy answer
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No questions saved yet.</p>
+                )}
+
+                <div className="flex flex-wrap gap-3 pt-4">
+                  <Button type="button" variant="outline" onClick={() => setStep(1)}>
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back
+                  </Button>
+                  <Button
+                    type="button"
+                    className="flex-1 bg-gradient-primary"
+                    onClick={() => setStep(3)}
+                  >
+                    Continue to action log
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                  <Button type="submit" variant="outline">
+                    {editingApplication ? 'Update' : 'Save'} Application
+                  </Button>
+                </div>
+              </>
+            )}
+
+            {step === 3 && (
+              <>
+                {editingApplication && user ? (
+                  <ApplicationActionLog
+                    applicationId={editingApplication.id}
+                    userId={user.id}
+                  />
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Save this application first — the action log starts tracking dates automatically once it exists.
+                  </p>
+                )}
+
+                <div className="flex flex-wrap gap-3 pt-4">
+                  <Button type="button" variant="outline" onClick={() => setStep(2)}>
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back
+                  </Button>
+                  <Button type="submit" className="flex-1 bg-gradient-primary">
+                    {editingApplication ? 'Update' : 'Save'} Application
+                  </Button>
+                  <Button type="button" variant="outline" onClick={onCancel}>
+                    Cancel
+                  </Button>
+                </div>
+              </>
+            )}
           </form>
+
         </CardContent>
       </Card>
     </div>

@@ -353,7 +353,9 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
               company={formData.company}
               isLoading={isResearching}
               research={companyResearch}
+              sources={researchSources}
             />
+
 
 
 

@@ -201,7 +201,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const handleResearchCompany = async () => {
     const company = formData.company.trim();
     if (!company) return;
-    setShowFullForm(true);
+    setStep(0);
     setIsResearching(true);
     setCompanyResearch(null);
     setResearchSources([]);

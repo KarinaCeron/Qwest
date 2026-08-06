@@ -59,14 +59,21 @@ function ListField({ label, values }: { label: string; values?: string[] }) {
   );
 }
 
+export interface ResearchSource {
+  title: string;
+  uri: string;
+}
+
 interface Props {
   company: string;
   isLoading: boolean;
   research: CompanyResearch | null;
+  sources?: ResearchSource[];
 }
 
-export function CompanyResearchPanel({ company, isLoading, research }: Props) {
+export function CompanyResearchPanel({ company, isLoading, research, sources = [] }: Props) {
   if (!isLoading && !research) return null;
+
 
   return (
     <Card className="border-primary/20 bg-muted/30">

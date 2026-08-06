@@ -310,7 +310,30 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
         </CardHeader>
 
         <CardContent className="p-6">
+          <ol className="mb-6 flex flex-wrap items-center gap-2 text-xs">
+            {STEPS.map((label, i) => (
+              <li key={label} className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setStep(i)}
+                  disabled={i > 0 && !formData.company.trim()}
+                  className={`flex items-center gap-2 rounded-full border px-3 py-1 transition-colors ${
+                    i === step
+                      ? 'border-primary bg-primary text-primary-foreground'
+                      : 'border-border text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <span className="font-semibold">{i + 1}</span>
+                  <span>{label}</span>
+                </button>
+                {i < STEPS.length - 1 && <span className="text-muted-foreground">›</span>}
+              </li>
+            ))}
+          </ol>
+
           <form onSubmit={handleSubmit} className="space-y-6">
+            {step === 0 && (
+              <>
             <div className="space-y-2">
               <Label htmlFor="company">Company *</Label>
               <Input
@@ -356,11 +379,26 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
               sources={researchSources}
             />
 
+            <div className="flex gap-3 pt-2">
+              <Button
+                type="button"
+                className="flex-1 bg-gradient-primary"
+                onClick={() => setStep(1)}
+                disabled={!formData.company.trim()}
+              >
+                Continue to application
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+              <Button type="button" variant="outline" onClick={onCancel}>
+                Cancel
+              </Button>
+            </div>
+              </>
+            )}
 
-
-
-            {showFullForm && (
+            {step === 1 && (
               <>
+
                 <div className="space-y-2">
                   <Label htmlFor="role">Role / Position *</Label>
                   <Input

@@ -204,6 +204,7 @@ export function CompensationPlanner() {
   const resetBenefitForm = () => {
     setBenefitLabel('');
     setBenefitDetail('');
+    setBenefitRequired(false);
     setEditingBenefitId(null);
   };
 

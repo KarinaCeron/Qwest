@@ -267,14 +267,18 @@ export function CompensationPlanner() {
       const result = await supabase.from('compensation_items').update(payload).eq('id', editingBenefitId);
       error = result.error;
     } else {
+      const nextOrder =
+        items.filter((i) => i.kind === 'benefit').reduce((max, i) => Math.max(max, i.sort_order), 0) + 1;
       const result = await supabase.from('compensation_items').insert({
         user_id: user.id,
         kind: 'benefit',
         currency: 'USD',
         period: 'annual',
         notes: null,
+        sort_order: nextOrder,
         ...payload,
       });
+
       error = result.error;
     }
 

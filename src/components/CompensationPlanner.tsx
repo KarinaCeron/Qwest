@@ -193,23 +193,52 @@ export function CompensationPlanner() {
     setSalarySaving(false);
   };
 
-  const handleAddBenefit = async () => {
+  const resetBenefitForm = () => {
+    setBenefitLabel('');
+    setBenefitDetail('');
+    setEditingBenefitId(null);
+  };
+
+  const handleEditBenefit = (item: CompensationItem) => {
+    if (item.kind !== 'benefit') return;
+    setEditingBenefitId(item.id);
+    setBenefitLabel(item.label || '');
+    setBenefitDetail(item.value || '');
+  };
+
+  const handleSaveBenefit = async () => {
     if (!user || !benefitLabel.trim()) return;
     setBenefitSaving(true);
-    const { error } = await supabase.from('compensation_items').insert({
-      user_id: user.id,
-      kind: 'benefit',
+
+    const payload = {
       label: benefitLabel.trim(),
       value: benefitDetail.trim() || null,
-      currency: 'USD',
-      period: 'annual',
-      notes: null,
-    });
-    if (error) {
-      toast({ title: 'Could not add the benefit', description: error.message, variant: 'destructive' });
+    };
+
+    let error;
+    if (editingBenefitId) {
+      const result = await supabase.from('compensation_items').update(payload).eq('id', editingBenefitId);
+      error = result.error;
     } else {
-      setBenefitLabel('');
-      setBenefitDetail('');
+      const result = await supabase.from('compensation_items').insert({
+        user_id: user.id,
+        kind: 'benefit',
+        currency: 'USD',
+        period: 'annual',
+        notes: null,
+        ...payload,
+      });
+      error = result.error;
+    }
+
+    if (error) {
+      toast({
+        title: editingBenefitId ? 'Could not update the benefit' : 'Could not add the benefit',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } else {
+      resetBenefitForm();
       await fetchItems();
     }
     setBenefitSaving(false);

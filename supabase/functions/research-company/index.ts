@@ -51,7 +51,11 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { company } = await req.json();
+    const { company, website } = await req.json();
+    const websiteInput =
+      typeof website === "string" && /^https?:\/\/\S+$/i.test(website.trim())
+        ? website.trim().slice(0, 300)
+        : "";
     if (!company || typeof company !== "string" || company.trim().length < 2) {
       return new Response(JSON.stringify({ error: "company required" }), {
         status: 400,

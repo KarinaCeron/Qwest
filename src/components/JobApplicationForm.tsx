@@ -45,7 +45,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   );
   const [editableAnswer, setEditableAnswer] = useState('');
   const [editableOfferDiscussion, setEditableOfferDiscussion] = useState('');
-  const [showFullForm, setShowFullForm] = useState(!!editingApplication);
+  const [step, setStep] = useState(0);
   const [isResearching, setIsResearching] = useState(false);
   const [companyWebsite, setCompanyWebsite] = useState('');
   const [companyResearch, setCompanyResearch] = useState<CompanyResearch | null>(null);

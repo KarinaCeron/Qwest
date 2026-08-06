@@ -26,16 +26,20 @@ interface CompensationItem {
 function ItemRow({ item, onDelete }: { item: CompensationItem; onDelete: (id: string) => void }) {
   return (
     <div className="flex items-start justify-between gap-3 rounded-lg border p-3">
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         {item.kind === 'salary' ? (
           <>
-            <p className="font-medium">Salary expectation</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="font-medium">Salary expectation</p>
+              <Badge variant="outline" className="text-xs">
+                {item.currency} · {item.period === 'annual' ? 'Annual' : 'Monthly'}
+              </Badge>
+            </div>
             {(item.value || item.min_value) && (
               <p className="text-sm text-muted-foreground">
                 {item.value && `Desired ${item.value}`}
                 {item.value && item.min_value && ' · '}
                 {item.min_value && `Minimum ${item.min_value}`}
-                {` ${item.currency} · ${item.period === 'annual' ? 'Annual' : 'Monthly'}`}
               </p>
             )}
           </>

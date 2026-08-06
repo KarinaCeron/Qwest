@@ -190,71 +190,89 @@ export function CompensationPlanner() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-3 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="salaryAmount">Desired amount</Label>
-              <Input
-                id="salaryAmount"
-                value={salaryAmount}
-                onChange={(e) => setSalaryAmount(e.target.value)}
-                placeholder="120000"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="salaryMinAmount">Minimum to accept</Label>
-              <Input
-                id="salaryMinAmount"
-                value={salaryMinAmount}
-                onChange={(e) => setSalaryMinAmount(e.target.value)}
-                placeholder="100000"
-              />
-            </div>
+          {showSalaryForm ? (
+            <div className="space-y-4">
+              <div className="grid gap-3 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="salaryAmount">Desired amount</Label>
+                  <Input
+                    id="salaryAmount"
+                    value={salaryAmount}
+                    onChange={(e) => setSalaryAmount(e.target.value)}
+                    placeholder="120000"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="salaryMinAmount">Minimum to accept</Label>
+                  <Input
+                    id="salaryMinAmount"
+                    value={salaryMinAmount}
+                    onChange={(e) => setSalaryMinAmount(e.target.value)}
+                    placeholder="100000"
+                  />
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="salaryCurrency">Currency</Label>
-              <Select value={currency} onValueChange={setCurrency}>
-                <SelectTrigger id="salaryCurrency">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="USD">USD</SelectItem>
-                  <SelectItem value="COP">COP</SelectItem>
-                </SelectContent>
-              </Select>
+                <div className="space-y-2">
+                  <Label htmlFor="salaryCurrency">Currency</Label>
+                  <Select value={currency} onValueChange={setCurrency}>
+                    <SelectTrigger id="salaryCurrency">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="USD">USD</SelectItem>
+                      <SelectItem value="COP">COP</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="salaryPeriod">Period</Label>
+                  <Select value={period} onValueChange={setPeriod}>
+                    <SelectTrigger id="salaryPeriod">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="annual">Annual</SelectItem>
+                      <SelectItem value="monthly">Monthly</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="salaryNotes">Notes</Label>
+                  <Input
+                    id="salaryNotes"
+                    value={salaryNotes}
+                    onChange={(e) => setSalaryNotes(e.target.value)}
+                    placeholder="Minimum acceptable, negotiation context..."
+                  />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleAddSalary}
+                  disabled={salarySaving}
+                  className="flex-1 bg-gradient-primary"
+                >
+                  {salarySaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
+                  Add salary expectation
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowSalaryForm(false)}
+                  disabled={salarySaving}
+                >
+                  Cancel
+                </Button>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="salaryPeriod">Period</Label>
-              <Select value={period} onValueChange={setPeriod}>
-                <SelectTrigger id="salaryPeriod">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="annual">Annual</SelectItem>
-                  <SelectItem value="monthly">Monthly</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="salaryNotes">Notes</Label>
-              <Input
-                id="salaryNotes"
-                value={salaryNotes}
-                onChange={(e) => setSalaryNotes(e.target.value)}
-                placeholder="Minimum acceptable, negotiation context..."
-              />
-            </div>
-          </div>
-          <Button
-            onClick={handleAddSalary}
-            disabled={salarySaving}
-            className="w-full bg-gradient-primary"
-          >
-            {salarySaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-            Add salary expectation
-          </Button>
-          <p className="text-xs text-muted-foreground text-center">
-            Add as many expectations as you need — each with its own currency and period.
-          </p>
+          ) : (
+            <Button
+              onClick={() => setShowSalaryForm(true)}
+              className="w-full h-12 text-base bg-gradient-primary shadow-md hover:shadow-lg transition-shadow"
+            >
+              <Coins className="mr-2 h-5 w-5" />
+              Add salary expectation
+            </Button>
+          )}
           {listState(salaries, 'No salary expectations yet.')}
         </CardContent>
       </Card>

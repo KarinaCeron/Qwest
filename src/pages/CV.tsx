@@ -153,88 +153,96 @@ const CV = () => {
           </TabsList>
 
           <TabsContent value="cvs" className="space-y-6">
+            <Card className="bg-gradient-card">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Upload className="h-5 w-5" />
+                  Upload a new CV
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="newDescription">Description for the next upload</Label>
+                  <Input
+                    id="newDescription"
+                    value={newDescription}
+                    onChange={(e) => setNewDescription(e.target.value)}
+                    placeholder="e.g. Product leadership CV, tailored for fintech"
+                    maxLength={200}
+                  />
+                  <input ref={fileInputRef} type="file" accept=".pdf" className="hidden" onChange={handleUpload} />
+                  <Button
+                    className="w-full bg-gradient-primary"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                  >
+                    {uploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
+                    Upload CV (PDF)
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
 
-        <Card className="bg-gradient-card">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-
-              <FileText className="h-5 w-5" />
-              My CVs
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="newDescription">Description for the next upload</Label>
-              <Input
-                id="newDescription"
-                value={newDescription}
-                onChange={(e) => setNewDescription(e.target.value)}
-                placeholder="e.g. Product leadership CV, tailored for fintech"
-                maxLength={200}
-              />
-              <input ref={fileInputRef} type="file" accept=".pdf" className="hidden" onChange={handleUpload} />
-              <Button
-                className="w-full bg-gradient-primary"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-              >
-                {uploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-                Upload CV (PDF)
-              </Button>
-            </div>
-
-            {loadingCVs ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-              </div>
-            ) : cvs.length === 0 ? (
-              <div className="text-center py-4">
-                <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-                <p className="text-muted-foreground text-sm">You don't have any CVs uploaded</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {cvs.map((cv) => (
-                  <div key={cv.id} className="border rounded-lg p-4 space-y-3">
-                    <div className="flex items-start gap-3">
-                      <FileText className="h-10 w-10 text-red-500 shrink-0 mt-0.5" />
-                      <div className="min-w-0 flex-1">
-                        <p className="font-medium truncate">{cv.file_name}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Input
-                            id={`desc-${cv.id}`}
-                            value={drafts[cv.id] ?? ''}
-                            onChange={(e) => setDrafts((prev) => ({ ...prev, [cv.id]: e.target.value }))}
-                            placeholder="What is this CV for?"
-                            maxLength={200}
-                            className="h-8 text-sm"
-                          />
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 shrink-0"
-                            onClick={() => handleSaveDescription(cv)}
-                            aria-label="Save description"
-                          >
-                            <Save className="h-4 w-4" />
+            <Card className="bg-gradient-card">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <FileText className="h-5 w-5" />
+                  My uploaded CVs
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {loadingCVs ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  </div>
+                ) : cvs.length === 0 ? (
+                  <div className="text-center py-4">
+                    <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
+                    <p className="text-muted-foreground text-sm">You don't have any CVs uploaded</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {cvs.map((cv) => (
+                      <div key={cv.id} className="border rounded-lg p-4 space-y-3">
+                        <div className="flex items-start gap-3">
+                          <FileText className="h-10 w-10 text-red-500 shrink-0 mt-0.5" />
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium truncate">{cv.file_name}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Input
+                                id={`desc-${cv.id}`}
+                                value={drafts[cv.id] ?? ''}
+                                onChange={(e) => setDrafts((prev) => ({ ...prev, [cv.id]: e.target.value }))}
+                                placeholder="What is this CV for?"
+                                maxLength={200}
+                                className="h-8 text-sm"
+                              />
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 shrink-0"
+                                onClick={() => handleSaveDescription(cv)}
+                                aria-label="Save description"
+                              >
+                                <Save className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm" className="flex-1" onClick={() => handleDownload(cv)}>
+                            <Download className="mr-1 h-4 w-4" /> View / Download
+                          </Button>
+                          <Button variant="destructive" size="sm" onClick={() => handleDelete(cv)}>
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="flex-1" onClick={() => handleDownload(cv)}>
-                        <Download className="mr-1 h-4 w-4" /> View / Download
-                      </Button>
-                      <Button variant="destructive" size="sm" onClick={() => handleDelete(cv)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="compensation">

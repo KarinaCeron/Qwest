@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Linkedin, Globe, MapPin, Pencil, Quote } from 'lucide-react';
+import { Linkedin, Globe, MapPin, Pencil, Quote, Target } from 'lucide-react';
 
 interface ProfileData {
   display_name: string | null;
@@ -18,6 +18,7 @@ interface ProfileData {
   location: string | null;
   linkedin_url: string | null;
   portfolio_url: string | null;
+  target_roles: string[] | null;
 }
 
 export function ProfileHero() {
@@ -30,7 +31,7 @@ export function ProfileHero() {
     const load = async () => {
       const { data } = await supabase
         .from('profiles')
-        .select('display_name, first_name, last_name, avatar_url, bio, location, linkedin_url, portfolio_url')
+        .select('display_name, first_name, last_name, avatar_url, bio, location, linkedin_url, portfolio_url, target_roles')
         .eq('user_id', user.id)
         .maybeSingle();
       setProfile((data as ProfileData) ?? null);
@@ -103,6 +104,20 @@ export function ProfileHero() {
             </Button>
           </div>
         </div>
+
+        {(profile?.target_roles ?? []).length > 0 && (
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <Target className="h-3.5 w-3.5 text-primary" />
+              Chasing
+            </span>
+            {(profile?.target_roles ?? []).slice(0, 2).map((role) => (
+              <Badge key={role} className="bg-gradient-primary text-primary-foreground">
+                {role}
+              </Badge>
+            ))}
+          </div>
+        )}
 
         {loading ? (
           <Skeleton className="h-16 w-full" />

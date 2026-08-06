@@ -256,7 +256,12 @@ export function CompensationPlanner() {
   };
 
   const salaries = items.filter((i) => i.kind === 'salary');
-  const benefits = items.filter((i) => i.kind === 'benefit');
+  const benefits = items
+    .filter((i) => i.kind === 'benefit')
+    .sort((a, b) => {
+      if (a.required === b.required) return 0;
+      return a.required ? -1 : 1;
+    });
 
   const salaryList = loading ? (
     <div className="flex justify-center py-6">

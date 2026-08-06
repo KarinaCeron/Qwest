@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { ApplicationActionLog } from '@/components/ApplicationActionLog';
+import { CompanyResearchPanel, CompanyResearch } from '@/components/CompanyResearchPanel';
 
 interface JobApplicationFormProps {
   onSubmit: (data: JobApplicationFormData) => void;
@@ -45,6 +46,8 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const [editableAnswer, setEditableAnswer] = useState('');
   const [editableOfferDiscussion, setEditableOfferDiscussion] = useState('');
   const [showFullForm, setShowFullForm] = useState(!!editingApplication);
+  const [isResearching, setIsResearching] = useState(false);
+  const [companyResearch, setCompanyResearch] = useState<CompanyResearch | null>(null);
   const [formData, setFormData] = useState<JobApplicationFormData>({
     company: editingApplication?.company || '',
     role: editingApplication?.role || '',
@@ -192,6 +195,31 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     }
   };
 
+  const handleResearchCompany = async () => {
+    const company = formData.company.trim();
+    if (!company) return;
+    setShowFullForm(true);
+    setIsResearching(true);
+    setCompanyResearch(null);
+    try {
+      const { data, error } = await supabase.functions.invoke('research-company', {
+        body: { company },
+      });
+      if (error) throw error;
+      if (!data?.research) throw new Error('No research data returned');
+      setCompanyResearch(data.research as CompanyResearch);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Could not research company.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsResearching(false);
+    }
+  };
+
+
   const handleDiscussOffer = async () => {
     if (!offerTopic.trim()) {
       toast({ title: "Error", description: "Please enter a topic to discuss", variant: "destructive" });
@@ -291,15 +319,23 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setShowFullForm(true)}
-                  disabled={!formData.company.trim()}
+                  onClick={handleResearchCompany}
+                  disabled={!formData.company.trim() || isResearching}
                   className="shrink-0"
                 >
                   <Search className="h-4 w-4 mr-2" />
-                  Research company
+                  {isResearching ? 'Researching...' : 'Research company'}
                 </Button>
               </div>
             </div>
+
+            <CompanyResearchPanel
+              company={formData.company}
+              isLoading={isResearching}
+              research={companyResearch}
+            />
+
+
 
             {showFullForm && (
               <>

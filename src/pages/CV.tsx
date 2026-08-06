@@ -156,36 +156,6 @@ const CV = () => {
             <Card className="bg-gradient-card">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <Upload className="h-5 w-5" />
-                  Upload a new CV
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="newDescription">Description for the next upload</Label>
-                  <Input
-                    id="newDescription"
-                    value={newDescription}
-                    onChange={(e) => setNewDescription(e.target.value)}
-                    placeholder="e.g. Product leadership CV, tailored for fintech"
-                    maxLength={200}
-                  />
-                  <input ref={fileInputRef} type="file" accept=".pdf" className="hidden" onChange={handleUpload} />
-                  <Button
-                    className="w-full bg-gradient-primary"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploading}
-                  >
-                    {uploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-                    Upload CV (PDF)
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
                   <FileText className="h-5 w-5" />
                   My uploaded CVs
                 </CardTitle>
@@ -241,6 +211,36 @@ const CV = () => {
                     ))}
                   </div>
                 )}
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-card">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Upload className="h-5 w-5" />
+                  Upload a new CV
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="newDescription">Description for the next upload</Label>
+                  <Input
+                    id="newDescription"
+                    value={newDescription}
+                    onChange={(e) => setNewDescription(e.target.value)}
+                    placeholder="e.g. Product leadership CV, tailored for fintech"
+                    maxLength={200}
+                  />
+                  <input ref={fileInputRef} type="file" accept=".pdf" className="hidden" onChange={handleUpload} />
+                  <Button
+                    className="w-full bg-gradient-primary"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                  >
+                    {uploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
+                    Upload CV (PDF)
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

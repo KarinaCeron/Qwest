@@ -46,6 +46,39 @@ export type Database = {
           },
         ]
       }
+      company_research: {
+        Row: {
+          company: string
+          company_key: string
+          created_at: string
+          id: string
+          research_text: string
+          updated_at: string
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          company: string
+          company_key: string
+          created_at?: string
+          id?: string
+          research_text: string
+          updated_at?: string
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          company?: string
+          company_key?: string
+          created_at?: string
+          id?: string
+          research_text?: string
+          updated_at?: string
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       compensation_items: {
         Row: {
           created_at: string

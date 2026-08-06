@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Pencil, X } from 'lucide-react';
+import { Save, Pencil, X, ArrowLeft } from 'lucide-react';
 import { AppHeader } from '@/components/AppHeader';
 
 interface ProfileData {

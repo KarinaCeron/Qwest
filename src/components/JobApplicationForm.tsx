@@ -301,41 +301,525 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
               </div>
             </div>
 
-            {showFullForm && (
-              <>
+            <div className="space-y-2">
+              <Label htmlFor="recruiterName">Recruiter / Contact</Label>
+              <Input
+                id="recruiterName"
+                value={formData.recruiterName}
+                onChange={(e) => handleChange('recruiterName', e.target.value)}
+                placeholder="Recruiter name"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="salaryOffered">Salary included in the offer?</Label>
+                <Select
+                  value={formData.salaryOffered ? 'yes' : 'no'}
+                  onValueChange={(value) => handleChange('salaryOffered', value === 'yes')}
+                >
+                  <SelectTrigger id="salaryOffered">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="no">No</SelectItem>
+                    <SelectItem value="yes">Yes</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {formData.salaryOffered && (
                 <div className="space-y-2">
-                  <Label htmlFor="role">Role / Position *</Label>
+                  <Label htmlFor="salary">Offered Salary</Label>
                   <Input
-                    id="role"
-                    value={formData.role}
-                    onChange={(e) => handleChange('role', e.target.value)}
-                    placeholder="e.g. Frontend Developer..."
-                    required
+                    id="salary"
+                    type="number"
+                    value={formData.salary}
+                    onChange={(e) => handleChange('salary', e.target.value)}
+                    placeholder="What they are offering you"
+                    min="0"
                   />
                 </div>
+              )}
+            </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="recruiterName">Recruiter / Contact</Label>
-                  <Input
-                    id="recruiterName"
-                    value={formData.recruiterName}
-                    onChange={(e) => handleChange('recruiterName', e.target.value)}
-                    placeholder="Recruiter name"
-                  />
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="requestedSalary">Requested Salary</Label>
+                <Input
+                  id="requestedSalary"
+                  type="number"
+                  value={formData.requestedSalary}
+                  onChange={(e) => handleChange('requestedSalary', e.target.value)}
+                  placeholder="What you are asking for"
+                  min="0"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="salaryCurrency">Currency</Label>
+                <Select
+                  value={formData.salaryCurrency || 'USD'}
+                  onValueChange={(value) => handleChange('salaryCurrency', value)}
+                >
+                  <SelectTrigger id="salaryCurrency">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="USD">USD</SelectItem>
+                    <SelectItem value="COP">COP</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="salaryPeriod">Period</Label>
+                <Select
+                  value={formData.salaryPeriod || 'annual'}
+                  onValueChange={(value) => handleChange('salaryPeriod', value)}
+                >
+                  <SelectTrigger id="salaryPeriod">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="annual">Annual</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
 
-                ...
 
-                <div className="flex gap-3 pt-4">
-                  <Button type="submit" className="flex-1 bg-gradient-primary">
-                    {editingApplication ? 'Update' : 'Save'} Application
+
+            <div className="space-y-2">
+              <Label htmlFor="jobLink">Job Link</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="jobLink"
+                  type="url"
+                  value={formData.jobLink}
+                  onChange={(e) => handleChange('jobLink', e.target.value)}
+                  placeholder="https://..."
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  disabled={!formData.jobLink}
+                  asChild
+                >
+                  <a
+                    href={formData.jobLink || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Open job posting"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                </Button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <Select value={formData.status} onValueChange={(value) => handleChange('status', value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="submitted">📤 Submitted</SelectItem>
+                    <SelectItem value="in-progress">⏳ In Progress</SelectItem>
+                    <SelectItem value="interview">💼 HR Interview</SelectItem>
+                    <SelectItem value="technical-interview">🧪 Technical Interview</SelectItem>
+                    <SelectItem value="offer">🎉 Offer</SelectItem>
+                    <SelectItem value="rejected">❌ Rejected</SelectItem>
+                    <SelectItem value="no-response">⏸️ No Response</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="priority">Priority</Label>
+                <Select value={formData.priority} onValueChange={(value) => handleChange('priority', value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="high">🔴 High</SelectItem>
+                    <SelectItem value="medium">🟡 Medium</SelectItem>
+                    <SelectItem value="low">🟢 Low</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="applicationDate">Application Date</Label>
+                <Input
+                  id="applicationDate"
+                  type="date"
+                  value={formData.applicationDate}
+                  onChange={(e) => handleChange('applicationDate', e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="jobContent">Job Description</Label>
+              <Textarea
+                id="jobContent"
+                value={formData.jobContent}
+                onChange={(e) => handleChange('jobContent', e.target.value)}
+                placeholder="Paste the full job description here: requirements, benefits, responsibilities..."
+                rows={6}
+                className="min-h-[120px]"
+              />
+              {(
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 mt-2">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    className="w-full min-h-10 h-auto whitespace-normal px-3 text-center"
+                    onClick={handleGenerateCoverLetter}
+                    disabled={isGeneratingCoverLetter || !formData.jobContent}
+                  >
+                    {isGeneratingCoverLetter ? 'Generating...' : '✉️ Create Cover Letter'}
                   </Button>
-                  <Button type="button" variant="outline" onClick={onCancel}>
-                    Cancel
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full min-h-10 h-auto whitespace-normal px-3 text-center"
+                    onClick={handleTailorCV}
+                    disabled={isTailoringCV || !formData.jobContent}
+                  >
+                    {isTailoringCV ? 'Tailoring...' : (
+                      <>
+                        <Wand2 className="h-4 w-4 mr-2" />
+                        Tailor my CV
+                      </>
+                    )}
                   </Button>
+                  <Dialog open={isAnswerOpen} onOpenChange={(open) => {
+                    setIsAnswerOpen(open);
+                    if (!open) { setEmployerQuestion(''); setAnswerResult(null); setEditableAnswer(''); }
+                  }}>
+                    <DialogTrigger asChild>
+                      <Button type="button" variant="outline" className="w-full min-h-10 h-auto whitespace-normal px-3 text-center">
+                        <MessageCircleQuestion className="h-4 w-4 mr-2" />
+                        Answer Application Question
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                          <MessageCircleQuestion className="h-5 w-5" />
+                          Answer an employer question
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 mt-2">
+                        <p className="text-sm text-muted-foreground">
+                          Paste a question from the application form. We'll use your CV and this position's details to draft an answer. You can edit the answer before saving it to this application.
+                        </p>
+                        <div className="space-y-2">
+                          <Label>Question</Label>
+                          <Textarea
+                            value={employerQuestion}
+                            onChange={(e) => setEmployerQuestion(e.target.value)}
+                            placeholder="e.g. Why are you interested in this role? Describe a time you led a project..."
+                            rows={3}
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          onClick={handleAnswerQuestion}
+                          disabled={isAnswering || !employerQuestion.trim()}
+                          className="w-full bg-gradient-primary"
+                        >
+                          {isAnswering ? 'Generating answer...' : 'Generate Answer'}
+                        </Button>
+                        {(answerResult || editableAnswer) && (
+                          <div className="space-y-2">
+                            <Label>Answer (editable)</Label>
+                            <Textarea
+                              value={editableAnswer}
+                              onChange={(e) => setEditableAnswer(e.target.value)}
+                              rows={8}
+                              className="min-h-[160px]"
+                            />
+                            <div className="flex gap-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="flex-1"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(editableAnswer);
+                                  toast({ title: "Copied", description: "Answer copied to clipboard" });
+                                }}
+                              >
+                                <Copy className="h-4 w-4 mr-2" />
+                                Copy
+                              </Button>
+                              <Button
+                                type="button"
+                                className="flex-1 bg-gradient-primary"
+                                onClick={handleSaveQuestion}
+                                disabled={!employerQuestion.trim() || !editableAnswer.trim()}
+                              >
+                                <Save className="h-4 w-4 mr-2" />
+                                Save to Application
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                        <div className="pt-2">
+                          <p className="text-xs text-muted-foreground">
+                            You can also skip generation and paste your own answer above, then click Save to Application.
+                          </p>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  <Dialog open={isDiscussOfferOpen} onOpenChange={(open) => {
+                    setIsDiscussOfferOpen(open);
+                    if (!open) { setOfferTopic(''); setOfferDiscussionResult(null); setEditableOfferDiscussion(''); }
+                  }}>
+                    <DialogTrigger asChild>
+                      <Button type="button" variant="outline" className="w-full min-h-10 h-auto whitespace-normal px-3 text-center">
+                        <Handshake className="h-4 w-4 mr-2" />
+                        Discuss the Offer
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                          <Handshake className="h-5 w-5" />
+                          Discuss the Offer
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 mt-2">
+                        <p className="text-sm text-muted-foreground">
+                          Describe what you'd like to discuss or negotiate about this offer. We'll use your CV and the position details to draft a professional response.
+                        </p>
+                        <div className="space-y-2">
+                          <Label>Topic</Label>
+                          <Textarea
+                            value={offerTopic}
+                            onChange={(e) => setOfferTopic(e.target.value)}
+                            placeholder="e.g. I'd like to negotiate a higher salary or ask about the start date and benefits package..."
+                            rows={3}
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          onClick={handleDiscussOffer}
+                          disabled={isDiscussingOffer || !offerTopic.trim()}
+                          className="w-full bg-gradient-primary"
+                        >
+                          {isDiscussingOffer ? 'Drafting response...' : 'Draft Response'}
+                        </Button>
+                        {(offerDiscussionResult || editableOfferDiscussion) && (
+                          <div className="space-y-2">
+                            <Label>Response (editable)</Label>
+                            <Textarea
+                              value={editableOfferDiscussion}
+                              onChange={(e) => setEditableOfferDiscussion(e.target.value)}
+                              rows={8}
+                              className="min-h-[160px]"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="w-full"
+                              onClick={() => {
+                                navigator.clipboard.writeText(editableOfferDiscussion);
+                                toast({ title: "Copied", description: "Response copied to clipboard" });
+                              }}
+                            >
+                              <Copy className="h-4 w-4 mr-2" />
+                              Copy to Clipboard
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </div>
-              </>
+              )}
+            </div>
+            
+            {generatedCoverLetter && (
+              <div className="mt-4 p-4 bg-gradient-card border rounded-lg">
+                <h4 className="font-semibold mb-2 text-foreground">Generated Cover Letter</h4>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Your cover letter has been generated successfully.
+                </p>
+                <Sheet open={isCoverLetterOpen} onOpenChange={setIsCoverLetterOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" className="w-full">
+                      <FileText className="h-4 w-4 mr-2" />
+                      View Cover Letter
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="right" className="w-[500px] sm:w-[600px]">
+                    <SheetHeader>
+                      <SheetTitle className="flex items-center gap-2">
+                        <FileText className="h-5 w-5" />
+                        Cover Letter for {formData.company}
+                      </SheetTitle>
+                    </SheetHeader>
+                    <div className="mt-6">
+                      <div className="bg-background border rounded-lg p-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+                        <pre className="whitespace-pre-wrap text-sm text-foreground leading-relaxed">
+                          {generatedCoverLetter}
+                        </pre>
+                      </div>
+                      <div className="flex gap-2 mt-4">
+                        <Button
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => {
+                            navigator.clipboard.writeText(generatedCoverLetter);
+                            toast({ title: "Copied", description: "Cover letter copied to clipboard" });
+                          }}
+                        >
+                          <Copy className="h-4 w-4 mr-2" />
+                          Copy to Clipboard
+                        </Button>
+                        <Button variant="outline" onClick={() => setIsCoverLetterOpen(false)}>
+                          Close
+                        </Button>
+                      </div>
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              </div>
             )}
+
+            {tailoringResult && (
+              <Sheet open={isTailoringResultOpen} onOpenChange={setIsTailoringResultOpen}>
+                <SheetTrigger asChild>
+                  <div className="mt-4 p-4 bg-gradient-card border rounded-lg cursor-pointer">
+                    <h4 className="font-semibold mb-2 text-foreground">CV Tailoring Recommendations</h4>
+                    <p className="text-sm text-muted-foreground mb-3">Your recommendations are ready.</p>
+                    <Button variant="outline" className="w-full" type="button">
+                      <Wand2 className="h-4 w-4 mr-2" />
+                      View Recommendations
+                    </Button>
+                  </div>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[500px] sm:w-[600px]">
+                  <SheetHeader>
+                    <SheetTitle className="flex items-center gap-2">
+                      <Wand2 className="h-5 w-5" />
+                      CV Recommendations for {formData.company}
+                    </SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-6">
+                    <div className="bg-background border rounded-lg p-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+                      <pre className="whitespace-pre-wrap text-sm text-foreground leading-relaxed">
+                        {tailoringResult}
+                      </pre>
+                    </div>
+                    <div className="flex gap-2 mt-4">
+                      <Button
+                        variant="outline"
+                        className="flex-1"
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(tailoringResult);
+                          toast({ title: "Copied", description: "Recommendations copied to clipboard" });
+                        }}
+                      >
+                        <Copy className="h-4 w-4 mr-2" />
+                        Copy to Clipboard
+                      </Button>
+                      <Button variant="outline" type="button" onClick={() => setIsTailoringResultOpen(false)}>
+                        Close
+                      </Button>
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            )}
+
+            {savedQuestions.length > 0 && (
+              <div className="space-y-2">
+                <Label>Saved Questions & Answers ({savedQuestions.length})</Label>
+                <div className="space-y-3">
+                  {savedQuestions.map((qa, idx) => (
+                    <div key={qa.id} className="border rounded-lg p-3 bg-background/50 space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-medium text-foreground flex-1">
+                          Q{idx + 1}. {qa.question}
+                        </p>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteQuestion(qa.id)}
+                          className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
+                          aria-label="Delete question"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <Textarea
+                        value={qa.answer}
+                        onChange={(e) =>
+                          setSavedQuestions(prev =>
+                            prev.map(q => (q.id === qa.id ? { ...q, answer: e.target.value } : q))
+                          )
+                        }
+                        rows={4}
+                        className="text-sm"
+                      />
+                      <div className="flex justify-end">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            navigator.clipboard.writeText(qa.answer);
+                            toast({ title: "Copied", description: "Answer copied to clipboard" });
+                          }}
+                        >
+                          <Copy className="h-3.5 w-3.5 mr-1" />
+                          Copy answer
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notes</Label>
+
+              <Textarea
+                id="notes"
+                value={formData.notes}
+                onChange={(e) => handleChange('notes', e.target.value)}
+                placeholder="Additional comments about the application..."
+                rows={3}
+              />
+            </div>
+
+            {editingApplication && user && (
+              <ApplicationActionLog
+                applicationId={editingApplication.id}
+                userId={user.id}
+              />
+            )}
+
+            <div className="flex gap-3 pt-4">
+              <Button type="submit" className="flex-1 bg-gradient-primary">
+                {editingApplication ? 'Update' : 'Save'} Application
+              </Button>
+              <Button type="button" variant="outline" onClick={onCancel}>
+                Cancel
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>

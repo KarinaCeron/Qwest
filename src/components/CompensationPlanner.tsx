@@ -26,16 +26,20 @@ interface CompensationItem {
 function ItemRow({ item, onDelete }: { item: CompensationItem; onDelete: (id: string) => void }) {
   return (
     <div className="flex items-start justify-between gap-3 rounded-lg border p-3">
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         {item.kind === 'salary' ? (
           <>
-            <p className="font-medium">Salary expectation</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="font-medium">Salary expectation</p>
+              <Badge variant="outline" className="text-xs">
+                {item.currency} · {item.period === 'annual' ? 'Annual' : 'Monthly'}
+              </Badge>
+            </div>
             {(item.value || item.min_value) && (
               <p className="text-sm text-muted-foreground">
                 {item.value && `Desired ${item.value}`}
                 {item.value && item.min_value && ' · '}
                 {item.min_value && `Minimum ${item.min_value}`}
-                {` ${item.currency} · ${item.period === 'annual' ? 'Annual' : 'Monthly'}`}
               </p>
             )}
           </>
@@ -179,7 +183,9 @@ export function CompensationPlanner() {
             Salary expectations
             <Badge variant="secondary">{salaries.length}</Badge>
           </CardTitle>
-          <CardDescription>Track the numbers you are aiming for, by currency and period.</CardDescription>
+          <CardDescription>
+            Track the numbers you are aiming for, by currency and period. Add one entry per currency — for example, one in USD and another in COP.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-3 md:grid-cols-2">
@@ -244,6 +250,9 @@ export function CompensationPlanner() {
             {salarySaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
             Add salary expectation
           </Button>
+          <p className="text-xs text-muted-foreground text-center">
+            Add as many expectations as you need — each with its own currency and period.
+          </p>
           {listState(salaries, 'No salary expectations yet.')}
         </CardContent>
       </Card>

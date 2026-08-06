@@ -23,6 +23,14 @@ interface CompensationItem {
   notes: string | null;
 }
 
+function formatMoney(amount: string | null, currency: string): string | null {
+  if (!amount || amount.trim() === '') return null;
+  const numeric = Number(amount.replace(/[^0-9.-]+/g, ''));
+  if (Number.isNaN(numeric)) return amount;
+  const locale = currency === 'COP' ? 'es-CO' : 'en-US';
+  return new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: 0 }).format(numeric);
+}
+
 function ItemRow({ item, onDelete }: { item: CompensationItem; onDelete: (id: string) => void }) {
   return (
     <div className="flex items-start justify-between gap-3 rounded-lg border p-3">

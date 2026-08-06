@@ -307,13 +307,26 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="company">Company *</Label>
+              <Input
+                id="company"
+                value={formData.company}
+                onChange={(e) => handleChange('company', e.target.value)}
+                placeholder="e.g. Google, Microsoft..."
+                required
+                maxLength={120}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="companyWebsite">Company website</Label>
               <div className="flex gap-2">
                 <Input
-                  id="company"
-                  value={formData.company}
-                  onChange={(e) => handleChange('company', e.target.value)}
-                  placeholder="e.g. Google, Microsoft..."
-                  required
+                  id="companyWebsite"
+                  type="url"
+                  value={companyWebsite}
+                  onChange={(e) => setCompanyWebsite(e.target.value)}
+                  placeholder="https://company.com"
+                  maxLength={300}
                   className="flex-1"
                 />
                 <Button
@@ -328,6 +341,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 </Button>
               </div>
             </div>
+
 
             <CompanyResearchPanel
               company={formData.company}

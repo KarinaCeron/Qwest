@@ -121,6 +121,7 @@ const Profile = () => {
     setOriginalRoles(roles);
     setEditing(false);
     toast({ title: '✅ Profile updated' });
+    navigate('/cv');
   };
 
   if (loading || !user) return null;

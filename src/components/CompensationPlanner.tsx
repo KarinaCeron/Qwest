@@ -128,6 +128,7 @@ export function CompensationPlanner() {
       setSalaryAmount('');
       setSalaryMinAmount('');
       setSalaryNotes('');
+      setShowSalaryForm(false);
       await fetchItems();
 
     }

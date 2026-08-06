@@ -132,28 +132,62 @@ export function CompensationPlanner() {
     setItems((prev) => prev.filter((i) => i.id !== id));
   };
 
-  const handleAddSalary = async () => {
+  const resetSalaryForm = () => {
+    setSalaryAmount('');
+    setSalaryMinAmount('');
+    setSalaryNotes('');
+    setCurrency('USD');
+    setPeriod('annual');
+    setEditingSalaryId(null);
+    setShowSalaryForm(false);
+  };
+
+  const handleEditSalary = (item: CompensationItem) => {
+    if (item.kind !== 'salary') return;
+    setEditingSalaryId(item.id);
+    setSalaryAmount(item.value || '');
+    setSalaryMinAmount(item.min_value || '');
+    setCurrency(item.currency);
+    setPeriod(item.period);
+    setSalaryNotes(item.notes || '');
+    setShowSalaryForm(true);
+  };
+
+  const handleSaveSalary = async () => {
     if (!user) return;
     setSalarySaving(true);
-    const { error } = await supabase.from('compensation_items').insert({
-      user_id: user.id,
-      kind: 'salary',
-      label: null,
+
+    const payload = {
       value: salaryAmount.trim() || null,
       min_value: salaryMinAmount.trim() || null,
       currency,
       period,
       notes: salaryNotes.trim() || null,
-    });
-    if (error) {
-      toast({ title: 'Could not add the salary expectation', description: error.message, variant: 'destructive' });
-    } else {
-      setSalaryAmount('');
-      setSalaryMinAmount('');
-      setSalaryNotes('');
-      setShowSalaryForm(false);
-      await fetchItems();
+    };
 
+    let error;
+    if (editingSalaryId) {
+      const result = await supabase.from('compensation_items').update(payload).eq('id', editingSalaryId);
+      error = result.error;
+    } else {
+      const result = await supabase.from('compensation_items').insert({
+        user_id: user.id,
+        kind: 'salary',
+        label: null,
+        ...payload,
+      });
+      error = result.error;
+    }
+
+    if (error) {
+      toast({
+        title: editingSalaryId ? 'Could not update the salary expectation' : 'Could not add the salary expectation',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } else {
+      resetSalaryForm();
+      await fetchItems();
     }
     setSalarySaving(false);
   };

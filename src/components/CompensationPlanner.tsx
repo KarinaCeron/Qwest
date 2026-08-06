@@ -15,7 +15,7 @@ type Kind = 'salary' | 'benefit';
 interface CompensationItem {
   id: string;
   kind: Kind;
-  label: string;
+  label: string | null;
   value: string | null;
   min_value: string | null;
   currency: string;
@@ -27,18 +27,23 @@ function ItemRow({ item, onDelete }: { item: CompensationItem; onDelete: (id: st
   return (
     <div className="flex items-start justify-between gap-3 rounded-lg border p-3">
       <div className="min-w-0">
-        <p className="font-medium truncate">{item.label}</p>
         {item.kind === 'salary' ? (
-          (item.value || item.min_value) && (
-            <p className="text-sm text-muted-foreground">
-              {item.value && `Desired ${item.value}`}
-              {item.value && item.min_value && ' · '}
-              {item.min_value && `Minimum ${item.min_value}`}
-              {` ${item.currency} · ${item.period === 'annual' ? 'Annual' : 'Monthly'}`}
-            </p>
-          )
+          <>
+            <p className="font-medium">Salary expectation</p>
+            {(item.value || item.min_value) && (
+              <p className="text-sm text-muted-foreground">
+                {item.value && `Desired ${item.value}`}
+                {item.value && item.min_value && ' · '}
+                {item.min_value && `Minimum ${item.min_value}`}
+                {` ${item.currency} · ${item.period === 'annual' ? 'Annual' : 'Monthly'}`}
+              </p>
+            )}
+          </>
         ) : (
-          item.value && <p className="text-sm text-muted-foreground">{item.value}</p>
+          <>
+            <p className="font-medium truncate">{item.label}</p>
+            {item.value && <p className="text-sm text-muted-foreground">{item.value}</p>}
+          </>
         )}
 
         {item.notes && <p className="mt-1 text-xs text-muted-foreground">{item.notes}</p>}
@@ -58,7 +63,6 @@ export function CompensationPlanner() {
 
   // Salary expectation form
   const [salarySaving, setSalarySaving] = useState(false);
-  const [salaryLabel, setSalaryLabel] = useState('');
   const [salaryAmount, setSalaryAmount] = useState('');
   const [salaryMinAmount, setSalaryMinAmount] = useState('');
 
@@ -101,12 +105,12 @@ export function CompensationPlanner() {
   };
 
   const handleAddSalary = async () => {
-    if (!user || !salaryLabel.trim()) return;
+    if (!user) return;
     setSalarySaving(true);
     const { error } = await supabase.from('compensation_items').insert({
       user_id: user.id,
       kind: 'salary',
-      label: salaryLabel.trim(),
+      label: null,
       value: salaryAmount.trim() || null,
       min_value: salaryMinAmount.trim() || null,
       currency,
@@ -116,7 +120,6 @@ export function CompensationPlanner() {
     if (error) {
       toast({ title: 'Could not add the salary expectation', description: error.message, variant: 'destructive' });
     } else {
-      setSalaryLabel('');
       setSalaryAmount('');
       setSalaryMinAmount('');
       setSalaryNotes('');
@@ -181,16 +184,6 @@ export function CompensationPlanner() {
         <CardContent className="space-y-4">
           <div className="grid gap-3 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="salaryLabel">Title</Label>
-              <Input
-                id="salaryLabel"
-                value={salaryLabel}
-                onChange={(e) => setSalaryLabel(e.target.value)}
-                placeholder="e.g. Target base salary"
-                maxLength={120}
-              />
-            </div>
-            <div className="space-y-2">
               <Label htmlFor="salaryAmount">Desired amount</Label>
               <Input
                 id="salaryAmount"
@@ -245,7 +238,7 @@ export function CompensationPlanner() {
           </div>
           <Button
             onClick={handleAddSalary}
-            disabled={salarySaving || !salaryLabel.trim()}
+            disabled={salarySaving}
             className="w-full bg-gradient-primary"
           >
             {salarySaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}

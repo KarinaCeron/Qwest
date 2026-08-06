@@ -1,0 +1,1 @@
+ALTER TABLE public.compensation_items ALTER COLUMN label DROP NOT NULL;

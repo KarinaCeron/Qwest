@@ -52,7 +52,7 @@ export type Database = {
           currency: string
           id: string
           kind: string
-          label: string
+          label: string | null
           min_value: string | null
           notes: string | null
           period: string
@@ -65,7 +65,7 @@ export type Database = {
           currency?: string
           id?: string
           kind?: string
-          label: string
+          label?: string | null
           min_value?: string | null
           notes?: string | null
           period?: string
@@ -78,7 +78,7 @@ export type Database = {
           currency?: string
           id?: string
           kind?: string
-          label?: string
+          label?: string | null
           min_value?: string | null
           notes?: string | null
           period?: string

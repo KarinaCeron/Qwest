@@ -195,6 +195,31 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     }
   };
 
+  const handleResearchCompany = async () => {
+    const company = formData.company.trim();
+    if (!company) return;
+    setShowFullForm(true);
+    setIsResearching(true);
+    setCompanyResearch(null);
+    try {
+      const { data, error } = await supabase.functions.invoke('research-company', {
+        body: { company },
+      });
+      if (error) throw error;
+      if (!data?.research) throw new Error('No research data returned');
+      setCompanyResearch(data.research as CompanyResearch);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Could not research company.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsResearching(false);
+    }
+  };
+
+
   const handleDiscussOffer = async () => {
     if (!offerTopic.trim()) {
       toast({ title: "Error", description: "Please enter a topic to discuss", variant: "destructive" });

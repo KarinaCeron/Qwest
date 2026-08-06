@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Trash2, Loader2, Coins, Gift, Pencil } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 
 type Kind = 'salary' | 'benefit';
 

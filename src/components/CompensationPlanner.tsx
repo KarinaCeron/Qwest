@@ -17,6 +17,7 @@ interface CompensationItem {
   kind: Kind;
   label: string;
   value: string | null;
+  min_value: string | null;
   currency: string;
   period: string;
   notes: string | null;
@@ -27,13 +28,19 @@ function ItemRow({ item, onDelete }: { item: CompensationItem; onDelete: (id: st
     <div className="flex items-start justify-between gap-3 rounded-lg border p-3">
       <div className="min-w-0">
         <p className="font-medium truncate">{item.label}</p>
-        {item.value && (
-          <p className="text-sm text-muted-foreground">
-            {item.kind === 'salary'
-              ? `${item.value} ${item.currency} · ${item.period === 'annual' ? 'Annual' : 'Monthly'}`
-              : item.value}
-          </p>
+        {item.kind === 'salary' ? (
+          (item.value || item.min_value) && (
+            <p className="text-sm text-muted-foreground">
+              {item.value && `Desired ${item.value}`}
+              {item.value && item.min_value && ' · '}
+              {item.min_value && `Minimum ${item.min_value}`}
+              {` ${item.currency} · ${item.period === 'annual' ? 'Annual' : 'Monthly'}`}
+            </p>
+          )
+        ) : (
+          item.value && <p className="text-sm text-muted-foreground">{item.value}</p>
         )}
+
         {item.notes && <p className="mt-1 text-xs text-muted-foreground">{item.notes}</p>}
       </div>
       <Button variant="ghost" size="icon" onClick={() => onDelete(item.id)} aria-label="Delete item">
@@ -53,6 +60,8 @@ export function CompensationPlanner() {
   const [salarySaving, setSalarySaving] = useState(false);
   const [salaryLabel, setSalaryLabel] = useState('');
   const [salaryAmount, setSalaryAmount] = useState('');
+  const [salaryMinAmount, setSalaryMinAmount] = useState('');
+
   const [currency, setCurrency] = useState('USD');
   const [period, setPeriod] = useState('annual');
   const [salaryNotes, setSalaryNotes] = useState('');
@@ -99,6 +108,7 @@ export function CompensationPlanner() {
       kind: 'salary',
       label: salaryLabel.trim(),
       value: salaryAmount.trim() || null,
+      min_value: salaryMinAmount.trim() || null,
       currency,
       period,
       notes: salaryNotes.trim() || null,
@@ -108,8 +118,10 @@ export function CompensationPlanner() {
     } else {
       setSalaryLabel('');
       setSalaryAmount('');
+      setSalaryMinAmount('');
       setSalaryNotes('');
       await fetchItems();
+
     }
     setSalarySaving(false);
   };
@@ -179,7 +191,7 @@ export function CompensationPlanner() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="salaryAmount">Amount</Label>
+              <Label htmlFor="salaryAmount">Desired amount</Label>
               <Input
                 id="salaryAmount"
                 value={salaryAmount}
@@ -187,6 +199,16 @@ export function CompensationPlanner() {
                 placeholder="120000"
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="salaryMinAmount">Minimum to accept</Label>
+              <Input
+                id="salaryMinAmount"
+                value={salaryMinAmount}
+                onChange={(e) => setSalaryMinAmount(e.target.value)}
+                placeholder="100000"
+              />
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="salaryCurrency">Currency</Label>
               <Select value={currency} onValueChange={setCurrency}>

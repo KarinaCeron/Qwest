@@ -1,0 +1,1 @@
+ALTER TABLE public.compensation_items ADD COLUMN IF NOT EXISTS min_value text;

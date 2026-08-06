@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Upload, FileText, Trash2, Download, Loader2, Save } from 'lucide-react';
 import { AppHeader } from '@/components/AppHeader';
 import { CompensationPlanner } from '@/components/CompensationPlanner';
+import { ProfileHero } from '@/components/ProfileHero';
 
 interface CVDocument {
   id: string;
@@ -141,6 +142,8 @@ const CV = () => {
       <AppHeader subtitle="My Qwest" />
 
       <main className="container mx-auto px-4 py-8 max-w-2xl space-y-6">
+        <ProfileHero />
+
         <Card className="bg-gradient-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">

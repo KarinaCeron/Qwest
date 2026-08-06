@@ -152,14 +152,13 @@ export function CompensationPlanner() {
       value: benefitDetail.trim() || null,
       currency: 'USD',
       period: 'annual',
-      notes: benefitNotes.trim() || null,
+      notes: null,
     });
     if (error) {
       toast({ title: 'Could not add the benefit', description: error.message, variant: 'destructive' });
     } else {
       setBenefitLabel('');
       setBenefitDetail('');
-      setBenefitNotes('');
       await fetchItems();
     }
     setBenefitSaving(false);

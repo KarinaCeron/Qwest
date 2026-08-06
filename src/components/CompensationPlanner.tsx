@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type DragEvent } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -53,9 +53,9 @@ function ItemRow({
   isDragging?: boolean;
   isDropTarget?: boolean;
   onDragStart?: () => void;
-  onDragOver?: (e: React.DragEvent) => void;
+  onDragOver?: (e: DragEvent) => void;
   onDragEnd?: () => void;
-  onDrop?: (e: React.DragEvent) => void;
+  onDrop?: (e: DragEvent) => void;
 }) {
   return (
     <div

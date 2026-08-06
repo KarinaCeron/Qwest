@@ -49,6 +49,8 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const [isResearching, setIsResearching] = useState(false);
   const [companyWebsite, setCompanyWebsite] = useState('');
   const [companyResearch, setCompanyResearch] = useState<CompanyResearch | null>(null);
+  const [researchSources, setResearchSources] = useState<ResearchSource[]>([]);
+
   const [formData, setFormData] = useState<JobApplicationFormData>({
     company: editingApplication?.company || '',
     role: editingApplication?.role || '',

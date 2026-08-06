@@ -250,6 +250,9 @@ export function CompensationPlanner() {
             {salarySaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
             Add salary expectation
           </Button>
+          <p className="text-xs text-muted-foreground text-center">
+            Add as many expectations as you need — each with its own currency and period.
+          </p>
           {listState(salaries, 'No salary expectations yet.')}
         </CardContent>
       </Card>

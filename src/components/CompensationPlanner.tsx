@@ -45,9 +45,9 @@ function ItemRow({ item, onDelete }: { item: CompensationItem; onDelete: (id: st
             </div>
             {(item.value || item.min_value) && (
               <p className="text-sm text-muted-foreground">
-                {item.value && `Desired ${item.value}`}
+                {item.value && `Desired ${formatMoney(item.value, item.currency)}`}
                 {item.value && item.min_value && ' · '}
-                {item.min_value && `Minimum ${item.min_value}`}
+                {item.min_value && `Minimum ${formatMoney(item.min_value, item.currency)}`}
               </p>
             )}
           </>

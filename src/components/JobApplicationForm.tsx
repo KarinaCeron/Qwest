@@ -413,6 +413,36 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                   />
                 </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="jobLink">Job Link</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="jobLink"
+                  type="url"
+                  value={formData.jobLink}
+                  onChange={(e) => handleChange('jobLink', e.target.value)}
+                  placeholder="https://..."
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  disabled={!formData.jobLink}
+                  asChild
+                >
+                  <a
+                    href={formData.jobLink || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Open job posting"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                </Button>
+              </div>
+            </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="recruiterName">Recruiter / Contact</Label>
               <Input
@@ -495,38 +525,6 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                     <SelectItem value="monthly">Monthly</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-            </div>
-
-
-
-            <div className="space-y-2">
-              <Label htmlFor="jobLink">Job Link</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="jobLink"
-                  type="url"
-                  value={formData.jobLink}
-                  onChange={(e) => handleChange('jobLink', e.target.value)}
-                  placeholder="https://..."
-                  className="flex-1"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  disabled={!formData.jobLink}
-                  asChild
-                >
-                  <a
-                    href={formData.jobLink || '#'}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Open job posting"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
-                </Button>
               </div>
             </div>
 

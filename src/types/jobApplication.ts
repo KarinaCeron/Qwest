@@ -24,6 +24,8 @@ export interface JobApplication {
   company: string;
   role: string;
   recruiterName?: string;
+  hiringManagerName?: string;
+  hiringManagerLinkedIn?: string;
   salary?: string;
   salaryOffered?: boolean;
   requestedSalary?: string;
@@ -46,6 +48,8 @@ export interface JobApplicationFormData {
   company: string;
   role: string;
   recruiterName?: string;
+  hiringManagerName?: string;
+  hiringManagerLinkedIn?: string;
   salary?: string;
   salaryOffered?: boolean;
   requestedSalary?: string;

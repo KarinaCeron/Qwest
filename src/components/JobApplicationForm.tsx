@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { ApplicationActionLog } from '@/components/ApplicationActionLog';
+import { CompanyResearchPanel, CompanyResearch } from '@/components/CompanyResearchPanel';
 
 interface JobApplicationFormProps {
   onSubmit: (data: JobApplicationFormData) => void;

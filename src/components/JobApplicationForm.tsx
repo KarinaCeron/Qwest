@@ -58,6 +58,8 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     company: editingApplication?.company || '',
     role: editingApplication?.role || '',
     recruiterName: editingApplication?.recruiterName || '',
+    hiringManagerName: editingApplication?.hiringManagerName || '',
+    hiringManagerLinkedIn: editingApplication?.hiringManagerLinkedIn || '',
     salary: editingApplication?.salary || '',
     salaryOffered: editingApplication?.salaryOffered ?? false,
     requestedSalary: editingApplication?.requestedSalary || '',

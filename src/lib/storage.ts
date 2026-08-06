@@ -19,6 +19,8 @@ export const jobApplicationStorage = {
         company: app.company,
         role: app.role,
         recruiterName: app.recruiter_name,
+        hiringManagerName: (app as any).hiring_manager_name ?? undefined,
+        hiringManagerLinkedIn: (app as any).hiring_manager_linkedin ?? undefined,
         salary: app.salary,
         salaryOffered: (app as any).salary_offered ?? false,
         requestedSalary: (app as any).requested_salary ?? undefined,
@@ -60,6 +62,8 @@ export const jobApplicationStorage = {
           company: formData.company,
           role: formData.role,
           recruiter_name: formData.recruiterName,
+          hiring_manager_name: formData.hiringManagerName,
+          hiring_manager_linkedin: formData.hiringManagerLinkedIn,
           salary: formData.salary,
           salary_offered: formData.salaryOffered ?? false,
           requested_salary: formData.requestedSalary,
@@ -87,6 +91,8 @@ export const jobApplicationStorage = {
         company: data.company,
         role: data.role,
         recruiterName: data.recruiter_name,
+        hiringManagerName: (data as any).hiring_manager_name ?? undefined,
+        hiringManagerLinkedIn: (data as any).hiring_manager_linkedin ?? undefined,
         salary: data.salary,
         salaryOffered: (data as any).salary_offered ?? false,
         requestedSalary: (data as any).requested_salary ?? undefined,
@@ -116,6 +122,8 @@ export const jobApplicationStorage = {
       if (updates.company !== undefined) updateData.company = updates.company;
       if (updates.role !== undefined) updateData.role = updates.role;
       if (updates.recruiterName !== undefined) updateData.recruiter_name = updates.recruiterName;
+      if (updates.hiringManagerName !== undefined) updateData.hiring_manager_name = updates.hiringManagerName;
+      if (updates.hiringManagerLinkedIn !== undefined) updateData.hiring_manager_linkedin = updates.hiringManagerLinkedIn;
       if (updates.salary !== undefined) updateData.salary = updates.salary;
       if (updates.salaryOffered !== undefined) updateData.salary_offered = updates.salaryOffered;
       if (updates.requestedSalary !== undefined) updateData.requested_salary = updates.requestedSalary;
@@ -154,6 +162,8 @@ export const jobApplicationStorage = {
         company: data.company,
         role: data.role,
         recruiterName: data.recruiter_name,
+        hiringManagerName: (data as any).hiring_manager_name ?? undefined,
+        hiringManagerLinkedIn: (data as any).hiring_manager_linkedin ?? undefined,
         salary: data.salary,
         salaryOffered: (data as any).salary_offered ?? false,
         requestedSalary: (data as any).requested_salary ?? undefined,

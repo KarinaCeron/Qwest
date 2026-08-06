@@ -108,6 +108,7 @@ export function CompensationPlanner() {
       kind: 'salary',
       label: salaryLabel.trim(),
       value: salaryAmount.trim() || null,
+      min_value: salaryMinAmount.trim() || null,
       currency,
       period,
       notes: salaryNotes.trim() || null,
@@ -117,8 +118,10 @@ export function CompensationPlanner() {
     } else {
       setSalaryLabel('');
       setSalaryAmount('');
+      setSalaryMinAmount('');
       setSalaryNotes('');
       await fetchItems();
+
     }
     setSalarySaving(false);
   };

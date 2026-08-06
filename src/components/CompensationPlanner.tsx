@@ -38,14 +38,43 @@ function ItemRow({
   item,
   onDelete,
   onEdit,
+  draggable = false,
+  isDragging = false,
+  isDropTarget = false,
+  onDragStart,
+  onDragOver,
+  onDragEnd,
+  onDrop,
 }: {
   item: CompensationItem;
   onDelete: (id: string) => void;
   onEdit?: (item: CompensationItem) => void;
+  draggable?: boolean;
+  isDragging?: boolean;
+  isDropTarget?: boolean;
+  onDragStart?: () => void;
+  onDragOver?: (e: React.DragEvent) => void;
+  onDragEnd?: () => void;
+  onDrop?: (e: React.DragEvent) => void;
 }) {
   return (
-    <div className="flex items-start justify-between gap-3 rounded-lg border p-3">
+    <div
+      draggable={draggable}
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDragEnd={onDragEnd}
+      onDrop={onDrop}
+      className={`flex items-start justify-between gap-2 rounded-lg border bg-card p-3 transition-all ${
+        isDragging ? 'opacity-50' : ''
+      } ${isDropTarget ? 'border-primary ring-1 ring-primary' : ''}`}
+    >
+      {draggable && (
+        <span className="mt-1 cursor-grab text-muted-foreground active:cursor-grabbing" aria-hidden="true">
+          <GripVertical className="h-4 w-4" />
+        </span>
+      )}
       <div className="min-w-0 flex-1">
+
         {item.kind === 'salary' ? (
           <>
             <div className="flex items-center gap-2 flex-wrap">

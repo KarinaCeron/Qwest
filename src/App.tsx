@@ -12,7 +12,7 @@ import CV from "./pages/CV";
 import Templates from "./pages/Templates";
 import QuestionBank from "./pages/QuestionBank";
 import Tasks from "./pages/Tasks";
-import Billing from "./pages/Billing";
+
 import { GlobalChat } from "./components/GlobalChat";
 
 const queryClient = new QueryClient();
@@ -32,7 +32,7 @@ const App = () => (
           <Route path="/templates" element={<Templates />} />
           <Route path="/questions" element={<QuestionBank />} />
           <Route path="/tasks" element={<Tasks />} />
-          <Route path="/billing" element={<Billing />} />
+          
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -259,7 +259,7 @@ export function CompensationPlanner() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {listState(salaries, 'No salary expectations yet.')}
+          {salaryList}
           {showSalaryForm ? (
             <div className="space-y-4">
               <div className="grid gap-3 md:grid-cols-2">

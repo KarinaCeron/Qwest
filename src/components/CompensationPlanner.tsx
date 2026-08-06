@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type DragEvent } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Trash2, Loader2, Coins, Gift, Pencil } from 'lucide-react';
+import { Plus, Trash2, Loader2, Coins, Gift, Pencil, GripVertical } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 
 type Kind = 'salary' | 'benefit';
@@ -23,6 +23,7 @@ interface CompensationItem {
   period: string;
   notes: string | null;
   required: boolean;
+  sort_order: number;
 }
 
 function formatMoney(amount: string | null, currency: string): string | null {
@@ -37,14 +38,43 @@ function ItemRow({
   item,
   onDelete,
   onEdit,
+  draggable = false,
+  isDragging = false,
+  isDropTarget = false,
+  onDragStart,
+  onDragOver,
+  onDragEnd,
+  onDrop,
 }: {
   item: CompensationItem;
   onDelete: (id: string) => void;
   onEdit?: (item: CompensationItem) => void;
+  draggable?: boolean;
+  isDragging?: boolean;
+  isDropTarget?: boolean;
+  onDragStart?: () => void;
+  onDragOver?: (e: DragEvent) => void;
+  onDragEnd?: () => void;
+  onDrop?: (e: DragEvent) => void;
 }) {
   return (
-    <div className="flex items-start justify-between gap-3 rounded-lg border p-3">
+    <div
+      draggable={draggable}
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDragEnd={onDragEnd}
+      onDrop={onDrop}
+      className={`flex items-start justify-between gap-2 rounded-lg border bg-card p-3 transition-all ${
+        isDragging ? 'opacity-50' : ''
+      } ${isDropTarget ? 'border-primary ring-1 ring-primary' : ''}`}
+    >
+      {draggable && (
+        <span className="mt-1 cursor-grab text-muted-foreground active:cursor-grabbing" aria-hidden="true">
+          <GripVertical className="h-4 w-4" />
+        </span>
+      )}
       <div className="min-w-0 flex-1">
+
         {item.kind === 'salary' ? (
           <>
             <div className="flex items-center gap-2 flex-wrap">
@@ -113,6 +143,10 @@ export function CompensationPlanner() {
   const [benefitDetail, setBenefitDetail] = useState('');
   const [benefitRequired, setBenefitRequired] = useState(false);
 
+  // Drag and drop reordering for benefits
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
+
   useEffect(() => {
     if (user) fetchItems();
   }, [user]);
@@ -123,7 +157,8 @@ export function CompensationPlanner() {
     const { data, error } = await supabase
       .from('compensation_items')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: true });
     if (error) {
       toast({ title: 'Could not load your list', description: error.message, variant: 'destructive' });
     } else {
@@ -131,6 +166,7 @@ export function CompensationPlanner() {
     }
     setLoading(false);
   };
+
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from('compensation_items').delete().eq('id', id);
@@ -231,14 +267,18 @@ export function CompensationPlanner() {
       const result = await supabase.from('compensation_items').update(payload).eq('id', editingBenefitId);
       error = result.error;
     } else {
+      const nextOrder =
+        items.filter((i) => i.kind === 'benefit').reduce((max, i) => Math.max(max, i.sort_order), 0) + 1;
       const result = await supabase.from('compensation_items').insert({
         user_id: user.id,
         kind: 'benefit',
         currency: 'USD',
         period: 'annual',
         notes: null,
+        sort_order: nextOrder,
         ...payload,
       });
+
       error = result.error;
     }
 
@@ -259,9 +299,44 @@ export function CompensationPlanner() {
   const benefits = items
     .filter((i) => i.kind === 'benefit')
     .sort((a, b) => {
-      if (a.required === b.required) return 0;
+      if (a.required === b.required) return a.sort_order - b.sort_order;
       return a.required ? -1 : 1;
     });
+
+  const persistBenefitOrder = async (ordered: CompensationItem[]) => {
+    const updates = ordered.map((item, index) =>
+      supabase.from('compensation_items').update({ sort_order: index + 1 }).eq('id', item.id)
+    );
+    const results = await Promise.all(updates);
+    const failed = results.find((r) => r.error);
+    if (failed?.error) {
+      toast({ title: 'Could not save the new order', description: failed.error.message, variant: 'destructive' });
+      await fetchItems();
+    }
+  };
+
+  const handleBenefitDrop = async (targetId: string) => {
+    if (!dragId || dragId === targetId) return;
+    const source = benefits.find((b) => b.id === dragId);
+    const target = benefits.find((b) => b.id === targetId);
+    if (!source || !target || source.required !== target.required) return;
+
+    const group = benefits.filter((b) => b.required === source.required);
+    const others = benefits.filter((b) => b.required !== source.required);
+    const from = group.findIndex((b) => b.id === dragId);
+    const to = group.findIndex((b) => b.id === targetId);
+    const reordered = [...group];
+    reordered.splice(to, 0, reordered.splice(from, 1)[0]);
+
+    const merged = source.required ? [...reordered, ...others] : [...others, ...reordered];
+    const withOrder = merged.map((item, index) => ({ ...item, sort_order: index + 1 }));
+
+    setItems((prev) => [
+      ...prev.filter((i) => i.kind !== 'benefit'),
+      ...withOrder,
+    ]);
+    await persistBenefitOrder(merged);
+  };
 
   const salaryList = loading ? (
     <div className="flex justify-center py-6">
@@ -286,10 +361,34 @@ export function CompensationPlanner() {
   ) : (
     <div className="space-y-2">
       {benefits.map((item) => (
-        <ItemRow key={item.id} item={item} onDelete={handleDelete} onEdit={handleEditBenefit} />
+        <ItemRow
+          key={item.id}
+          item={item}
+          onDelete={handleDelete}
+          onEdit={handleEditBenefit}
+          draggable
+          isDragging={dragId === item.id}
+          isDropTarget={dragOverId === item.id && dragId !== item.id}
+          onDragStart={() => setDragId(item.id)}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragOverId(item.id);
+          }}
+          onDragEnd={() => {
+            setDragId(null);
+            setDragOverId(null);
+          }}
+          onDrop={(e) => {
+            e.preventDefault();
+            handleBenefitDrop(item.id);
+            setDragId(null);
+            setDragOverId(null);
+          }}
+        />
       ))}
     </div>
   );
+
 
   return (
     <div className="space-y-6">
@@ -399,7 +498,9 @@ export function CompensationPlanner() {
             Benefits
             <Badge variant="secondary">{benefits.length}</Badge>
           </CardTitle>
-          <CardDescription>The perks and conditions that matter to you beyond salary.</CardDescription>
+          <CardDescription>
+            The perks and conditions that matter to you beyond salary. Drag the handle to reorder — your order is saved.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-3 md:grid-cols-2">

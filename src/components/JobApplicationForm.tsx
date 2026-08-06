@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { ApplicationActionLog } from '@/components/ApplicationActionLog';
-import { CompanyResearchPanel, CompanyResearch, ResearchSource } from '@/components/CompanyResearchPanel';
+import { CompanyResearchPanel } from '@/components/CompanyResearchPanel';
 
 const STEPS = ['Company', 'Application', 'Questions', 'Action log'];
 
@@ -51,8 +51,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const [step, setStep] = useState(0);
   const [isResearching, setIsResearching] = useState(false);
   const [companyWebsite, setCompanyWebsite] = useState('');
-  const [companyResearch, setCompanyResearch] = useState<CompanyResearch | null>(null);
-  const [researchSources, setResearchSources] = useState<ResearchSource[]>([]);
+  const [companyResearchText, setCompanyResearchText] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<JobApplicationFormData>({
     company: editingApplication?.company || '',
@@ -208,17 +207,14 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     if (!company) return;
     setStep(0);
     setIsResearching(true);
-    setCompanyResearch(null);
-    setResearchSources([]);
+    setCompanyResearchText(null);
     try {
       const { data, error } = await supabase.functions.invoke('research-company', {
         body: { company, website: companyWebsite.trim() || undefined },
       });
       if (error) throw error;
-      if (!data?.research) throw new Error('No research data returned');
-      setCompanyResearch(data.research as CompanyResearch);
-      setResearchSources((data.sources ?? []) as ResearchSource[]);
-
+      if (typeof data?.text !== 'string') throw new Error('No research data returned');
+      setCompanyResearchText(data.text);
     } catch (error) {
       toast({
         title: 'Error',
@@ -380,8 +376,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
             <CompanyResearchPanel
               company={formData.company}
               isLoading={isResearching}
-              research={companyResearch}
-              sources={researchSources}
+              text={companyResearchText}
             />
 
             <div className="flex gap-3 pt-2">

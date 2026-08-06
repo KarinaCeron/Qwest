@@ -184,16 +184,6 @@ export function CompensationPlanner() {
         <CardContent className="space-y-4">
           <div className="grid gap-3 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="salaryLabel">Title</Label>
-              <Input
-                id="salaryLabel"
-                value={salaryLabel}
-                onChange={(e) => setSalaryLabel(e.target.value)}
-                placeholder="e.g. Target base salary"
-                maxLength={120}
-              />
-            </div>
-            <div className="space-y-2">
               <Label htmlFor="salaryAmount">Desired amount</Label>
               <Input
                 id="salaryAmount"

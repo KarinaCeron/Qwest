@@ -223,6 +223,7 @@ export function CompensationPlanner() {
     const payload = {
       label: benefitLabel.trim(),
       value: benefitDetail.trim() || null,
+      required: benefitRequired,
     };
 
     let error;

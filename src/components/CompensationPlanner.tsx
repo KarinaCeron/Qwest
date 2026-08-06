@@ -87,7 +87,6 @@ export function CompensationPlanner() {
   const [benefitSaving, setBenefitSaving] = useState(false);
   const [benefitLabel, setBenefitLabel] = useState('');
   const [benefitDetail, setBenefitDetail] = useState('');
-  const [benefitNotes, setBenefitNotes] = useState('');
 
   useEffect(() => {
     if (user) fetchItems();
@@ -153,14 +152,13 @@ export function CompensationPlanner() {
       value: benefitDetail.trim() || null,
       currency: 'USD',
       period: 'annual',
-      notes: benefitNotes.trim() || null,
+      notes: null,
     });
     if (error) {
       toast({ title: 'Could not add the benefit', description: error.message, variant: 'destructive' });
     } else {
       setBenefitLabel('');
       setBenefitDetail('');
-      setBenefitNotes('');
       await fetchItems();
     }
     setBenefitSaving(false);
@@ -313,15 +311,6 @@ export function CompensationPlanner() {
                 value={benefitDetail}
                 onChange={(e) => setBenefitDetail(e.target.value)}
                 placeholder="e.g. 20 days per year"
-              />
-            </div>
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="benefitNotes">Notes</Label>
-              <Input
-                id="benefitNotes"
-                value={benefitNotes}
-                onChange={(e) => setBenefitNotes(e.target.value)}
-                placeholder="Why it matters to you"
               />
             </div>
           </div>

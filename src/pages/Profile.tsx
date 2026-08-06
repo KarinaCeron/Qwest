@@ -52,6 +52,8 @@ const Profile = () => {
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [roles, setRoles] = useState<[string, string]>(['', '']);
+  const [originalRoles, setOriginalRoles] = useState<[string, string]>(['', '']);
 
   useEffect(() => {
     if (!loading && !user) navigate('/auth');
@@ -62,7 +64,7 @@ const Profile = () => {
       if (!user) return;
       const { data } = await supabase
         .from('profiles')
-        .select('display_name, first_name, last_name, location, linkedin_url, portfolio_url, bio')
+        .select('display_name, first_name, last_name, location, linkedin_url, portfolio_url, bio, target_roles')
         .eq('user_id', user.id)
         .maybeSingle();
       const loaded: ProfileData = {
@@ -74,6 +76,10 @@ const Profile = () => {
         portfolio_url: data?.portfolio_url ?? '',
         bio: data?.bio ?? '',
       };
+      const loadedRoles = ((data as any)?.target_roles ?? []) as string[];
+      const rolePair: [string, string] = [loadedRoles[0] ?? '', loadedRoles[1] ?? ''];
+      setRoles(rolePair);
+      setOriginalRoles(rolePair);
       setProfile(loaded);
       setOriginal(loaded);
       setLoadingProfile(false);
@@ -85,6 +91,7 @@ const Profile = () => {
     setProfile((p) => ({ ...p, [k]: e.target.value }));
 
   const handleCancel = () => {
+    setRoles(originalRoles);
     setProfile(original);
     setEditing(false);
   };
@@ -100,13 +107,18 @@ const Profile = () => {
     const payload = Object.fromEntries(
       Object.entries(parsed.data).map(([k, v]) => [k, v === '' ? null : v])
     );
-    const { error } = await supabase.from('profiles').update(payload).eq('user_id', user.id);
+    const target_roles = roles.map((r) => r.trim()).filter(Boolean).slice(0, 2);
+    const { error } = await supabase
+      .from('profiles')
+      .update({ ...payload, target_roles } as any)
+      .eq('user_id', user.id);
     setSaving(false);
     if (error) {
       toast({ title: 'Could not save', description: error.message, variant: 'destructive' });
       return;
     }
     setOriginal(profile);
+    setOriginalRoles(roles);
     setEditing(false);
     toast({ title: '✅ Profile updated' });
   };
@@ -174,6 +186,28 @@ const Profile = () => {
                 <Label htmlFor="email">Email</Label>
                 <Input id="email" value={user.email ?? ''} disabled readOnly />
                 <p className="text-xs text-muted-foreground">Email cannot be changed.</p>
+              </div>
+              <div className="space-y-2">
+                <Label>Roles I'm chasing</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Input
+                    id="target_role_1"
+                    value={roles[0]}
+                    onChange={(e) => setRoles(([, b]) => [e.target.value, b])}
+                    disabled={!editing}
+                    maxLength={80}
+                    placeholder="e.g. VP of Product"
+                  />
+                  <Input
+                    id="target_role_2"
+                    value={roles[1]}
+                    onChange={(e) => setRoles(([a]) => [a, e.target.value])}
+                    disabled={!editing}
+                    maxLength={80}
+                    placeholder="e.g. Head of Growth (optional)"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">Highlight up to two target roles.</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="location">Location</Label>

@@ -69,7 +69,7 @@ function ItemRow({
         {item.notes && <p className="mt-1 text-xs text-muted-foreground">{item.notes}</p>}
       </div>
       <div className="flex items-start">
-        {item.kind === 'salary' && onEdit && (
+        {onEdit && (
           <Button variant="ghost" size="icon" onClick={() => onEdit(item)} aria-label="Edit item">
             <Pencil className="h-4 w-4" />
           </Button>

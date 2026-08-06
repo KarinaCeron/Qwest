@@ -22,6 +22,7 @@ interface CompensationItem {
   currency: string;
   period: string;
   notes: string | null;
+  required: boolean;
 }
 
 function formatMoney(amount: string | null, currency: string): string | null {

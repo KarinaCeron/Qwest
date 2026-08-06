@@ -209,12 +209,46 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     setIsResearching(true);
     setCompanyResearchText(null);
     try {
+      const companyKey = company.toLowerCase();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      // 1. Use stored research if it already exists for this company
+      if (user) {
+        const { data: cached } = await supabase
+          .from('company_research')
+          .select('research_text')
+          .eq('user_id', user.id)
+          .eq('company_key', companyKey)
+          .maybeSingle();
+
+        if (cached?.research_text) {
+          setCompanyResearchText(cached.research_text);
+          toast({ title: 'Loaded saved research', description: `Showing stored research for ${company}.` });
+          return;
+        }
+      }
+
+      // 2. Otherwise call the webhook
       const { data, error } = await supabase.functions.invoke('research-company', {
         body: { company, website: companyWebsite.trim() || undefined },
       });
       if (error) throw error;
       if (typeof data?.text !== 'string') throw new Error('No research data returned');
       setCompanyResearchText(data.text);
+
+      // 3. Save it for next time
+      if (user && data.text.trim()) {
+        await supabase.from('company_research').upsert(
+          {
+            user_id: user.id,
+            company,
+            company_key: companyKey,
+            website: companyWebsite.trim() || null,
+            research_text: data.text,
+          },
+          { onConflict: 'user_id,company_key' },
+        );
+      }
     } catch (error) {
       toast({
         title: 'Error',
@@ -225,6 +259,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
       setIsResearching(false);
     }
   };
+
 
 
   const handleDiscussOffer = async () => {

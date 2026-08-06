@@ -10,6 +10,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Upload, FileText, Trash2, Download, Loader2, Save } from 'lucide-react';
 import { AppHeader } from '@/components/AppHeader';
 import { CompensationPlanner } from '@/components/CompensationPlanner';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import { ProfileHero } from '@/components/ProfileHero';
 
 interface CVDocument {

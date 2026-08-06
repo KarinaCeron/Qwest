@@ -63,7 +63,12 @@ function ItemRow({
           </>
         ) : (
           <>
-            <p className="font-medium truncate">{item.label}</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="font-medium truncate">{item.label}</p>
+              <Badge variant={item.required ? 'default' : 'outline'} className="text-xs">
+                {item.required ? 'Required' : 'Optional'}
+              </Badge>
+            </div>
             {item.value && <p className="text-sm text-muted-foreground">{item.value}</p>}
           </>
         )}

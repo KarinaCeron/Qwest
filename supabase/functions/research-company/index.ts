@@ -51,7 +51,11 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { company } = await req.json();
+    const { company, website } = await req.json();
+    const websiteInput =
+      typeof website === "string" && /^https?:\/\/\S+$/i.test(website.trim())
+        ? website.trim().slice(0, 300)
+        : "";
     if (!company || typeof company !== "string" || company.trim().length < 2) {
       return new Response(JSON.stringify({ error: "company required" }), {
         status: 400,
@@ -74,7 +78,19 @@ Deno.serve(async (req) => {
             content:
               "You are a company research assistant for job seekers. Return factual company data in JSON. If a field is unknown, return the string \"Unknown\" (or an empty array). Never invent LinkedIn URLs — leave \"Unknown\" if unsure.",
           },
-          { role: "user", content: `Research the company: ${company.trim()}` },
+          {
+            role: "user",
+            content: [
+              `Research the company: ${company.trim().slice(0, 120)}`,
+              websiteInput ? `Official website: ${websiteInput}` : null,
+              websiteInput
+                ? `Use this website to make sure you research the right company, and return it as the website field.`
+                : null,
+            ]
+              .filter(Boolean)
+              .join("\n"),
+          },
+
         ],
         response_format: {
           type: "json_schema",

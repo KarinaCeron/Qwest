@@ -47,6 +47,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const [editableOfferDiscussion, setEditableOfferDiscussion] = useState('');
   const [showFullForm, setShowFullForm] = useState(!!editingApplication);
   const [isResearching, setIsResearching] = useState(false);
+  const [companyWebsite, setCompanyWebsite] = useState('');
   const [companyResearch, setCompanyResearch] = useState<CompanyResearch | null>(null);
   const [formData, setFormData] = useState<JobApplicationFormData>({
     company: editingApplication?.company || '',
@@ -203,7 +204,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     setCompanyResearch(null);
     try {
       const { data, error } = await supabase.functions.invoke('research-company', {
-        body: { company },
+        body: { company, website: companyWebsite.trim() || undefined },
       });
       if (error) throw error;
       if (!data?.research) throw new Error('No research data returned');
@@ -307,13 +308,26 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="company">Company *</Label>
+              <Input
+                id="company"
+                value={formData.company}
+                onChange={(e) => handleChange('company', e.target.value)}
+                placeholder="e.g. Google, Microsoft..."
+                required
+                maxLength={120}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="companyWebsite">Company website</Label>
               <div className="flex gap-2">
                 <Input
-                  id="company"
-                  value={formData.company}
-                  onChange={(e) => handleChange('company', e.target.value)}
-                  placeholder="e.g. Google, Microsoft..."
-                  required
+                  id="companyWebsite"
+                  type="url"
+                  value={companyWebsite}
+                  onChange={(e) => setCompanyWebsite(e.target.value)}
+                  placeholder="https://company.com"
+                  maxLength={300}
                   className="flex-1"
                 />
                 <Button
@@ -328,6 +342,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 </Button>
               </div>
             </div>
+
 
             <CompanyResearchPanel
               company={formData.company}

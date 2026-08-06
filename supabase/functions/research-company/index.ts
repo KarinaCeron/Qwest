@@ -128,11 +128,14 @@ Deno.serve(async (req) => {
     url.searchParams.set("company", companyInput);
     if (websiteInput) url.searchParams.set("website", websiteInput);
 
+    const payload = { company: companyInput, website: websiteInput };
+    console.log("research-company: sending to n8n:", JSON.stringify(payload));
+
     // POST with body first; if the n8n node is GET-only, retry as GET with query params.
     let res = await fetch(url.toString(), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ company: companyInput, website: websiteInput }),
+      body: JSON.stringify(payload),
     });
 
     let text = await res.text();

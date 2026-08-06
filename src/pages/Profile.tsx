@@ -133,7 +133,7 @@ const Profile = () => {
       <AppHeader
         subtitle="My Profile"
         actions={
-          <Button variant="outline" size="sm" onClick={() => navigate('/cv')}>
+          <Button variant="outline" size="sm" onClick={() => navigate('/cv')} aria-label="Back to My Qwest">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to My Qwest
           </Button>

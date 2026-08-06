@@ -146,13 +146,14 @@ const CV = () => {
       <main className="container mx-auto px-4 py-8 max-w-2xl space-y-6">
         <ProfileHero />
 
-        <Tabs defaultValue="cvs" className="space-y-6">
+        <Tabs defaultValue="compensation" className="space-y-6">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="cvs">My CVs</TabsTrigger>
             <TabsTrigger value="compensation">Compensation</TabsTrigger>
+            <TabsTrigger value="cvs">My CVs</TabsTrigger>
           </TabsList>
 
           <TabsContent value="cvs" className="space-y-6">
+
         <Card className="bg-gradient-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">

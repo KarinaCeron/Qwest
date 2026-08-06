@@ -385,7 +385,7 @@ export function CompensationPlanner() {
             {benefitSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
             Add benefit
           </Button>
-          {listState(benefits, 'No benefits yet.')}
+          {benefitList}
         </CardContent>
       </Card>
     </div>

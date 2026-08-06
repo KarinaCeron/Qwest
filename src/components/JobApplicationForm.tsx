@@ -376,8 +376,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
             <CompanyResearchPanel
               company={formData.company}
               isLoading={isResearching}
-              research={companyResearch}
-              sources={researchSources}
+              text={companyResearchText}
             />
 
             <div className="flex gap-3 pt-2">

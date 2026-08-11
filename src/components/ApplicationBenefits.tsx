@@ -28,6 +28,7 @@ export function ApplicationBenefits({ benefits, onChange }: ApplicationBenefitsP
   const [loading, setLoading] = useState(true);
   const [newLabel, setNewLabel] = useState('');
   const [newValue, setNewValue] = useState('');
+  const [rawBenefits, setRawBenefits] = useState('');
 
   useEffect(() => {
     const load = async () => {

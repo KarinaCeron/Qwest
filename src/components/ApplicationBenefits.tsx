@@ -191,6 +191,29 @@ export function ApplicationBenefits({ benefits, onChange }: ApplicationBenefitsP
         </div>
       </div>
 
+      {/* Paste benefits from offer */}
+      <div className="rounded-lg border p-4 space-y-3">
+        <Label>Paste benefits listed in the offer</Label>
+        <Textarea
+          value={rawBenefits}
+          onChange={(e) => setRawBenefits(e.target.value)}
+          placeholder={`Paste the benefits list here, one per line.\nExample:\nHealth insurance\n15 vacation days\nRemote work stipend`}
+          rows={4}
+        />
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleAddFromText}
+            disabled={!rawBenefits.trim()}
+          >
+            <Plus className="h-3.5 w-3.5 mr-1" />
+            Add listed benefits
+          </Button>
+        </div>
+      </div>
+
       {/* Benefit list */}
       {sorted.length > 0 ? (
         <div className="space-y-2">

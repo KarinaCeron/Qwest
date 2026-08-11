@@ -190,6 +190,7 @@ export type Database = {
       job_applications: {
         Row: {
           application_date: string
+          benefits: Json
           company: string
           cover_letter: string | null
           created_at: string
@@ -215,6 +216,7 @@ export type Database = {
         }
         Insert: {
           application_date: string
+          benefits?: Json
           company: string
           cover_letter?: string | null
           created_at?: string
@@ -240,6 +242,7 @@ export type Database = {
         }
         Update: {
           application_date?: string
+          benefits?: Json
           company?: string
           cover_letter?: string | null
           created_at?: string

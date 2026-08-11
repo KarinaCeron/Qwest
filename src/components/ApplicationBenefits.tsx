@@ -120,12 +120,36 @@ export function ApplicationBenefits({ benefits, onChange }: ApplicationBenefitsP
   const remove = (id: string) => onChange(benefits.filter((b) => b.id !== id));
 
   const sorted = [...benefits].sort((a, b) => Number(!!b.required) - Number(!!a.required));
+  const selectedLabels = new Set(benefits.map((b) => b.label.toLowerCase()));
 
   return (
     <div className="space-y-6">
       <p className="text-sm text-muted-foreground">
         Record the benefits included in this offer, and map the benefit expectations you set in My Qwest.
       </p>
+
+      {/* Paste benefits from offer */}
+      <div className="rounded-lg border p-4 space-y-3">
+        <Label>Paste benefits listed in the offer</Label>
+        <Textarea
+          value={rawBenefits}
+          onChange={(e) => setRawBenefits(e.target.value)}
+          placeholder={`Paste the benefits list here, one per line.\nExample:\nHealth insurance\n15 vacation days\nRemote work stipend`}
+          rows={4}
+        />
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleAddFromText}
+            disabled={!rawBenefits.trim()}
+          >
+            <Plus className="h-3.5 w-3.5 mr-1" />
+            Add listed benefits
+          </Button>
+        </div>
+      </div>
 
       {/* Map from My Qwest */}
       <div className="rounded-lg border p-4 space-y-3 bg-background/50">
@@ -149,69 +173,31 @@ export function ApplicationBenefits({ benefits, onChange }: ApplicationBenefitsP
           </p>
         ) : (
           <div className="flex flex-wrap gap-2">
-            {qwestBenefits.map((item) => (
-              <Button
-                key={item.id}
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={() => handleMapFromQwest(item)}
-              >
-                <Plus className="h-3.5 w-3.5 mr-1" />
-                {item.label || 'Benefit'}
-                {item.required && <span className="ml-1 text-xs opacity-70">(required)</span>}
-              </Button>
-            ))}
+            {qwestBenefits.map((item) => {
+              const label = item.label?.trim() || 'Benefit';
+              const isSelected = selectedLabels.has(label.toLowerCase());
+              return (
+                <Button
+                  key={item.id}
+                  type="button"
+                  variant={isSelected ? 'default' : 'secondary'}
+                  size="sm"
+                  onClick={() => !isSelected && handleMapFromQwest(item)}
+                  disabled={isSelected}
+                  className={isSelected ? 'opacity-90' : ''}
+                >
+                  {isSelected ? (
+                    <span className="mr-1">✓</span>
+                  ) : (
+                    <Plus className="h-3.5 w-3.5 mr-1" />
+                  )}
+                  {label}
+                  {item.required && <span className="ml-1 text-xs opacity-70">(required)</span>}
+                </Button>
+              );
+            })}
           </div>
         )}
-      </div>
-
-      {/* Add manual benefit */}
-      <div className="rounded-lg border p-4 space-y-3">
-        <Label>Add a benefit</Label>
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Input
-            value={newLabel}
-            onChange={(e) => setNewLabel(e.target.value)}
-            placeholder="e.g. Health insurance, 15 vacation days..."
-            className="flex-1"
-            maxLength={120}
-          />
-          <Input
-            value={newValue}
-            onChange={(e) => setNewValue(e.target.value)}
-            placeholder="Detail / value (optional)"
-            className="flex-1"
-            maxLength={160}
-          />
-          <Button type="button" onClick={handleAddManual} disabled={!newLabel.trim()} className="bg-gradient-primary">
-            <Plus className="h-4 w-4 mr-1" />
-            Add
-          </Button>
-        </div>
-      </div>
-
-      {/* Paste benefits from offer */}
-      <div className="rounded-lg border p-4 space-y-3">
-        <Label>Paste benefits listed in the offer</Label>
-        <Textarea
-          value={rawBenefits}
-          onChange={(e) => setRawBenefits(e.target.value)}
-          placeholder={`Paste the benefits list here, one per line.\nExample:\nHealth insurance\n15 vacation days\nRemote work stipend`}
-          rows={4}
-        />
-        <div className="flex justify-end">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleAddFromText}
-            disabled={!rawBenefits.trim()}
-          >
-            <Plus className="h-3.5 w-3.5 mr-1" />
-            Add listed benefits
-          </Button>
-        </div>
       </div>
 
       {/* Benefit list */}

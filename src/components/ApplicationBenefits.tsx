@@ -134,26 +134,50 @@ export function ApplicationBenefits({ benefits, onChange }: ApplicationBenefitsP
       {/* Paste benefits from offer */}
       <div className="rounded-lg border p-4 space-y-3">
         <Label>Paste benefits listed in the offer</Label>
-        <Textarea
-          value={rawBenefits}
-          onChange={(e) => setRawBenefits(e.target.value)}
-          onBlur={() => handleAddFromText(true)}
-          placeholder={`Paste the benefits list here, one per line.\nExample:\nHealth insurance\n15 vacation days\nRemote work stipend`}
-          rows={4}
-        />
-        <div className="flex justify-end">
+        {!offerInputOpen ? (
           <Button
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => handleAddFromText()}
-            disabled={!rawBenefits.trim()}
+            onClick={() => setOfferInputOpen(true)}
+            className="w-full justify-start text-muted-foreground"
           >
-            <Plus className="h-3.5 w-3.5 mr-1" />
-            Add listed benefits
+            <Plus className="h-3.5 w-3.5 mr-2" />
+            Add benefits from offer
           </Button>
-        </div>
-
+        ) : (
+          <div className="flex items-start gap-2">
+            <Input
+              value={rawBenefits}
+              onChange={(e) => setRawBenefits(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && rawBenefits.trim()) {
+                  handleAddFromText();
+                  setOfferInputOpen(false);
+                }
+              }}
+              onBlur={() => {
+                handleAddFromText(true);
+                if (!rawBenefits.trim()) setOfferInputOpen(false);
+              }}
+              placeholder="Paste benefits here, separated by commas or line breaks"
+              className="flex-1"
+              autoFocus
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                handleAddFromText();
+                setOfferInputOpen(false);
+              }}
+              disabled={!rawBenefits.trim()}
+            >
+              <Plus className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Map from My Qwest */}

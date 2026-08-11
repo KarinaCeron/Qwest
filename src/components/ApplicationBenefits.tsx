@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ApplicationBenefit } from '@/types/jobApplication';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
@@ -28,6 +29,7 @@ export function ApplicationBenefits({ benefits, onChange }: ApplicationBenefitsP
   const [loading, setLoading] = useState(true);
   const [newLabel, setNewLabel] = useState('');
   const [newValue, setNewValue] = useState('');
+  const [rawBenefits, setRawBenefits] = useState('');
 
   useEffect(() => {
     const load = async () => {
@@ -53,6 +55,28 @@ export function ApplicationBenefits({ benefits, onChange }: ApplicationBenefitsP
     addBenefit({ label: newLabel.trim(), value: newValue.trim() || undefined, offered: true });
     setNewLabel('');
     setNewValue('');
+  };
+
+  const handleAddFromText = () => {
+    if (!rawBenefits.trim()) return;
+    const existing = new Set(benefits.map((b) => b.label.toLowerCase()));
+    const parsed = rawBenefits
+      .split(/\n/)
+      .map((line) => line.replace(/^[-*•]\s*/, '').trim())
+      .filter((line) => line.length > 0 && !existing.has(line.toLowerCase()))
+      .map((line) => ({ id: crypto.randomUUID(), label: line, offered: false }));
+
+    if (parsed.length === 0) {
+      toast({ title: 'Nothing to add', description: 'All listed benefits are already included.' });
+      return;
+    }
+
+    onChange([...benefits, ...parsed]);
+    setRawBenefits('');
+    toast({
+      title: `${parsed.length} benefit${parsed.length === 1 ? '' : 's'} added`,
+      description: 'Review and mark the ones that are offered.',
+    });
   };
 
   const handleMapFromQwest = (item: QwestBenefit) => {
@@ -163,6 +187,29 @@ export function ApplicationBenefits({ benefits, onChange }: ApplicationBenefitsP
           <Button type="button" onClick={handleAddManual} disabled={!newLabel.trim()} className="bg-gradient-primary">
             <Plus className="h-4 w-4 mr-1" />
             Add
+          </Button>
+        </div>
+      </div>
+
+      {/* Paste benefits from offer */}
+      <div className="rounded-lg border p-4 space-y-3">
+        <Label>Paste benefits listed in the offer</Label>
+        <Textarea
+          value={rawBenefits}
+          onChange={(e) => setRawBenefits(e.target.value)}
+          placeholder={`Paste the benefits list here, one per line.\nExample:\nHealth insurance\n15 vacation days\nRemote work stipend`}
+          rows={4}
+        />
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleAddFromText}
+            disabled={!rawBenefits.trim()}
+          >
+            <Plus className="h-3.5 w-3.5 mr-1" />
+            Add listed benefits
           </Button>
         </div>
       </div>

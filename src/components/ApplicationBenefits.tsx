@@ -56,6 +56,28 @@ export function ApplicationBenefits({ benefits, onChange }: ApplicationBenefitsP
     setNewValue('');
   };
 
+  const handleAddFromText = () => {
+    if (!rawBenefits.trim()) return;
+    const existing = new Set(benefits.map((b) => b.label.toLowerCase()));
+    const parsed = rawBenefits
+      .split(/\n/)
+      .map((line) => line.replace(/^[-*•]\s*/, '').trim())
+      .filter((line) => line.length > 0 && !existing.has(line.toLowerCase()))
+      .map((line) => ({ id: crypto.randomUUID(), label: line, offered: false }));
+
+    if (parsed.length === 0) {
+      toast({ title: 'Nothing to add', description: 'All listed benefits are already included.' });
+      return;
+    }
+
+    onChange([...benefits, ...parsed]);
+    setRawBenefits('');
+    toast({
+      title: `${parsed.length} benefit${parsed.length === 1 ? '' : 's'} added`,
+      description: 'Review and mark the ones that are offered.',
+    });
+  };
+
   const handleMapFromQwest = (item: QwestBenefit) => {
     const label = item.label?.trim() || 'Benefit';
     if (benefits.some((b) => b.label.toLowerCase() === label.toLowerCase())) {

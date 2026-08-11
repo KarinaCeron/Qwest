@@ -30,6 +30,7 @@ export function ApplicationBenefits({ benefits, onChange }: ApplicationBenefitsP
   const [newLabel, setNewLabel] = useState('');
   const [newValue, setNewValue] = useState('');
   const [rawBenefits, setRawBenefits] = useState('');
+  const [offerInputOpen, setOfferInputOpen] = useState(false);
 
   useEffect(() => {
     const load = async () => {

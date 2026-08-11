@@ -136,6 +136,7 @@ export function ApplicationBenefits({ benefits, onChange }: ApplicationBenefitsP
         <Textarea
           value={rawBenefits}
           onChange={(e) => setRawBenefits(e.target.value)}
+          onBlur={() => handleAddFromText(true)}
           placeholder={`Paste the benefits list here, one per line.\nExample:\nHealth insurance\n15 vacation days\nRemote work stipend`}
           rows={4}
         />
@@ -144,13 +145,14 @@ export function ApplicationBenefits({ benefits, onChange }: ApplicationBenefitsP
             type="button"
             variant="outline"
             size="sm"
-            onClick={handleAddFromText}
+            onClick={() => handleAddFromText()}
             disabled={!rawBenefits.trim()}
           >
             <Plus className="h-3.5 w-3.5 mr-1" />
             Add listed benefits
           </Button>
         </div>
+
       </div>
 
       {/* Map from My Qwest */}

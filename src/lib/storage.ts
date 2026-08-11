@@ -34,6 +34,7 @@ export const jobApplicationStorage = {
         jobContent: app.job_content,
         coverLetter: app.cover_letter,
         questions: ((app as any).questions ?? []) as JobApplication['questions'],
+        benefits: ((app as any).benefits ?? []) as JobApplication['benefits'],
         createdAt: app.created_at,
         updatedAt: app.updated_at,
         statusChangedAt: (app as any).status_changed_at ?? app.updated_at,
@@ -77,6 +78,7 @@ export const jobApplicationStorage = {
           job_content: formData.jobContent,
           cover_letter: formData.coverLetter,
           questions: (formData.questions ?? []) as any,
+          benefits: (formData.benefits ?? []) as any,
         } as any)
         .select()
         .single();
@@ -106,6 +108,7 @@ export const jobApplicationStorage = {
         jobContent: data.job_content,
         coverLetter: data.cover_letter,
         questions: ((data as any).questions ?? []) as JobApplication['questions'],
+        benefits: ((data as any).benefits ?? []) as JobApplication['benefits'],
         createdAt: data.created_at,
         updatedAt: data.updated_at,
         statusChangedAt: (data as any).status_changed_at ?? data.updated_at,
@@ -137,6 +140,7 @@ export const jobApplicationStorage = {
       if (updates.jobContent !== undefined) updateData.job_content = updates.jobContent;
       if (updates.coverLetter !== undefined) updateData.cover_letter = updates.coverLetter;
       if (updates.questions !== undefined) updateData.questions = updates.questions;
+      if (updates.benefits !== undefined) updateData.benefits = updates.benefits;
 
       console.log('Updating job application:', id, 'with data:', updateData);
       
@@ -177,6 +181,7 @@ export const jobApplicationStorage = {
         jobContent: data.job_content,
         coverLetter: data.cover_letter,
         questions: ((data as any).questions ?? []) as JobApplication['questions'],
+        benefits: ((data as any).benefits ?? []) as JobApplication['benefits'],
         createdAt: data.created_at,
         updatedAt: data.updated_at,
         statusChangedAt: (data as any).status_changed_at ?? data.updated_at,

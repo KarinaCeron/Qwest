@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { JobApplicationFormData, JobApplication, ApplicationQA } from '@/types/jobApplication';
+import { JobApplicationFormData, JobApplication, ApplicationQA, ApplicationBenefit } from '@/types/jobApplication';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,9 +13,10 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { ApplicationActionLog } from '@/components/ApplicationActionLog';
+import { ApplicationBenefits } from '@/components/ApplicationBenefits';
 import { CompanyResearchPanel } from '@/components/CompanyResearchPanel';
 
-const STEPS = ['Company', 'Application', 'Questions', 'Action log'];
+const STEPS = ['Company', 'Application', 'Benefits', 'Questions', 'Action log'];
 
 interface JobApplicationFormProps {
 
@@ -45,6 +46,9 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const [isCoverLetterOpen, setIsCoverLetterOpen] = useState(false);
   const [savedQuestions, setSavedQuestions] = useState<ApplicationQA[]>(
     editingApplication?.questions || []
+  );
+  const [benefits, setBenefits] = useState<ApplicationBenefit[]>(
+    editingApplication?.benefits || []
   );
   const [editableAnswer, setEditableAnswer] = useState('');
   const [editableOfferDiscussion, setEditableOfferDiscussion] = useState('');
@@ -81,6 +85,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
       ...formData,
       coverLetter: generatedCoverLetter || undefined,
       questions: savedQuestions,
+      benefits,
     });
   };
 
@@ -870,7 +875,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 onClick={() => setStep(2)}
                 disabled={!formData.role.trim()}
               >
-                Continue to questions
+                Continue to benefits
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
               <Button type="submit" variant="outline">
@@ -881,6 +886,30 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
             )}
 
             {step === 2 && (
+              <>
+                <ApplicationBenefits benefits={benefits} onChange={setBenefits} />
+
+                <div className="flex flex-wrap gap-3 pt-4">
+                  <Button type="button" variant="outline" onClick={() => setStep(1)}>
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back
+                  </Button>
+                  <Button
+                    type="button"
+                    className="flex-1 bg-gradient-primary"
+                    onClick={() => setStep(3)}
+                  >
+                    Continue to questions
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                  <Button type="submit" variant="outline">
+                    {editingApplication ? 'Update' : 'Save'} Application
+                  </Button>
+                </div>
+              </>
+            )}
+
+            {step === 3 && (
               <>
                 <p className="text-sm text-muted-foreground">
                   Draft and store the questions the employer asked in the application form.
@@ -1021,14 +1050,14 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 )}
 
                 <div className="flex flex-wrap gap-3 pt-4">
-                  <Button type="button" variant="outline" onClick={() => setStep(1)}>
+                  <Button type="button" variant="outline" onClick={() => setStep(2)}>
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Back
                   </Button>
                   <Button
                     type="button"
                     className="flex-1 bg-gradient-primary"
-                    onClick={() => setStep(3)}
+                    onClick={() => setStep(4)}
                   >
                     Continue to action log
                     <ArrowRight className="h-4 w-4 ml-2" />
@@ -1040,7 +1069,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
               </>
             )}
 
-            {step === 3 && (
+            {step === 4 && (
               <>
                 {editingApplication && user ? (
                   <ApplicationActionLog
@@ -1054,7 +1083,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 )}
 
                 <div className="flex flex-wrap gap-3 pt-4">
-                  <Button type="button" variant="outline" onClick={() => setStep(2)}>
+                  <Button type="button" variant="outline" onClick={() => setStep(3)}>
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Back
                   </Button>

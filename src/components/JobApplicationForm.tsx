@@ -789,14 +789,36 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                   )}
                 </Button>
               </div>
-              <Textarea
-                id="jobAnalysis"
-                value={jobAnalysis}
-                onChange={(e) => setJobAnalysis(e.target.value)}
-                placeholder="Click 'Analyze job description' to get insights here."
-                rows={6}
-                className="min-h-[120px]"
-              />
+              {jobAnalysis ? (
+                editingJobAnalysis ? (
+                  <Textarea
+                    id="jobAnalysis"
+                    value={jobAnalysis}
+                    onChange={(e) => setJobAnalysis(e.target.value)}
+                    onBlur={() => setEditingJobAnalysis(false)}
+                    rows={10}
+                    className="min-h-[160px]"
+                    autoFocus
+                  />
+                ) : (
+                  <div
+                    className="rounded-md border bg-muted/30 p-4 cursor-text"
+                    onClick={() => setEditingJobAnalysis(true)}
+                    title="Click to edit"
+                  >
+                    <FormattedText text={jobAnalysis} />
+                  </div>
+                )
+              ) : (
+                <Textarea
+                  id="jobAnalysis"
+                  value={jobAnalysis}
+                  onChange={(e) => setJobAnalysis(e.target.value)}
+                  placeholder="Click 'Analyze job description' to get insights here."
+                  rows={6}
+                  className="min-h-[120px]"
+                />
+              )}
               {jobAnalysis && (
                 <Button
                   type="button"

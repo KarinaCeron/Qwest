@@ -35,7 +35,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const [isTailoringCV, setIsTailoringCV] = useState(false);
   const [tailoringResult, setTailoringResult] = useState<string | null>(null);
   const [isAnalyzingJob, setIsAnalyzingJob] = useState(false);
-  const [jobAnalysis, setJobAnalysis] = useState<string>('');
+  const [jobAnalysis, setJobAnalysis] = useState<string>(editingApplication?.jobInsights || '');
   const [isTailoringResultOpen, setIsTailoringResultOpen] = useState(false);
   const [isAnswerOpen, setIsAnswerOpen] = useState(false);
   const [employerQuestion, setEmployerQuestion] = useState('');
@@ -96,6 +96,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
       questions: savedQuestions,
       benefits,
       interviewQuestions,
+      jobInsights: jobAnalysis || undefined,
     });
   };
 

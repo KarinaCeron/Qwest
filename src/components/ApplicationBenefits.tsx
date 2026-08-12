@@ -129,31 +129,6 @@ export function ApplicationBenefits({ benefits, onChange }: ApplicationBenefitsP
         Record the benefits included in this offer, and map the benefit expectations you set in My Qwest.
       </p>
 
-      {/* Paste benefits from offer */}
-      <div className="rounded-lg border p-4 space-y-3">
-        <Label>Paste benefits listed in the offer</Label>
-        <Textarea
-          value={rawBenefits}
-          onChange={(e) => setRawBenefits(e.target.value)}
-          onBlur={() => handleAddFromText(true)}
-          placeholder={`Paste the benefits list here, one per line.\nExample:\nHealth insurance\n15 vacation days\nRemote work stipend`}
-          rows={4}
-        />
-        <div className="flex justify-end">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => handleAddFromText()}
-            disabled={!rawBenefits.trim()}
-          >
-            <Plus className="h-3.5 w-3.5 mr-1" />
-            Add listed benefits
-          </Button>
-        </div>
-
-      </div>
-
       {/* Map from My Qwest */}
       <div className="rounded-lg border p-4 space-y-3 bg-background/50">
         <div className="flex items-center justify-between gap-2">
@@ -201,6 +176,31 @@ export function ApplicationBenefits({ benefits, onChange }: ApplicationBenefitsP
             })}
           </div>
         )}
+      </div>
+
+      {/* Paste benefits from offer */}
+      <div className="rounded-lg border p-4 space-y-3">
+        <Label>Paste benefits listed in the offer</Label>
+        <Textarea
+          value={rawBenefits}
+          onChange={(e) => setRawBenefits(e.target.value)}
+          onBlur={() => handleAddFromText(true)}
+          placeholder={`Paste the benefits list here, one per line.\nExample:\nHealth insurance\n15 vacation days\nRemote work stipend`}
+          rows={4}
+        />
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => handleAddFromText()}
+            disabled={!rawBenefits.trim()}
+          >
+            <Plus className="h-3.5 w-3.5 mr-1" />
+            Add listed benefits
+          </Button>
+        </div>
+
       </div>
 
       {/* Benefit list */}

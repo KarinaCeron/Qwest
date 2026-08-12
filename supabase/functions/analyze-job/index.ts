@@ -45,16 +45,28 @@ Deno.serve(async (req) => {
       });
     }
 
-    const url = new URL(N8N_ANALYZE_JOB_WEBHOOK);
-    url.searchParams.set("job_description", jobContent);
-    url.searchParams.set("question", jobContent);
-    url.searchParams.set("role", role || "");
-    url.searchParams.set("company", company || "");
-    url.searchParams.set("user_id", user.id);
-    url.searchParams.set("user_email", user.email || "");
+    const payload = {
+      job_description: jobContent,
+      question: jobContent,
+      role: role || "",
+      company: company || "",
+      user_id: user.id,
+      user_email: user.email || "",
+    };
 
-    const webhookResponse = await fetch(url.toString(), { method: "GET" });
+    // Send as POST with a JSON body (long job descriptions break query-string GETs -> HTTP 431)
+    let webhookResponse = await fetch(N8N_ANALYZE_JOB_WEBHOOK, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
+    // Fallback: webhook configured for GET only
+    if (webhookResponse.status === 404 || webhookResponse.status === 405) {
+      const url = new URL(N8N_ANALYZE_JOB_WEBHOOK);
+      for (const [k, v] of Object.entries(payload)) url.searchParams.set(k, String(v).slice(0, 4000));
+      webhookResponse = await fetch(url.toString(), { method: "GET" });
+    }
 
     const responseText = await webhookResponse.text();
     console.log("analyze-job n8n status:", webhookResponse.status, "length:", responseText.length);

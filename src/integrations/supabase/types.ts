@@ -199,6 +199,7 @@ export type Database = {
           id: string
           interview_questions: Json
           job_content: string | null
+          job_insights: string | null
           job_link: string | null
           notes: string | null
           priority: string
@@ -226,6 +227,7 @@ export type Database = {
           id?: string
           interview_questions?: Json
           job_content?: string | null
+          job_insights?: string | null
           job_link?: string | null
           notes?: string | null
           priority: string
@@ -253,6 +255,7 @@ export type Database = {
           id?: string
           interview_questions?: Json
           job_content?: string | null
+          job_insights?: string | null
           job_link?: string | null
           notes?: string | null
           priority?: string

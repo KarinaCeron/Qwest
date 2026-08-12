@@ -57,6 +57,7 @@ export interface JobApplication {
   questions?: ApplicationQA[];
   benefits?: ApplicationBenefit[];
   interviewQuestions?: ApplicationInterviewQuestion[];
+  jobInsights?: string;
   createdAt: string;
   updatedAt: string;
   statusChangedAt: string;
@@ -83,4 +84,5 @@ export interface JobApplicationFormData {
   questions?: ApplicationQA[];
   benefits?: ApplicationBenefit[];
   interviewQuestions?: ApplicationInterviewQuestion[];
+  jobInsights?: string;
 }

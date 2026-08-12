@@ -1,4 +1,6 @@
-import { CheckCircle2, AlertTriangle, XCircle, HelpCircle } from 'lucide-react';
+import { useState } from 'react';
+import { CheckCircle2, AlertTriangle, XCircle, HelpCircle, ChevronDown, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { FormattedText } from '@/components/FormattedText';
 
@@ -169,6 +171,7 @@ export function parseInsights(text: string): InsightItem[] {
 
 export function JobInsights({ text }: { text: string }) {
   const items = parseInsights(text);
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
   if (!items.length) return <FormattedText text={text} />;
 
@@ -191,42 +194,70 @@ export function JobInsights({ text }: { text: string }) {
     return <FormattedText text={text} />;
   }
 
-  return (
-    <div className="space-y-5">
-      {ordered.map(([category, list]) => (
-        <section key={category} className="space-y-2">
-          <div className="flex items-center gap-2">
-            <h4 className="text-sm font-semibold uppercase tracking-wide text-foreground">{category}</h4>
-            <span className="text-xs text-muted-foreground">({list.length})</span>
-          </div>
-          <div className="space-y-2">
-            {list.map((item, i) => {
-              const { icon: Icon, className, label } = statusMeta(item.status);
-              return (
-                <div key={i} className="rounded-md border bg-background p-3">
-                  <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1 text-sm font-medium text-foreground">
-                      {item.requirement ? <FormattedText text={item.requirement} /> : <span className="text-muted-foreground">—</span>}
-                    </div>
-                    {item.status && (
-                      <Badge variant="outline" className={`shrink-0 gap-1 ${className}`}>
-                        <Icon className="h-3 w-3" />
-                        {label}
-                      </Badge>
-                    )}
-                  </div>
+  const allCollapsed = ordered.every(([c]) => collapsed[c]);
 
-                  {item.notes && (
-                    <div className="mt-2 border-t pt-2">
-                      <FormattedText text={item.notes} />
+  const toggleAll = () => {
+    const next: Record<string, boolean> = {};
+    if (!allCollapsed) ordered.forEach(([c]) => { next[c] = true; });
+    setCollapsed(next);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <Button type="button" variant="ghost" size="sm" onClick={toggleAll}>
+          {allCollapsed ? 'Expand all' : 'Collapse all'}
+        </Button>
+      </div>
+      {ordered.map(([category, list]) => {
+        const isCollapsed = !!collapsed[category];
+        return (
+          <section key={category} className="space-y-2">
+            <button
+              type="button"
+              onClick={() => setCollapsed((prev) => ({ ...prev, [category]: !prev[category] }))}
+              aria-expanded={!isCollapsed}
+              className="flex w-full items-center gap-2 rounded-md px-1 py-1 text-left transition-colors hover:bg-muted/60"
+            >
+              {isCollapsed ? (
+                <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+              )}
+              <h4 className="text-sm font-semibold uppercase tracking-wide text-foreground">{category}</h4>
+              <span className="text-xs text-muted-foreground">({list.length})</span>
+            </button>
+            {!isCollapsed && (
+              <div className="space-y-2">
+                {list.map((item, i) => {
+                  const { icon: Icon, className, label } = statusMeta(item.status);
+                  return (
+                    <div key={i} className="rounded-md border bg-background p-3">
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1 text-sm font-medium text-foreground">
+                          {item.requirement ? <FormattedText text={item.requirement} /> : <span className="text-muted-foreground">—</span>}
+                        </div>
+                        {item.status && (
+                          <Badge variant="outline" className={`shrink-0 gap-1 ${className}`}>
+                            <Icon className="h-3 w-3" />
+                            {label}
+                          </Badge>
+                        )}
+                      </div>
+
+                      {item.notes && (
+                        <div className="mt-2 border-t pt-2">
+                          <FormattedText text={item.notes} />
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      ))}
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        );
+      })}
     </div>
   );
 }

@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import { X, Plus, Edit, FileText, Copy, Wand2, MessageCircleQuestion, Trash2, Save, Handshake, ExternalLink, Search, ArrowRight, ArrowLeft, Sparkles } from 'lucide-react';
+import { X, Plus, Edit, FileText, Copy, Wand2, MessageCircleQuestion, Trash2, Save, Handshake, ExternalLink, Search, ArrowRight, ArrowLeft, Sparkles, Coins } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -19,7 +19,7 @@ import { FormattedText } from '@/components/FormattedText';
 import { JobInsights } from '@/components/JobInsights';
 
 
-const STEPS = ['Company', 'Role', 'Benefits', 'Application', 'Questions', 'Interview questions', 'Action log'];
+const STEPS = ['Company', 'Role', 'Compensation', 'Application', 'Questions', 'Interview questions', 'Action log'];
 
 interface JobApplicationFormProps {
 
@@ -550,81 +550,6 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
             </div>
 
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="salaryOffered">Salary included in the offer?</Label>
-                <Select
-                  value={formData.salaryOffered ? 'yes' : 'no'}
-                  onValueChange={(value) => handleChange('salaryOffered', value === 'yes')}
-                >
-                  <SelectTrigger id="salaryOffered">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="no">No</SelectItem>
-                    <SelectItem value="yes">Yes</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              {formData.salaryOffered && (
-                <div className="space-y-2">
-                  <Label htmlFor="salary">Offered Salary</Label>
-                  <Input
-                    id="salary"
-                    type="number"
-                    value={formData.salary}
-                    onChange={(e) => handleChange('salary', e.target.value)}
-                    placeholder="What they are offering you"
-                    min="0"
-                  />
-                </div>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="requestedSalary">Requested Salary</Label>
-                <Input
-                  id="requestedSalary"
-                  type="number"
-                  value={formData.requestedSalary}
-                  onChange={(e) => handleChange('requestedSalary', e.target.value)}
-                  placeholder="What you are asking for"
-                  min="0"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="salaryCurrency">Currency</Label>
-                <Select
-                  value={formData.salaryCurrency || 'USD'}
-                  onValueChange={(value) => handleChange('salaryCurrency', value)}
-                >
-                  <SelectTrigger id="salaryCurrency">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="USD">USD</SelectItem>
-                    <SelectItem value="COP">COP</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="salaryPeriod">Period</Label>
-                <Select
-                  value={formData.salaryPeriod || 'annual'}
-                  onValueChange={(value) => handleChange('salaryPeriod', value)}
-                >
-                  <SelectTrigger id="salaryPeriod">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="annual">Annual</SelectItem>
-                    <SelectItem value="monthly">Monthly</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
             <div className="space-y-2">
               <Label htmlFor="jobContent">Job Description</Label>
               <Textarea
@@ -917,7 +842,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 onClick={() => setStep(2)}
                 disabled={!formData.role.trim()}
               >
-                Continue to benefits
+                Continue to compensation
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
               <Button type="submit" variant="outline">
@@ -929,7 +854,90 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
 
             {step === 2 && (
               <>
-                <ApplicationBenefits benefits={benefits} onChange={setBenefits} />
+                <div className="space-y-6">
+                  <div className="rounded-lg border p-4 space-y-4 bg-background/50">
+                    <h3 className="text-sm font-semibold flex items-center gap-2">
+                      <Coins className="h-4 w-4" />
+                      Salary
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="salaryOffered">Salary included in the offer?</Label>
+                        <Select
+                          value={formData.salaryOffered ? 'yes' : 'no'}
+                          onValueChange={(value) => handleChange('salaryOffered', value === 'yes')}
+                        >
+                          <SelectTrigger id="salaryOffered">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="no">No</SelectItem>
+                            <SelectItem value="yes">Yes</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {formData.salaryOffered && (
+                        <div className="space-y-2">
+                          <Label htmlFor="salary">Offered Salary</Label>
+                          <Input
+                            id="salary"
+                            type="number"
+                            value={formData.salary}
+                            onChange={(e) => handleChange('salary', e.target.value)}
+                            placeholder="What they are offering you"
+                            min="0"
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="requestedSalary">Requested Salary</Label>
+                        <Input
+                          id="requestedSalary"
+                          type="number"
+                          value={formData.requestedSalary}
+                          onChange={(e) => handleChange('requestedSalary', e.target.value)}
+                          placeholder="What you are asking for"
+                          min="0"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="salaryCurrency">Currency</Label>
+                        <Select
+                          value={formData.salaryCurrency || 'USD'}
+                          onValueChange={(value) => handleChange('salaryCurrency', value)}
+                        >
+                          <SelectTrigger id="salaryCurrency">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="USD">USD</SelectItem>
+                            <SelectItem value="COP">COP</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="salaryPeriod">Period</Label>
+                        <Select
+                          value={formData.salaryPeriod || 'annual'}
+                          onValueChange={(value) => handleChange('salaryPeriod', value)}
+                        >
+                          <SelectTrigger id="salaryPeriod">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="annual">Annual</SelectItem>
+                            <SelectItem value="monthly">Monthly</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <ApplicationBenefits benefits={benefits} onChange={setBenefits} />
+                </div>
 
                 <div className="flex flex-wrap gap-3 pt-4">
                   <Button type="button" variant="outline" onClick={() => setStep(1)}>

@@ -13,6 +13,26 @@ export interface InsightItem {
 
 const OTHER_RE = /^(other|others|otros|misc|miscellaneous|general)$/i;
 
+/** Preferred display order for insight categories. */
+const CATEGORY_ORDER = [
+  'Global Product Management',
+  'Cross-functional Leadership',
+  'Product Strategy',
+  'Product Discovery',
+  'Roadmapping',
+  'Product Operations',
+  'Customer Research',
+  'AI Products',
+];
+
+const normalizeKey = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '');
+
+function categoryRank(category: string) {
+  if (OTHER_RE.test(category)) return CATEGORY_ORDER.length + 1;
+  const idx = CATEGORY_ORDER.findIndex((c) => normalizeKey(c) === normalizeKey(category));
+  return idx === -1 ? CATEGORY_ORDER.length : idx;
+}
+
 function titleCase(s: string) {
   return s.trim().replace(/^[#*\-\s]+|[:*\s]+$/g, '');
 }
@@ -183,10 +203,11 @@ export function JobInsights({ text }: { text: string }) {
   }
 
   const ordered = [...groups.entries()].sort(([a, la], [b, lb]) => {
-    const aOther = OTHER_RE.test(a);
-    const bOther = OTHER_RE.test(b);
-    if (aOther !== bOther) return aOther ? 1 : -1;
-    return lb.length - la.length;
+    const ra = categoryRank(a);
+    const rb = categoryRank(b);
+    if (ra !== rb) return ra - rb;
+    if (lb.length !== la.length) return lb.length - la.length;
+    return a.localeCompare(b);
   });
 
   // Nothing structured found (single "Other" group with only notes) → plain formatting

@@ -55,7 +55,7 @@ function renderInline(text: string, keyPrefix: string) {
   return nodes;
 }
 
-function FormattedText({ text }: { text: string }) {
+export function FormattedText({ text }: { text: string }) {
   const normalized = text.replace(/\\n/g, '\n').replace(/\r\n/g, '\n');
   const blocks = normalized.split(/\n{2,}/);
 

@@ -771,6 +771,48 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
               )}
             </div>
 
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <Label htmlFor="jobAnalysis">Job description insights</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAnalyzeJob}
+                  disabled={isAnalyzingJob || !formData.jobContent}
+                >
+                  {isAnalyzingJob ? 'Analyzing...' : (
+                    <>
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Analyze job description
+                    </>
+                  )}
+                </Button>
+              </div>
+              <Textarea
+                id="jobAnalysis"
+                value={jobAnalysis}
+                onChange={(e) => setJobAnalysis(e.target.value)}
+                placeholder="Click 'Analyze job description' to get insights here."
+                rows={6}
+                className="min-h-[120px]"
+              />
+              {jobAnalysis && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    navigator.clipboard.writeText(jobAnalysis);
+                    toast({ title: "Copied", description: "Insights copied to clipboard" });
+                  }}
+                >
+                  <Copy className="h-4 w-4 mr-2" />
+                  Copy
+                </Button>
+              )}
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="status">Status</Label>

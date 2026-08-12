@@ -783,9 +783,14 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                   variant="outline"
                   size="sm"
                   onClick={handleAnalyzeJob}
-                  disabled={isAnalyzingJob || !formData.jobContent}
+                  disabled={isAnalyzingJob || !formData.jobContent || !!jobAnalysis}
                 >
-                  {isAnalyzingJob ? 'Analyzing...' : (
+                  {isAnalyzingJob ? 'Analyzing...' : jobAnalysis ? (
+                    <>
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Analyzed
+                    </>
+                  ) : (
                     <>
                       <Sparkles className="h-4 w-4 mr-2" />
                       Analyze job description

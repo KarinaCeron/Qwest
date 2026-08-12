@@ -495,7 +495,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 onClick={() => setStep(1)}
                 disabled={!formData.company.trim()}
               >
-                Continue to application
+                Continue to role
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
               <Button type="button" variant="outline" onClick={onCancel}>

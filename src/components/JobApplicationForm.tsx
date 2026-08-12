@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import { X, Plus, Edit, FileText, Copy, Wand2, MessageCircleQuestion, Trash2, Save, Handshake, ExternalLink, Search, ArrowRight, ArrowLeft } from 'lucide-react';
+import { X, Plus, Edit, FileText, Copy, Wand2, MessageCircleQuestion, Trash2, Save, Handshake, ExternalLink, Search, ArrowRight, ArrowLeft, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -31,6 +31,8 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const [isGeneratingCoverLetter, setIsGeneratingCoverLetter] = useState(false);
   const [isTailoringCV, setIsTailoringCV] = useState(false);
   const [tailoringResult, setTailoringResult] = useState<string | null>(null);
+  const [isAnalyzingJob, setIsAnalyzingJob] = useState(false);
+  const [jobAnalysis, setJobAnalysis] = useState<string>('');
   const [isTailoringResultOpen, setIsTailoringResultOpen] = useState(false);
   const [isAnswerOpen, setIsAnswerOpen] = useState(false);
   const [employerQuestion, setEmployerQuestion] = useState('');
@@ -203,6 +205,33 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
       setIsTailoringCV(false);
     }
   };
+
+  const handleAnalyzeJob = async () => {
+    if (!formData.jobContent) {
+      toast({ title: "Error", description: "Job description is required", variant: "destructive" });
+      return;
+    }
+    setIsAnalyzingJob(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-job', {
+        body: { jobContent: formData.jobContent, role: formData.role, company: formData.company },
+      });
+      if (error) throw new Error(error.message);
+      const answer = data?.answer || data?.response || data?.output || data?.text || data?.message || '';
+      setJobAnalysis(answer || 'No response received from the webhook.');
+    } catch (error) {
+      console.error('Error analyzing job description:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Could not analyze the job description.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnalyzingJob(false);
+    }
+  };
+
+
 
   const handleAnswerQuestion = async () => {
     if (!employerQuestion.trim()) {
@@ -739,6 +768,48 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                     </DialogContent>
                   </Dialog>
                 </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <Label htmlFor="jobAnalysis">Job description insights</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAnalyzeJob}
+                  disabled={isAnalyzingJob || !formData.jobContent}
+                >
+                  {isAnalyzingJob ? 'Analyzing...' : (
+                    <>
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Analyze job description
+                    </>
+                  )}
+                </Button>
+              </div>
+              <Textarea
+                id="jobAnalysis"
+                value={jobAnalysis}
+                onChange={(e) => setJobAnalysis(e.target.value)}
+                placeholder="Click 'Analyze job description' to get insights here."
+                rows={6}
+                className="min-h-[120px]"
+              />
+              {jobAnalysis && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    navigator.clipboard.writeText(jobAnalysis);
+                    toast({ title: "Copied", description: "Insights copied to clipboard" });
+                  }}
+                >
+                  <Copy className="h-4 w-4 mr-2" />
+                  Copy
+                </Button>
               )}
             </div>
 

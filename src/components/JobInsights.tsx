@@ -179,11 +179,11 @@ export function JobInsights({ text }: { text: string }) {
     groups.get(key)!.push(item);
   }
 
-  const ordered = [...groups.entries()].sort(([a], [b]) => {
+  const ordered = [...groups.entries()].sort(([a, la], [b, lb]) => {
     const aOther = OTHER_RE.test(a);
     const bOther = OTHER_RE.test(b);
     if (aOther !== bOther) return aOther ? 1 : -1;
-    return 0;
+    return lb.length - la.length;
   });
 
   // Nothing structured found (single "Other" group with only notes) → plain formatting
@@ -201,7 +201,7 @@ export function JobInsights({ text }: { text: string }) {
           </div>
           <div className="space-y-2">
             {list.map((item, i) => {
-              const { icon: Icon, className } = statusMeta(item.status);
+              const { icon: Icon, className, label } = statusMeta(item.status);
               return (
                 <div key={i} className="rounded-md border bg-background p-3">
                   <div className="flex flex-wrap items-start justify-between gap-2">
@@ -211,10 +211,11 @@ export function JobInsights({ text }: { text: string }) {
                     {item.status && (
                       <Badge variant="outline" className={`shrink-0 gap-1 ${className}`}>
                         <Icon className="h-3 w-3" />
-                        {item.status}
+                        {label}
                       </Badge>
                     )}
                   </div>
+
                   {item.notes && (
                     <div className="mt-2 border-t pt-2">
                       <FormattedText text={item.notes} />

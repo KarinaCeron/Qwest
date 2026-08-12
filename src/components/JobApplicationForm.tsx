@@ -606,51 +606,6 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
-                <Select value={formData.status} onValueChange={(value) => handleChange('status', value)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="submitted">📤 Submitted</SelectItem>
-                    <SelectItem value="in-progress">⏳ In Progress</SelectItem>
-                    <SelectItem value="interview">💼 HR Interview</SelectItem>
-                    <SelectItem value="technical-interview">🧪 Technical Interview</SelectItem>
-                    <SelectItem value="offer">🎉 Offer</SelectItem>
-                    <SelectItem value="rejected">❌ Rejected</SelectItem>
-                    <SelectItem value="no-response">⏸️ No Response</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="priority">Priority</Label>
-                <Select value={formData.priority} onValueChange={(value) => handleChange('priority', value)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="high">🔴 High</SelectItem>
-                    <SelectItem value="medium">🟡 Medium</SelectItem>
-                    <SelectItem value="low">🟢 Low</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="applicationDate">Application Date</Label>
-                <Input
-                  id="applicationDate"
-                  type="date"
-                  value={formData.applicationDate}
-                  onChange={(e) => handleChange('applicationDate', e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-
             <div className="space-y-2">
               <Label htmlFor="jobContent">Job Description</Label>
               <Textarea
@@ -755,6 +710,51 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                   </Dialog>
                 </div>
               )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <Select value={formData.status} onValueChange={(value) => handleChange('status', value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="submitted">📤 Submitted</SelectItem>
+                    <SelectItem value="in-progress">⏳ In Progress</SelectItem>
+                    <SelectItem value="interview">💼 HR Interview</SelectItem>
+                    <SelectItem value="technical-interview">🧪 Technical Interview</SelectItem>
+                    <SelectItem value="offer">🎉 Offer</SelectItem>
+                    <SelectItem value="rejected">❌ Rejected</SelectItem>
+                    <SelectItem value="no-response">⏸️ No Response</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="priority">Priority</Label>
+                <Select value={formData.priority} onValueChange={(value) => handleChange('priority', value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="high">🔴 High</SelectItem>
+                    <SelectItem value="medium">🟡 Medium</SelectItem>
+                    <SelectItem value="low">🟢 Low</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="applicationDate">Application Date</Label>
+                <Input
+                  id="applicationDate"
+                  type="date"
+                  value={formData.applicationDate}
+                  onChange={(e) => handleChange('applicationDate', e.target.value)}
+                  required
+                />
+              </div>
             </div>
             
             {generatedCoverLetter && (

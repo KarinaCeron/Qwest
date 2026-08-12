@@ -15,6 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ApplicationActionLog } from '@/components/ApplicationActionLog';
 import { ApplicationBenefits } from '@/components/ApplicationBenefits';
 import { CompanyResearchPanel } from '@/components/CompanyResearchPanel';
+import { FormattedText } from '@/components/FormattedText';
 
 const STEPS = ['Company', 'Application', 'Benefits', 'Questions', 'Interview questions', 'Action log'];
 
@@ -33,6 +34,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const [tailoringResult, setTailoringResult] = useState<string | null>(null);
   const [isAnalyzingJob, setIsAnalyzingJob] = useState(false);
   const [jobAnalysis, setJobAnalysis] = useState<string>('');
+  const [editingJobAnalysis, setEditingJobAnalysis] = useState(false);
   const [isTailoringResultOpen, setIsTailoringResultOpen] = useState(false);
   const [isAnswerOpen, setIsAnswerOpen] = useState(false);
   const [employerQuestion, setEmployerQuestion] = useState('');
@@ -789,14 +791,36 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                   )}
                 </Button>
               </div>
-              <Textarea
-                id="jobAnalysis"
-                value={jobAnalysis}
-                onChange={(e) => setJobAnalysis(e.target.value)}
-                placeholder="Click 'Analyze job description' to get insights here."
-                rows={6}
-                className="min-h-[120px]"
-              />
+              {jobAnalysis ? (
+                editingJobAnalysis ? (
+                  <Textarea
+                    id="jobAnalysis"
+                    value={jobAnalysis}
+                    onChange={(e) => setJobAnalysis(e.target.value)}
+                    onBlur={() => setEditingJobAnalysis(false)}
+                    rows={10}
+                    className="min-h-[160px]"
+                    autoFocus
+                  />
+                ) : (
+                  <div
+                    className="rounded-md border bg-muted/30 p-4 cursor-text"
+                    onClick={() => setEditingJobAnalysis(true)}
+                    title="Click to edit"
+                  >
+                    <FormattedText text={jobAnalysis} />
+                  </div>
+                )
+              ) : (
+                <Textarea
+                  id="jobAnalysis"
+                  value={jobAnalysis}
+                  onChange={(e) => setJobAnalysis(e.target.value)}
+                  placeholder="Click 'Analyze job description' to get insights here."
+                  rows={6}
+                  className="min-h-[120px]"
+                />
+              )}
               {jobAnalysis && (
                 <Button
                   type="button"

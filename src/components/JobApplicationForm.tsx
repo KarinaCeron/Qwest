@@ -36,7 +36,6 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const [tailoringResult, setTailoringResult] = useState<string | null>(null);
   const [isAnalyzingJob, setIsAnalyzingJob] = useState(false);
   const [jobAnalysis, setJobAnalysis] = useState<string>('');
-  const [editingJobAnalysis, setEditingJobAnalysis] = useState(false);
   const [isTailoringResultOpen, setIsTailoringResultOpen] = useState(false);
   const [isAnswerOpen, setIsAnswerOpen] = useState(false);
   const [employerQuestion, setEmployerQuestion] = useState('');

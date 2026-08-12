@@ -92,7 +92,7 @@ export function ApplicationBenefits({ benefits, onChange }: ApplicationBenefitsP
       value: item.value || undefined,
       notes: item.notes || undefined,
       required: item.required,
-      offered: false,
+      offered: true,
     });
   };
 
@@ -106,7 +106,7 @@ export function ApplicationBenefits({ benefits, onChange }: ApplicationBenefitsP
         value: i.value || undefined,
         notes: i.notes || undefined,
         required: i.required,
-        offered: false,
+        offered: true,
       }));
     if (toAdd.length === 0) {
       toast({ title: 'Nothing to map', description: 'All your Qwest benefits are already here.' });

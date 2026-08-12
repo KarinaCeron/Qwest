@@ -197,6 +197,7 @@ export type Database = {
           hiring_manager_linkedin: string | null
           hiring_manager_name: string | null
           id: string
+          interview_questions: Json
           job_content: string | null
           job_link: string | null
           notes: string | null
@@ -223,6 +224,7 @@ export type Database = {
           hiring_manager_linkedin?: string | null
           hiring_manager_name?: string | null
           id?: string
+          interview_questions?: Json
           job_content?: string | null
           job_link?: string | null
           notes?: string | null
@@ -249,6 +251,7 @@ export type Database = {
           hiring_manager_linkedin?: string | null
           hiring_manager_name?: string | null
           id?: string
+          interview_questions?: Json
           job_content?: string | null
           job_link?: string | null
           notes?: string | null

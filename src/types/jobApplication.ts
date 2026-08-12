@@ -19,6 +19,12 @@ export interface ApplicationQA {
   createdAt: string;
 }
 
+export interface ApplicationInterviewQuestion {
+  id: string;
+  question: string;
+  createdAt: string;
+}
+
 export interface ApplicationBenefit {
   id: string;
   label: string;
@@ -27,6 +33,7 @@ export interface ApplicationBenefit {
   offered?: boolean;
   notes?: string;
 }
+
 
 export interface JobApplication {
   id: string;
@@ -49,6 +56,7 @@ export interface JobApplication {
   coverLetter?: string;
   questions?: ApplicationQA[];
   benefits?: ApplicationBenefit[];
+  interviewQuestions?: ApplicationInterviewQuestion[];
   createdAt: string;
   updatedAt: string;
   statusChangedAt: string;
@@ -74,4 +82,5 @@ export interface JobApplicationFormData {
   coverLetter?: string;
   questions?: ApplicationQA[];
   benefits?: ApplicationBenefit[];
+  interviewQuestions?: ApplicationInterviewQuestion[];
 }

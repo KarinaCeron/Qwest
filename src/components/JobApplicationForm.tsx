@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { JobApplicationFormData, JobApplication, ApplicationQA, ApplicationBenefit } from '@/types/jobApplication';
+import { JobApplicationFormData, JobApplication, ApplicationQA, ApplicationBenefit, ApplicationInterviewQuestion } from '@/types/jobApplication';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,7 +16,7 @@ import { ApplicationActionLog } from '@/components/ApplicationActionLog';
 import { ApplicationBenefits } from '@/components/ApplicationBenefits';
 import { CompanyResearchPanel } from '@/components/CompanyResearchPanel';
 
-const STEPS = ['Company', 'Application', 'Benefits', 'Questions', 'Action log'];
+const STEPS = ['Company', 'Application', 'Benefits', 'Questions', 'Interview questions', 'Action log'];
 
 interface JobApplicationFormProps {
 
@@ -50,6 +50,10 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const [benefits, setBenefits] = useState<ApplicationBenefit[]>(
     editingApplication?.benefits || []
   );
+  const [interviewQuestions, setInterviewQuestions] = useState<ApplicationInterviewQuestion[]>(
+    editingApplication?.interviewQuestions || []
+  );
+  const [newInterviewQuestion, setNewInterviewQuestion] = useState('');
   const [editableAnswer, setEditableAnswer] = useState('');
   const [editableOfferDiscussion, setEditableOfferDiscussion] = useState('');
   const [step, setStep] = useState(editingApplication ? 1 : 0);
@@ -86,12 +90,38 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
       coverLetter: generatedCoverLetter || undefined,
       questions: savedQuestions,
       benefits,
+      interviewQuestions,
     });
   };
 
 
   const handleChange = (field: keyof JobApplicationFormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleAddInterviewQuestions = () => {
+    const lines = newInterviewQuestion
+      .split('\n')
+      .map(l => l.replace(/^[-*•\d.)\s]+/, '').trim())
+      .filter(Boolean);
+    if (lines.length === 0) return;
+    setInterviewQuestions(prev => [
+      ...prev,
+      ...lines.map(question => ({
+        id: crypto.randomUUID(),
+        question,
+        createdAt: new Date().toISOString(),
+      })),
+    ]);
+    setNewInterviewQuestion('');
+  };
+
+  const handleUpdateInterviewQuestion = (id: string, question: string) => {
+    setInterviewQuestions(prev => prev.map(q => (q.id === id ? { ...q, question } : q)));
+  };
+
+  const handleRemoveInterviewQuestion = (id: string) => {
+    setInterviewQuestions(prev => prev.filter(q => q.id !== id));
   };
 
   const handleGenerateCoverLetter = async () => {
@@ -1059,7 +1089,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                     className="flex-1 bg-gradient-primary"
                     onClick={() => setStep(4)}
                   >
-                    Continue to action log
+                    Continue to interview questions
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </Button>
                   <Button type="submit" variant="outline">
@@ -1070,6 +1100,76 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
             )}
 
             {step === 4 && (
+              <>
+                <p className="text-sm text-muted-foreground">
+                  Write the questions you want to ask them during the interview.
+                </p>
+
+                <div className="space-y-2">
+                  <Label htmlFor="newInterviewQuestion">Add questions (one per line)</Label>
+                  <Textarea
+                    id="newInterviewQuestion"
+                    value={newInterviewQuestion}
+                    onChange={(e) => setNewInterviewQuestion(e.target.value)}
+                    onBlur={handleAddInterviewQuestions}
+                    placeholder={'How is success measured in this role?\nWhat does the team structure look like?'}
+                    rows={4}
+                  />
+                  <Button type="button" variant="outline" onClick={handleAddInterviewQuestions}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add questions
+                  </Button>
+                </div>
+
+                <div className="space-y-3">
+                  <Label>My questions for the interview</Label>
+                  {interviewQuestions.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">No interview questions yet.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {interviewQuestions.map((q, index) => (
+                        <div key={q.id} className="flex items-start gap-2">
+                          <span className="mt-2 text-sm text-muted-foreground w-5 shrink-0">{index + 1}.</span>
+                          <Textarea
+                            value={q.question}
+                            onChange={(e) => handleUpdateInterviewQuestion(q.id, e.target.value)}
+                            rows={2}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleRemoveInterviewQuestion(q.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap gap-3 pt-4">
+                  <Button type="button" variant="outline" onClick={() => setStep(3)}>
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back
+                  </Button>
+                  <Button
+                    type="button"
+                    className="flex-1 bg-gradient-primary"
+                    onClick={() => setStep(5)}
+                  >
+                    Continue to action log
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                  <Button type="submit" variant="outline">
+                    {editingApplication ? 'Update' : 'Save'} Application
+                  </Button>
+                </div>
+              </>
+            )}
+
+            {step === 5 && (
               <>
                 {editingApplication && user ? (
                   <ApplicationActionLog
@@ -1083,7 +1183,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 )}
 
                 <div className="flex flex-wrap gap-3 pt-4">
-                  <Button type="button" variant="outline" onClick={() => setStep(3)}>
+                  <Button type="button" variant="outline" onClick={() => setStep(4)}>
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Back
                   </Button>

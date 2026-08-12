@@ -64,7 +64,7 @@ export function ApplicationBenefits({ benefits, onChange }: ApplicationBenefitsP
       .split(/\n/)
       .map((line) => line.replace(/^[-*•]\s*/, '').trim())
       .filter((line) => line.length > 0 && !existing.has(line.toLowerCase()))
-      .map((line) => ({ id: crypto.randomUUID(), label: line, offered: false }));
+      .map((line) => ({ id: crypto.randomUUID(), label: line, offered: true }));
 
     if (parsed.length === 0) {
       setRawBenefits('');
@@ -76,7 +76,7 @@ export function ApplicationBenefits({ benefits, onChange }: ApplicationBenefitsP
     setRawBenefits('');
     toast({
       title: `${parsed.length} benefit${parsed.length === 1 ? '' : 's'} added`,
-      description: 'Review and mark the ones that are offered.',
+      description: 'They are already marked as offered.',
     });
   };
 

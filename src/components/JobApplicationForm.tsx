@@ -798,18 +798,24 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 className="min-h-[120px]"
               />
               {jobAnalysis && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    navigator.clipboard.writeText(jobAnalysis);
-                    toast({ title: "Copied", description: "Insights copied to clipboard" });
-                  }}
-                >
-                  <Copy className="h-4 w-4 mr-2" />
-                  Copy
-                </Button>
+                <div className="rounded-md border bg-background p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-foreground">Insights</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        navigator.clipboard.writeText(jobAnalysis);
+                        toast({ title: "Copied", description: "Insights copied to clipboard" });
+                      }}
+                    >
+                      <Copy className="h-4 w-4 mr-2" />
+                      Copy
+                    </Button>
+                  </div>
+                  <FormattedText text={jobAnalysis} />
+                </div>
               )}
             </div>
 

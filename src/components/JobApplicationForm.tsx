@@ -808,7 +808,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                     onClick={() => setEditingJobAnalysis(true)}
                     title="Click to edit"
                   >
-                    <FormattedText text={jobAnalysis} />
+                    <JobInsights text={jobAnalysis} />
                   </div>
                 )
               ) : (

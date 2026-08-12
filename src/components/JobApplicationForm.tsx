@@ -606,7 +606,6 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
               </div>
             </div>
 
-
             <div className="space-y-2">
               <Label htmlFor="jobContent">Job Description</Label>
               <Textarea

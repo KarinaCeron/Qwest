@@ -15,6 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ApplicationActionLog } from '@/components/ApplicationActionLog';
 import { ApplicationBenefits } from '@/components/ApplicationBenefits';
 import { CompanyResearchPanel } from '@/components/CompanyResearchPanel';
+import { FormattedText } from '@/components/FormattedText';
 
 const STEPS = ['Company', 'Application', 'Benefits', 'Questions', 'Interview questions', 'Action log'];
 
@@ -33,6 +34,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const [tailoringResult, setTailoringResult] = useState<string | null>(null);
   const [isAnalyzingJob, setIsAnalyzingJob] = useState(false);
   const [jobAnalysis, setJobAnalysis] = useState<string>('');
+  const [editingJobAnalysis, setEditingJobAnalysis] = useState(false);
   const [isTailoringResultOpen, setIsTailoringResultOpen] = useState(false);
   const [isAnswerOpen, setIsAnswerOpen] = useState(false);
   const [employerQuestion, setEmployerQuestion] = useState('');

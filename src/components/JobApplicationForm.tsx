@@ -19,7 +19,7 @@ import { FormattedText } from '@/components/FormattedText';
 import { JobInsights } from '@/components/JobInsights';
 
 
-const STEPS = ['Company', 'Role', 'Benefits', 'Application', 'Questions', 'Interview questions', 'Action log'];
+const STEPS = ['Company', 'Role', 'Compensation', 'Application', 'Questions', 'Interview questions', 'Action log'];
 
 interface JobApplicationFormProps {
 

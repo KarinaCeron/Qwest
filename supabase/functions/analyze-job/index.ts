@@ -53,20 +53,8 @@ Deno.serve(async (req) => {
     url.searchParams.set("user_id", user.id);
     url.searchParams.set("user_email", user.email || "");
 
-    let webhookResponse = await fetch(url.toString(), { method: "GET" });
-    if (webhookResponse.status === 404 || webhookResponse.status === 405) {
-      webhookResponse = await fetch(N8N_ANALYZE_JOB_WEBHOOK, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          job_description: jobContent,
-          role: role || "",
-          company: company || "",
-          user_id: user.id,
-          user_email: user.email || "",
-        }),
-      });
-    }
+    const webhookResponse = await fetch(url.toString(), { method: "GET" });
+
 
     const responseText = await webhookResponse.text();
     console.log("analyze-job n8n status:", webhookResponse.status, "length:", responseText.length);

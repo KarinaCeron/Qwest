@@ -16,6 +16,8 @@ import { ApplicationActionLog } from '@/components/ApplicationActionLog';
 import { ApplicationBenefits } from '@/components/ApplicationBenefits';
 import { CompanyResearchPanel } from '@/components/CompanyResearchPanel';
 import { FormattedText } from '@/components/FormattedText';
+import { JobInsights } from '@/components/JobInsights';
+
 
 const STEPS = ['Company', 'Application', 'Benefits', 'Questions', 'Interview questions', 'Action log'];
 

@@ -235,6 +235,12 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     }
   };
 
+  const handleResetJobAnalysis = () => {
+    setJobAnalysis('');
+    toast({ title: "Analysis reset", description: "Stored job insights cleared. Click Update to save the change." });
+  };
+
+
 
 
   const handleAnswerQuestion = async () => {
@@ -813,19 +819,31 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 />
               )}
               {jobAnalysis && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    navigator.clipboard.writeText(jobAnalysis);
-                    toast({ title: "Copied", description: "Insights copied to clipboard" });
-                  }}
-                >
-                  <Copy className="h-4 w-4 mr-2" />
-                  Copy
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(jobAnalysis);
+                      toast({ title: "Copied", description: "Insights copied to clipboard" });
+                    }}
+                  >
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleResetJobAnalysis}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Reset analysis
+                  </Button>
+                </div>
               )}
+
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -842,7 +842,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 onClick={() => setStep(2)}
                 disabled={!formData.role.trim()}
               >
-                Continue to benefits
+                Continue to compensation
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
               <Button type="submit" variant="outline">

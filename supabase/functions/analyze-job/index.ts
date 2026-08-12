@@ -7,7 +7,7 @@ const corsHeaders = {
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const N8N_ANALYZE_JOB_WEBHOOK =
-  "https://karinaceron.app.n8n.cloud/webhook/893163d1-030d-4311-beb7-7eb36c0c74e0";
+  "https://karinaceron.app.n8n.cloud/webhook/c7df7503-8a6a-451c-b97b-545ecab3bb62";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {

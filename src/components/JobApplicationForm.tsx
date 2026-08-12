@@ -204,6 +204,33 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     }
   };
 
+  const handleAnalyzeJob = async () => {
+    if (!formData.jobContent) {
+      toast({ title: "Error", description: "Job description is required", variant: "destructive" });
+      return;
+    }
+    setIsAnalyzingJob(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-job', {
+        body: { jobContent: formData.jobContent, role: formData.role, company: formData.company },
+      });
+      if (error) throw new Error(error.message);
+      const answer = data?.answer || data?.response || data?.output || data?.text || data?.message || '';
+      setJobAnalysis(answer || 'No response received from the webhook.');
+    } catch (error) {
+      console.error('Error analyzing job description:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Could not analyze the job description.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnalyzingJob(false);
+    }
+  };
+
+
+
   const handleAnswerQuestion = async () => {
     if (!employerQuestion.trim()) {
       toast({ title: "Error", description: "Please enter a question", variant: "destructive" });

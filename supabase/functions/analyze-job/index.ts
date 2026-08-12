@@ -45,28 +45,38 @@ Deno.serve(async (req) => {
       });
     }
 
-    const payload = {
-      job_description: jobContent,
-      question: jobContent,
-      role: role || "",
-      company: company || "",
-      user_id: user.id,
-      user_email: user.email || "",
-    };
+    // The n8n webhook is registered for GET only, and long job descriptions in the
+    // query string make the request exceed n8n's header limit (HTTP 431).
+    // -> truncate the description to a safe size for the URL.
+    const MAX_DESC = 1800;
+    const desc = jobContent.slice(0, MAX_DESC);
 
-    // Send as POST with a JSON body (long job descriptions break query-string GETs -> HTTP 431)
-    let webhookResponse = await fetch(N8N_ANALYZE_JOB_WEBHOOK, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    const url = new URL(N8N_ANALYZE_JOB_WEBHOOK);
+    url.searchParams.set("job_description", desc);
+    url.searchParams.set("question", desc);
+    url.searchParams.set("role", (role || "").slice(0, 200));
+    url.searchParams.set("company", (company || "").slice(0, 200));
+    url.searchParams.set("user_id", user.id);
+    url.searchParams.set("user_email", user.email || "");
 
-    // Fallback: webhook configured for GET only
-    if (webhookResponse.status === 404 || webhookResponse.status === 405) {
-      const url = new URL(N8N_ANALYZE_JOB_WEBHOOK);
-      for (const [k, v] of Object.entries(payload)) url.searchParams.set(k, String(v).slice(0, 4000));
-      webhookResponse = await fetch(url.toString(), { method: "GET" });
+    let webhookResponse = await fetch(url.toString(), { method: "GET" });
+
+    // Fallback: if the URL is still too large, retry with a POST body
+    if (webhookResponse.status === 431 || webhookResponse.status === 414) {
+      webhookResponse = await fetch(N8N_ANALYZE_JOB_WEBHOOK, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          job_description: jobContent,
+          question: jobContent,
+          role: role || "",
+          company: company || "",
+          user_id: user.id,
+          user_email: user.email || "",
+        }),
+      });
     }
+
 
     const responseText = await webhookResponse.text();
     console.log("analyze-job n8n status:", webhookResponse.status, "length:", responseText.length);

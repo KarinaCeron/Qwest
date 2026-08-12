@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Trash2, Gift, Download } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -64,7 +63,7 @@ export function ApplicationBenefits({ benefits, onChange }: ApplicationBenefitsP
       .split(/\n/)
       .map((line) => line.replace(/^[-*•]\s*/, '').trim())
       .filter((line) => line.length > 0 && !existing.has(line.toLowerCase()))
-      .map((line) => ({ id: crypto.randomUUID(), label: line, offered: false }));
+      .map((line) => ({ id: crypto.randomUUID(), label: line, offered: true }));
 
     if (parsed.length === 0) {
       setRawBenefits('');
@@ -76,7 +75,7 @@ export function ApplicationBenefits({ benefits, onChange }: ApplicationBenefitsP
     setRawBenefits('');
     toast({
       title: `${parsed.length} benefit${parsed.length === 1 ? '' : 's'} added`,
-      description: 'Review and mark the ones that are offered.',
+      description: 'They are already marked as offered.',
     });
   };
 
@@ -92,7 +91,7 @@ export function ApplicationBenefits({ benefits, onChange }: ApplicationBenefitsP
       value: item.value || undefined,
       notes: item.notes || undefined,
       required: item.required,
-      offered: false,
+      offered: true,
     });
   };
 
@@ -106,7 +105,7 @@ export function ApplicationBenefits({ benefits, onChange }: ApplicationBenefitsP
         value: i.value || undefined,
         notes: i.notes || undefined,
         required: i.required,
-        offered: false,
+        offered: true,
       }));
     if (toAdd.length === 0) {
       toast({ title: 'Nothing to map', description: 'All your Qwest benefits are already here.' });
@@ -237,13 +236,6 @@ export function ApplicationBenefits({ benefits, onChange }: ApplicationBenefitsP
                     placeholder="What the company offers for this benefit"
                     className="flex-1"
                   />
-                  <label className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Checkbox
-                      checked={!!b.offered}
-                      onCheckedChange={(checked) => update(b.id, { offered: !!checked })}
-                    />
-                    Offered
-                  </label>
                 </div>
               </div>
             ))}

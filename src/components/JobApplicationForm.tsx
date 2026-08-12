@@ -14,7 +14,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { ApplicationActionLog } from '@/components/ApplicationActionLog';
 import { ApplicationBenefits } from '@/components/ApplicationBenefits';
-import { CompanyResearchPanel } from '@/components/CompanyResearchPanel';
+import { CompanyResearchPanel, FormattedText } from '@/components/CompanyResearchPanel';
 
 const STEPS = ['Company', 'Application', 'Benefits', 'Questions', 'Interview questions', 'Action log'];
 

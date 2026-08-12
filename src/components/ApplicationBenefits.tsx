@@ -237,13 +237,6 @@ export function ApplicationBenefits({ benefits, onChange }: ApplicationBenefitsP
                     placeholder="What the company offers for this benefit"
                     className="flex-1"
                   />
-                  <label className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Checkbox
-                      checked={!!b.offered}
-                      onCheckedChange={(checked) => update(b.id, { offered: !!checked })}
-                    />
-                    Offered
-                  </label>
                 </div>
               </div>
             ))}

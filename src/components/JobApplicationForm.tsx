@@ -14,7 +14,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { ApplicationActionLog } from '@/components/ApplicationActionLog';
 import { ApplicationBenefits } from '@/components/ApplicationBenefits';
-import { CompanyResearchPanel, FormattedText } from '@/components/CompanyResearchPanel';
+import { CompanyResearchPanel } from '@/components/CompanyResearchPanel';
 
 const STEPS = ['Company', 'Application', 'Benefits', 'Questions', 'Interview questions', 'Action log'];
 
@@ -798,24 +798,18 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 className="min-h-[120px]"
               />
               {jobAnalysis && (
-                <div className="rounded-md border bg-background p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-foreground">Insights</span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        navigator.clipboard.writeText(jobAnalysis);
-                        toast({ title: "Copied", description: "Insights copied to clipboard" });
-                      }}
-                    >
-                      <Copy className="h-4 w-4 mr-2" />
-                      Copy
-                    </Button>
-                  </div>
-                  <FormattedText text={jobAnalysis} />
-                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    navigator.clipboard.writeText(jobAnalysis);
+                    toast({ title: "Copied", description: "Insights copied to clipboard" });
+                  }}
+                >
+                  <Copy className="h-4 w-4 mr-2" />
+                  Copy
+                </Button>
               )}
             </div>
 

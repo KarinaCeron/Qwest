@@ -36,7 +36,6 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const [tailoringResult, setTailoringResult] = useState<string | null>(null);
   const [isAnalyzingJob, setIsAnalyzingJob] = useState(false);
   const [jobAnalysis, setJobAnalysis] = useState<string>('');
-  const [editingJobAnalysis, setEditingJobAnalysis] = useState(false);
   const [isTailoringResultOpen, setIsTailoringResultOpen] = useState(false);
   const [isAnswerOpen, setIsAnswerOpen] = useState(false);
   const [employerQuestion, setEmployerQuestion] = useState('');
@@ -794,25 +793,9 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 </Button>
               </div>
               {jobAnalysis ? (
-                editingJobAnalysis ? (
-                  <Textarea
-                    id="jobAnalysis"
-                    value={jobAnalysis}
-                    onChange={(e) => setJobAnalysis(e.target.value)}
-                    onBlur={() => setEditingJobAnalysis(false)}
-                    rows={10}
-                    className="min-h-[160px]"
-                    autoFocus
-                  />
-                ) : (
-                  <div
-                    className="rounded-md border bg-muted/30 p-4 cursor-text"
-                    onClick={() => setEditingJobAnalysis(true)}
-                    title="Click to edit"
-                  >
-                    <JobInsights text={jobAnalysis} />
-                  </div>
-                )
+                <div className="rounded-md border bg-muted/30 p-4">
+                  <JobInsights text={jobAnalysis} />
+                </div>
               ) : (
                 <Textarea
                   id="jobAnalysis"

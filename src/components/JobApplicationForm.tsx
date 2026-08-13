@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { JobApplicationFormData, JobApplication, ApplicationQA, ApplicationBenefit, ApplicationInterviewQuestion } from '@/types/jobApplication';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import { X, Plus, Edit, FileText, Copy, Wand2, MessageCircleQuestion, Trash2, Save, Handshake, ExternalLink, Search, ArrowRight, ArrowLeft, Sparkles, Coins } from 'lucide-react';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { X, Plus, Edit, FileText, Copy, Wand2, MessageCircleQuestion, Trash2, Save, Handshake, ExternalLink, Search, ArrowRight, ArrowLeft, Sparkles, Coins, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';

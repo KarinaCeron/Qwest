@@ -752,13 +752,15 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="notes">Notes</Label>
-
+              <Label htmlFor="notes">My take on this role</Label>
+              <p className="text-xs text-muted-foreground">
+                Is this a good fit for you? Does it match the seniority level you're targeting?
+              </p>
               <Textarea
                 id="notes"
                 value={formData.notes}
                 onChange={(e) => handleChange('notes', e.target.value)}
-                placeholder="Additional comments about the application..."
+                placeholder="e.g. Great fit — seniority aligns with my experience, team looks solid."
                 rows={3}
               />
             </div>

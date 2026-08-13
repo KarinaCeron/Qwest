@@ -156,7 +156,10 @@ export function CoreSkills() {
                   <Textarea
                     rows={2}
                     value={meanings[skill] ?? ''}
-                    onChange={(e) => setMeanings((prev) => ({ ...prev, [skill]: e.target.value }))}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setMeanings((prev) => ({ ...prev, [skill]: value }));
+                    }}
                     placeholder={`What does "${skill}" mean for you? e.g. how you apply it and the impact you create`}
                     maxLength={500}
                   />

@@ -117,15 +117,23 @@ export function CoreSkills() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <label htmlFor="bulk_skills" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            <label htmlFor="bulk_skills" className="text-sm font-medium leading-none">
               Add skills
             </label>
+            <p className="text-xs text-muted-foreground">
+              Paste one per line or separate with commas — duplicates are skipped automatically.
+            </p>
+            <pre className="rounded-md bg-muted/60 p-2 text-xs text-muted-foreground whitespace-pre-wrap">
+{`Product Strategy
+Roadmapping, Customer Research
+AI Products`}
+            </pre>
             <Textarea
               id="bulk_skills"
               rows={3}
               value={bulk}
               onChange={(e) => setBulk(e.target.value)}
-              placeholder="One per line, or separated by commas"
+              placeholder="Product Strategy, Roadmapping, Customer Research"
             />
             <Button variant="outline" size="sm" onClick={handleBulkAdd} disabled={!bulk.trim()}>
               <Plus className="mr-1 h-4 w-4" /> Add all

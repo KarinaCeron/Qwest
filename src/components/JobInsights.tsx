@@ -270,7 +270,13 @@ export function JobInsights({ text, skillsOrder }: { text: string; skillsOrder?:
             </button>
             {!isCollapsed && (
               <div className="space-y-2">
+                {!list.length && (
+                  <div className="rounded-md border border-dashed bg-muted/30 p-3 text-sm text-muted-foreground">
+                    No insights found for this skill in the job description.
+                  </div>
+                )}
                 {list.map((item, i) => {
+
                   const { icon: Icon, className, label } = statusMeta(item.status);
                   return (
                     <div key={i} className="rounded-md border bg-background p-3">

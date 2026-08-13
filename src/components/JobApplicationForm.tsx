@@ -939,9 +939,39 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                         </Select>
                       </div>
                     </div>
+
+                    {!salaryExpectation && (
+                      <Alert variant="default" className="bg-muted/50">
+                        <Info className="h-4 w-4" />
+                        <AlertTitle>No salary target set</AlertTitle>
+                        <AlertDescription>
+                          Go to{' '}
+                          <button
+                            type="button"
+                            onClick={() => navigate('/cv')}
+                            className="underline text-primary"
+                          >
+                            My Qwest → Compensation
+                          </button>{' '}
+                          to set your desired salary so we can compare your request.
+                        </AlertDescription>
+                      </Alert>
+                    )}
+
+                    {salaryComparison && (
+                      <Alert
+                        variant={salaryComparison.variant === 'success' ? 'default' : salaryComparison.variant === 'warning' ? 'destructive' : 'default'}
+                        className={salaryComparison.variant === 'success' ? 'bg-emerald-50 text-emerald-900 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-100 dark:border-emerald-900' : undefined}
+                      >
+                        <Info className="h-4 w-4" />
+                        <AlertTitle>{salaryComparison.title}</AlertTitle>
+                        <AlertDescription>{salaryComparison.description}</AlertDescription>
+                      </Alert>
+                    )}
                   </div>
 
                   <ApplicationBenefits benefits={benefits} onChange={setBenefits} />
+
 
                   <div className="rounded-lg border p-4 space-y-4 bg-background/50">
                     <h3 className="text-sm font-semibold flex items-center gap-2">

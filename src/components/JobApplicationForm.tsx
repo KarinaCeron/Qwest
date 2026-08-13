@@ -69,6 +69,8 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const [isResearching, setIsResearching] = useState(false);
   const [companyWebsite, setCompanyWebsite] = useState('');
   const [companyResearchText, setCompanyResearchText] = useState<string | null>(null);
+  const [salaryExpectation, setSalaryExpectation] = useState<{ value?: string | null; min_value?: string | null; currency: string; period: string } | null>(null);
+
 
   // Load the user's core skills so job insights can be ordered the same way.
   useEffect(() => {
@@ -85,7 +87,27 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     void loadSkills();
   }, [user?.id]);
 
+  // Load the user's salary expectation from My Qwest for comparison.
+  useEffect(() => {
+    if (!user) return;
+    const loadSalaryExpectation = async () => {
+      const { data } = await supabase
+        .from('compensation_items')
+        .select('value, min_value, currency, period')
+        .eq('user_id', user.id)
+        .eq('kind', 'salary')
+        .order('created_at', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (data) {
+        setSalaryExpectation(data as any);
+      }
+    };
+    void loadSalaryExpectation();
+  }, [user?.id]);
+
   const [formData, setFormData] = useState<JobApplicationFormData>({
+
     company: editingApplication?.company || '',
     role: editingApplication?.role || '',
     recruiterName: editingApplication?.recruiterName || '',
@@ -429,8 +451,45 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     setSavedQuestions(prev => prev.filter(q => q.id !== id));
   };
 
+  const getSalaryComparison = () => {
+    if (!salaryExpectation) return null;
+    const requested = Number(formData.requestedSalary);
+    const desired = Number(salaryExpectation.value);
+    const minimum = salaryExpectation.min_value ? Number(salaryExpectation.min_value) : null;
+    if (Number.isNaN(requested) || requested <= 0) return null;
+    if (Number.isNaN(desired) || desired <= 0) return null;
+    if (formData.salaryCurrency !== salaryExpectation.currency || formData.salaryPeriod !== salaryExpectation.period) {
+      return {
+        variant: 'info' as const,
+        title: 'Salary comparison unavailable',
+        description: `Your My Qwest target is ${salaryExpectation.currency} · ${salaryExpectation.period}. Match currency and period to compare.`,
+      };
+    }
+    if (requested > desired) {
+      return {
+        variant: 'warning' as const,
+        title: 'You are asking more than your target',
+        description: `Your desired target is ${salaryExpectation.currency} ${desired.toLocaleString()}. You requested ${salaryExpectation.currency} ${requested.toLocaleString()}.`,
+      };
+    }
+    if (minimum !== null && !Number.isNaN(minimum) && requested < minimum) {
+      return {
+        variant: 'warning' as const,
+        title: 'You are asking less than your minimum acceptable',
+        description: `Your minimum acceptable is ${salaryExpectation.currency} ${minimum.toLocaleString()}. You requested ${salaryExpectation.currency} ${requested.toLocaleString()}.`,
+      };
+    }
+    return {
+      variant: 'success' as const,
+      title: 'Your request is within target range',
+      description: `Your target range is ${salaryExpectation.currency} ${minimum?.toLocaleString() ?? desired.toLocaleString()} – ${desired.toLocaleString()}.`,
+    };
+  };
+
+  const salaryComparison = getSalaryComparison();
 
   return (
+
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <Card className="w-full max-w-2xl max-h-[90vh] overflow-auto bg-gradient-card">
         <CardHeader className="border-b bg-gradient-primary text-primary-foreground">
@@ -880,9 +939,39 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                         </Select>
                       </div>
                     </div>
+
+                    {!salaryExpectation && (
+                      <Alert variant="default" className="bg-muted/50">
+                        <Info className="h-4 w-4" />
+                        <AlertTitle>No salary target set</AlertTitle>
+                        <AlertDescription>
+                          Go to{' '}
+                          <button
+                            type="button"
+                            onClick={() => navigate('/cv')}
+                            className="underline text-primary"
+                          >
+                            My Qwest → Compensation
+                          </button>{' '}
+                          to set your desired salary so we can compare your request.
+                        </AlertDescription>
+                      </Alert>
+                    )}
+
+                    {salaryComparison && (
+                      <Alert
+                        variant={salaryComparison.variant === 'success' ? 'default' : salaryComparison.variant === 'warning' ? 'destructive' : 'default'}
+                        className={salaryComparison.variant === 'success' ? 'bg-emerald-50 text-emerald-900 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-100 dark:border-emerald-900' : undefined}
+                      >
+                        <Info className="h-4 w-4" />
+                        <AlertTitle>{salaryComparison.title}</AlertTitle>
+                        <AlertDescription>{salaryComparison.description}</AlertDescription>
+                      </Alert>
+                    )}
                   </div>
 
                   <ApplicationBenefits benefits={benefits} onChange={setBenefits} />
+
 
                   <div className="rounded-lg border p-4 space-y-4 bg-background/50">
                     <h3 className="text-sm font-semibold flex items-center gap-2">

@@ -450,40 +450,65 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     setSavedQuestions(prev => prev.filter(q => q.id !== id));
   };
 
+  const currency = formData.salaryCurrency || 'USD';
+  const period = formData.salaryPeriod || 'annual';
+
+  // Map the form currency to the matching My Qwest target, and normalize the period.
+  const salaryExpectation = salaryTargets.find(t => t.currency === currency) ?? null;
+
+  const toPeriod = (amount: number, from: string, to: string) => {
+    if (from === to) return amount;
+    if (from === 'monthly' && to === 'annual') return amount * 12;
+    if (from === 'annual' && to === 'monthly') return amount / 12;
+    return amount;
+  };
+
   const getSalaryComparison = () => {
-    if (!salaryExpectation) return null;
     const requested = Number(formData.requestedSalary);
-    const desired = Number(salaryExpectation.value);
-    const minimum = salaryExpectation.min_value ? Number(salaryExpectation.min_value) : null;
     if (Number.isNaN(requested) || requested <= 0) return null;
-    if (Number.isNaN(desired) || desired <= 0) return null;
-    if (formData.salaryCurrency !== salaryExpectation.currency || formData.salaryPeriod !== salaryExpectation.period) {
+
+    if (!salaryExpectation) {
+      if (salaryTargets.length === 0) return null;
       return {
         variant: 'info' as const,
-        title: 'Salary comparison unavailable',
-        description: `Your My Qwest target is ${salaryExpectation.currency} · ${salaryExpectation.period}. Match currency and period to compare.`,
+        title: `No ${currency} target set`,
+        description: `Your My Qwest targets are in ${salaryTargets.map(t => t.currency).join(', ')}. Add a ${currency} target to compare.`,
       };
     }
+
+    const fmt = (n: number) => `${currency} ${Math.round(n).toLocaleString()}`;
+    const desired = toPeriod(Number(salaryExpectation.value), salaryExpectation.period, period);
+    const minimumRaw = salaryExpectation.min_value ? Number(salaryExpectation.min_value) : null;
+    const minimum = minimumRaw !== null && !Number.isNaN(minimumRaw)
+      ? toPeriod(minimumRaw, salaryExpectation.period, period)
+      : null;
+    if (Number.isNaN(desired) || desired <= 0) return null;
+
+    const periodNote = salaryExpectation.period !== period
+      ? ` (converted from ${salaryExpectation.period} to ${period})`
+      : '';
+
     if (requested > desired) {
       return {
         variant: 'exceeded' as const,
         title: 'You are asking more than your target',
-        description: `Your desired target is ${salaryExpectation.currency} ${desired.toLocaleString()}. You requested ${salaryExpectation.currency} ${requested.toLocaleString()}.`,
+        description: `Your desired target is ${fmt(desired)}${periodNote}. You requested ${fmt(requested)}.`,
       };
     }
-    if (minimum !== null && !Number.isNaN(minimum) && requested < minimum) {
+    if (minimum !== null && requested < minimum) {
       return {
         variant: 'below' as const,
         title: 'You are asking less than your minimum acceptable',
-        description: `Your minimum acceptable is ${salaryExpectation.currency} ${minimum.toLocaleString()}. You requested ${salaryExpectation.currency} ${requested.toLocaleString()}.`,
+        description: `Your minimum acceptable is ${fmt(minimum)}${periodNote}. You requested ${fmt(requested)}.`,
       };
     }
     return {
       variant: 'in-range' as const,
       title: 'Your request is within target range',
-      description: `Your target range is ${salaryExpectation.currency} ${minimum?.toLocaleString() ?? desired.toLocaleString()} – ${desired.toLocaleString()}.`,
+      description: `Your target range is ${fmt(minimum ?? desired)} – ${fmt(desired)}${periodNote}.`,
     };
   };
+
 
   const salaryComparison = getSalaryComparison();
 

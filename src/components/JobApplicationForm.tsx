@@ -149,6 +149,18 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     setInterviewQuestions(prev => prev.filter(q => q.id !== id));
   };
 
+  const handleMoveInterviewQuestion = (index: number, direction: -1 | 1) => {
+    setInterviewQuestions(prev => {
+      const target = index + direction;
+      if (target < 0 || target >= prev.length) return prev;
+      const next = [...prev];
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
+  };
+
+
+
   const handleGenerateCoverLetter = async () => {
     if (!formData.jobContent) {
       toast({

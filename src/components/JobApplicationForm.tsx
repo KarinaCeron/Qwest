@@ -451,8 +451,45 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     setSavedQuestions(prev => prev.filter(q => q.id !== id));
   };
 
+  const getSalaryComparison = () => {
+    if (!salaryExpectation) return null;
+    const requested = Number(formData.requestedSalary);
+    const desired = Number(salaryExpectation.value);
+    const minimum = salaryExpectation.min_value ? Number(salaryExpectation.min_value) : null;
+    if (Number.isNaN(requested) || requested <= 0) return null;
+    if (Number.isNaN(desired) || desired <= 0) return null;
+    if (formData.salaryCurrency !== salaryExpectation.currency || formData.salaryPeriod !== salaryExpectation.period) {
+      return {
+        variant: 'info' as const,
+        title: 'Salary comparison unavailable',
+        description: `Your My Qwest target is ${salaryExpectation.currency} · ${salaryExpectation.period}. Match currency and period to compare.`,
+      };
+    }
+    if (requested > desired) {
+      return {
+        variant: 'warning' as const,
+        title: 'You are asking more than your target',
+        description: `Your desired target is ${salaryExpectation.currency} ${desired.toLocaleString()}. You requested ${salaryExpectation.currency} ${requested.toLocaleString()}.`,
+      };
+    }
+    if (minimum !== null && !Number.isNaN(minimum) && requested < minimum) {
+      return {
+        variant: 'warning' as const,
+        title: 'You are asking less than your minimum acceptable',
+        description: `Your minimum acceptable is ${salaryExpectation.currency} ${minimum.toLocaleString()}. You requested ${salaryExpectation.currency} ${requested.toLocaleString()}.`,
+      };
+    }
+    return {
+      variant: 'success' as const,
+      title: 'Your request is within target range',
+      description: `Your target range is ${salaryExpectation.currency} ${minimum?.toLocaleString() ?? desired.toLocaleString()} – ${desired.toLocaleString()}.`,
+    };
+  };
+
+  const salaryComparison = getSalaryComparison();
 
   return (
+
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <Card className="w-full max-w-2xl max-h-[90vh] overflow-auto bg-gradient-card">
         <CardHeader className="border-b bg-gradient-primary text-primary-foreground">

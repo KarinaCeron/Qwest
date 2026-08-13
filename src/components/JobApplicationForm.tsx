@@ -87,7 +87,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     void loadSkills();
   }, [user?.id]);
 
-  // Load the user's salary expectation from My Qwest for comparison.
+  // Load the user's salary expectations from My Qwest for comparison (one per currency).
   useEffect(() => {
     if (!user) return;
     const loadSalaryExpectation = async () => {
@@ -96,14 +96,13 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
         .select('value, min_value, currency, period')
         .eq('user_id', user.id)
         .eq('kind', 'salary')
-        .order('created_at', { ascending: true })
-        .limit(1)
-        .maybeSingle();
+        .order('created_at', { ascending: true });
       if (data) {
-        setSalaryExpectation(data as any);
+        setSalaryTargets(data as any);
       }
     };
     void loadSalaryExpectation();
+
   }, [user?.id]);
 
   const [formData, setFormData] = useState<JobApplicationFormData>({

@@ -69,6 +69,8 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const [isResearching, setIsResearching] = useState(false);
   const [companyWebsite, setCompanyWebsite] = useState('');
   const [companyResearchText, setCompanyResearchText] = useState<string | null>(null);
+  const [salaryExpectation, setSalaryExpectation] = useState<{ value?: string | null; min_value?: string | null; currency: string; period: string } | null>(null);
+
 
   // Load the user's core skills so job insights can be ordered the same way.
   useEffect(() => {

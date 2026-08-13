@@ -137,22 +137,34 @@ export function CoreSkills() {
               No skills yet. Add the strengths you want recruiters to see.
             </p>
           ) : (
-            <div className="flex flex-wrap gap-2">
+            <div className="space-y-3">
               {skills.map((skill) => (
-                <Badge key={skill} variant="secondary" className="gap-1 py-1 pl-3 pr-1 text-sm font-normal">
-                  {skill}
-                  <button
-                    type="button"
-                    aria-label={`Remove ${skill}`}
-                    className="rounded-full p-0.5 hover:bg-muted"
-                    onClick={() => setSkills((prev) => prev.filter((s) => s !== skill))}
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
+                <div key={skill} className="rounded-lg border bg-background/60 p-3 space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <Badge variant="secondary" className="py-1 text-sm font-normal">
+                      {skill}
+                    </Badge>
+                    <button
+                      type="button"
+                      aria-label={`Remove ${skill}`}
+                      className="rounded-full p-1 text-muted-foreground hover:bg-muted"
+                      onClick={() => removeSkill(skill)}
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  <Textarea
+                    rows={2}
+                    value={meanings[skill] ?? ''}
+                    onChange={(e) => setMeanings((prev) => ({ ...prev, [skill]: e.target.value }))}
+                    placeholder={`What does "${skill}" mean for you? e.g. how you apply it and the impact you create`}
+                    maxLength={500}
+                  />
+                </div>
               ))}
             </div>
           )}
+
 
           <div className="space-y-2">
             <label htmlFor="bulk_skills" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">

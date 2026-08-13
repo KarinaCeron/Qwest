@@ -4,18 +4,16 @@ import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Plus, Save, Sparkles, Target, X } from 'lucide-react';
+import { Loader2, Plus, Save, Sparkles, X } from 'lucide-react';
 
 export function CoreSkills() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [roles, setRoles] = useState<[string, string]>(['', '']);
   const [skills, setSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState('');
   const [bulk, setBulk] = useState('');
@@ -25,11 +23,9 @@ export function CoreSkills() {
     const load = async () => {
       const { data } = await supabase
         .from('profiles')
-        .select('target_roles, skills')
+        .select('skills')
         .eq('user_id', user.id)
         .maybeSingle();
-      const loadedRoles = ((data as any)?.target_roles ?? []) as string[];
-      setRoles([loadedRoles[0] ?? '', loadedRoles[1] ?? '']);
       setSkills((((data as any)?.skills ?? []) as string[]).filter(Boolean));
       setLoading(false);
     };
@@ -61,11 +57,10 @@ export function CoreSkills() {
   const handleSave = async () => {
     if (!user) return;
     setSaving(true);
-    const target_roles = roles.map((r) => r.trim()).filter(Boolean).slice(0, 2);
     const cleanSkills = skills.map((s) => s.trim()).filter(Boolean).slice(0, 100);
     const { error } = await supabase
       .from('profiles')
-      .update({ target_roles, skills: cleanSkills } as any)
+      .update({ skills: cleanSkills } as any)
       .eq('user_id', user.id);
     setSaving(false);
     if (error) {

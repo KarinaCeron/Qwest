@@ -67,6 +67,21 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const [companyWebsite, setCompanyWebsite] = useState('');
   const [companyResearchText, setCompanyResearchText] = useState<string | null>(null);
 
+  // Load the user's core skills so job insights can be ordered the same way.
+  useEffect(() => {
+    if (!user) return;
+    const loadSkills = async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('skills')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const loaded = (((data as any)?.skills ?? []) as string[]).map((s) => (s ?? '').trim()).filter(Boolean);
+      setSkillsOrder(loaded);
+    };
+    void loadSkills();
+  }, [user?.id]);
+
   const [formData, setFormData] = useState<JobApplicationFormData>({
     company: editingApplication?.company || '',
     role: editingApplication?.role || '',

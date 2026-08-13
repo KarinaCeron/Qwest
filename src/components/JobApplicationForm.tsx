@@ -964,7 +964,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                       </div>
                     </div>
 
-                    {!salaryExpectation && (
+                    {salaryTargets.length === 0 && (
                       <Alert variant="default" className="bg-muted/50">
                         <Info className="h-4 w-4" />
                         <AlertTitle>No salary target set</AlertTitle>

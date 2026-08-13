@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { X, Plus, Edit, FileText, Copy, Wand2, MessageCircleQuestion, Trash2, Save, Handshake, ExternalLink, Search, ArrowRight, ArrowLeft, Sparkles, Coins, Info } from 'lucide-react';
+import { X, Plus, Edit, FileText, Copy, Wand2, MessageCircleQuestion, Trash2, Save, Handshake, ExternalLink, Search, ArrowRight, ArrowLeft, Sparkles, Coins, Info, ChevronUp, ChevronDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -148,6 +148,18 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const handleRemoveInterviewQuestion = (id: string) => {
     setInterviewQuestions(prev => prev.filter(q => q.id !== id));
   };
+
+  const handleMoveInterviewQuestion = (index: number, direction: -1 | 1) => {
+    setInterviewQuestions(prev => {
+      const target = index + direction;
+      if (target < 0 || target >= prev.length) return prev;
+      const next = [...prev];
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
+  };
+
+
 
   const handleGenerateCoverLetter = async () => {
     if (!formData.jobContent) {
@@ -1307,6 +1319,30 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                             onChange={(e) => handleUpdateInterviewQuestion(q.id, e.target.value)}
                             rows={2}
                           />
+                          <div className="flex flex-col">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              disabled={index === 0}
+                              title="Move up"
+                              onClick={() => handleMoveInterviewQuestion(index, -1)}
+                            >
+                              <ChevronUp className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              disabled={index === interviewQuestions.length - 1}
+                              title="Move down"
+                              onClick={() => handleMoveInterviewQuestion(index, 1)}
+                            >
+                              <ChevronDown className="h-4 w-4" />
+                            </Button>
+                          </div>
                           <Button
                             type="button"
                             variant="ghost"

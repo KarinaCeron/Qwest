@@ -18,6 +18,7 @@ export function CoreSkills() {
   const [meanings, setMeanings] = useState<Record<string, string>>({});
   const [newSkill, setNewSkill] = useState('');
   const [bulk, setBulk] = useState('');
+  const loadedUserId = useRef<string | null>(null);
 
   useEffect(() => {
     if (!user) return;

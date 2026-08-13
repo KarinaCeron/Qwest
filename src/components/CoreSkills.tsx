@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,9 +18,11 @@ export function CoreSkills() {
   const [meanings, setMeanings] = useState<Record<string, string>>({});
   const [newSkill, setNewSkill] = useState('');
   const [bulk, setBulk] = useState('');
+  const loadedUserId = useRef<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
+    if (loadedUserId.current === user.id) return;
     const load = async () => {
       const { data } = await supabase
         .from('profiles')
@@ -29,10 +31,11 @@ export function CoreSkills() {
         .maybeSingle();
       setSkills((((data as any)?.skills ?? []) as string[]).filter(Boolean));
       setMeanings((((data as any)?.skill_meanings ?? {}) as Record<string, string>) || {});
+      loadedUserId.current = user.id;
       setLoading(false);
     };
     load();
-  }, [user]);
+  }, [user?.id]);
 
   const addSkill = (value: string) => {
     const clean = value.trim();
@@ -156,7 +159,10 @@ export function CoreSkills() {
                   <Textarea
                     rows={2}
                     value={meanings[skill] ?? ''}
-                    onChange={(e) => setMeanings((prev) => ({ ...prev, [skill]: e.target.value }))}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setMeanings((prev) => ({ ...prev, [skill]: value }));
+                    }}
                     placeholder={`What does "${skill}" mean for you? e.g. how you apply it and the impact you create`}
                     maxLength={500}
                   />

@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Plus, Save, Sparkles, X } from 'lucide-react';
+import { Loader2, Plus, Sparkles, X } from 'lucide-react';
 
 type SaveStatus = 'idle' | 'saving' | 'saved';
 
@@ -15,7 +15,6 @@ export function CoreSkills() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [skills, setSkills] = useState<string[]>([]);
   const [meanings, setMeanings] = useState<Record<string, string>>({});
   const [newSkill, setNewSkill] = useState('');
@@ -46,7 +45,7 @@ export function CoreSkills() {
     setSaveStatus('idle');
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     autoSaveTimer.current = setTimeout(() => {
-      void performSave({ silent: true });
+      void performSave();
     }, 800);
     return () => {
       if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
@@ -63,16 +62,14 @@ export function CoreSkills() {
     return { skills: cleanSkills, skill_meanings: cleanMeanings };
   };
 
-  const performSave = async (options?: { silent?: boolean }) => {
+  const performSave = async () => {
     if (!user) return;
-    if (!options?.silent) setSaving(true);
     setSaveStatus('saving');
     const payload = buildPayload();
     const { error } = await supabase
       .from('profiles')
       .update(payload as any)
       .eq('user_id', user.id);
-    if (!options?.silent) setSaving(false);
     if (error) {
       setSaveStatus('idle');
       toast({ title: 'Could not save', description: error.message, variant: 'destructive' });
@@ -81,9 +78,6 @@ export function CoreSkills() {
     setSkills(payload.skills);
     setMeanings(payload.skill_meanings);
     setSaveStatus('saved');
-    if (!options?.silent) {
-      toast({ title: '✅ Core skills saved' });
-    }
   };
 
   const addSkill = (value: string) => {
@@ -118,7 +112,7 @@ export function CoreSkills() {
   };
 
   const statusText =
-    saveStatus === 'saving' ? 'Saving…' : saveStatus === 'saved' ? 'Auto-saved' : '';
+    saveStatus === 'saving' ? 'Saving…' : saveStatus === 'saved' ? 'Saved' : '';
 
   if (loading) {
     return (
@@ -132,10 +126,15 @@ export function CoreSkills() {
     <div className="space-y-6">
       <Card className="bg-gradient-card">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Sparkles className="h-5 w-5" />
-            Core skills
-          </CardTitle>
+          <div className="flex items-center justify-between gap-2">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Sparkles className="h-5 w-5" />
+              Core skills
+            </CardTitle>
+            <span className="text-xs text-muted-foreground whitespace-nowrap">
+              {statusText}
+            </span>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex gap-2">
@@ -214,16 +213,6 @@ export function CoreSkills() {
             <Button variant="outline" size="sm" onClick={handleBulkAdd} disabled={!bulk.trim()}>
               <Plus className="mr-1 h-4 w-4" /> Add all
             </Button>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Button className="flex-1 bg-gradient-primary" onClick={() => performSave()} disabled={saving}>
-              {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-              Save core skills
-            </Button>
-            <span className="text-xs text-muted-foreground whitespace-nowrap w-20 text-right">
-              {statusText}
-            </span>
           </div>
         </CardContent>
       </Card>

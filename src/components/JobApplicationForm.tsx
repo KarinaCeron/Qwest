@@ -579,100 +579,72 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 rows={6}
                 className="min-h-[120px]"
               />
-              {(
-                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 mt-2">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    className="w-full min-h-10 h-auto whitespace-normal px-3 text-center"
-                    onClick={handleGenerateCoverLetter}
-                    disabled={isGeneratingCoverLetter || !formData.jobContent}
-                  >
-                    {isGeneratingCoverLetter ? 'Generating...' : '✉️ Create Cover Letter'}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full min-h-10 h-auto whitespace-normal px-3 text-center"
-                    onClick={handleTailorCV}
-                    disabled={isTailoringCV || !formData.jobContent}
-                  >
-                    {isTailoringCV ? 'Tailoring...' : (
-                      <>
-                        <Wand2 className="h-4 w-4 mr-2" />
-                        Tailor my CV
-                      </>
-                    )}
-                  </Button>
-
-
-
-                  <Dialog open={isDiscussOfferOpen} onOpenChange={(open) => {
-                    setIsDiscussOfferOpen(open);
-                    if (!open) { setOfferTopic(''); setOfferDiscussionResult(null); setEditableOfferDiscussion(''); }
-                  }}>
-                    <DialogTrigger asChild>
-                      <Button type="button" variant="outline" className="w-full min-h-10 h-auto whitespace-normal px-3 text-center">
-                        <Handshake className="h-4 w-4 mr-2" />
+              <div className="grid gap-2 sm:grid-cols-1 mt-2">
+                <Dialog open={isDiscussOfferOpen} onOpenChange={(open) => {
+                  setIsDiscussOfferOpen(open);
+                  if (!open) { setOfferTopic(''); setOfferDiscussionResult(null); setEditableOfferDiscussion(''); }
+                }}>
+                  <DialogTrigger asChild>
+                    <Button type="button" variant="outline" className="w-full min-h-10 h-auto whitespace-normal px-3 text-center">
+                      <Handshake className="h-4 w-4 mr-2" />
+                      Discuss the Offer
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center gap-2">
+                        <Handshake className="h-5 w-5" />
                         Discuss the Offer
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                      <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2">
-                          <Handshake className="h-5 w-5" />
-                          Discuss the Offer
-                        </DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4 mt-2">
-                        <p className="text-sm text-muted-foreground">
-                          Describe what you'd like to discuss or negotiate about this offer. We'll use your CV and the position details to draft a professional response.
-                        </p>
-                        <div className="space-y-2">
-                          <Label>Topic</Label>
-                          <Textarea
-                            value={offerTopic}
-                            onChange={(e) => setOfferTopic(e.target.value)}
-                            placeholder="e.g. I'd like to negotiate a higher salary or ask about the start date and benefits package..."
-                            rows={3}
-                          />
-                        </div>
-                        <Button
-                          type="button"
-                          onClick={handleDiscussOffer}
-                          disabled={isDiscussingOffer || !offerTopic.trim()}
-                          className="w-full bg-gradient-primary"
-                        >
-                          {isDiscussingOffer ? 'Drafting response...' : 'Draft Response'}
-                        </Button>
-                        {(offerDiscussionResult || editableOfferDiscussion) && (
-                          <div className="space-y-2">
-                            <Label>Response (editable)</Label>
-                            <Textarea
-                              value={editableOfferDiscussion}
-                              onChange={(e) => setEditableOfferDiscussion(e.target.value)}
-                              rows={8}
-                              className="min-h-[160px]"
-                            />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              className="w-full"
-                              onClick={() => {
-                                navigator.clipboard.writeText(editableOfferDiscussion);
-                                toast({ title: "Copied", description: "Response copied to clipboard" });
-                              }}
-                            >
-                              <Copy className="h-4 w-4 mr-2" />
-                              Copy to Clipboard
-                            </Button>
-                          </div>
-                        )}
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 mt-2">
+                      <p className="text-sm text-muted-foreground">
+                        Describe what you'd like to discuss or negotiate about this offer. We'll use your CV and the position details to draft a professional response.
+                      </p>
+                      <div className="space-y-2">
+                        <Label>Topic</Label>
+                        <Textarea
+                          value={offerTopic}
+                          onChange={(e) => setOfferTopic(e.target.value)}
+                          placeholder="e.g. I'd like to negotiate a higher salary or ask about the start date and benefits package..."
+                          rows={3}
+                        />
                       </div>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              )}
+                      <Button
+                        type="button"
+                        onClick={handleDiscussOffer}
+                        disabled={isDiscussingOffer || !offerTopic.trim()}
+                        className="w-full bg-gradient-primary"
+                      >
+                        {isDiscussingOffer ? 'Drafting response...' : 'Draft Response'}
+                      </Button>
+                      {(offerDiscussionResult || editableOfferDiscussion) && (
+                        <div className="space-y-2">
+                          <Label>Response (editable)</Label>
+                          <Textarea
+                            value={editableOfferDiscussion}
+                            onChange={(e) => setEditableOfferDiscussion(e.target.value)}
+                            rows={8}
+                            className="min-h-[160px]"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="w-full"
+                            onClick={() => {
+                              navigator.clipboard.writeText(editableOfferDiscussion);
+                              toast({ title: "Copied", description: "Response copied to clipboard" });
+                            }}
+                          >
+                            <Copy className="h-4 w-4 mr-2" />
+                            Copy to Clipboard
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </div>
 
             <div className="space-y-2">

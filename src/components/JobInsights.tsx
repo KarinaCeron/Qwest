@@ -20,16 +20,12 @@ function categoryRank(category: string, skillsOrder: string[] = []) {
   if (OTHER_RE.test(category)) return Number.MAX_SAFE_INTEGER;
   const normalizedCategory = normalizeKey(category);
 
-  // First priority: user's core skills list order
+  // Order follows the user's core skills list.
   const skillIdx = skillsOrder.findIndex((s) => normalizeKey(s) === normalizedCategory);
   if (skillIdx !== -1) return skillIdx;
 
-  // Second priority: predefined category order
-  const categoryIdx = CATEGORY_ORDER.findIndex((c) => normalizeKey(c) === normalizedCategory);
-  if (categoryIdx !== -1) return skillsOrder.length + categoryIdx;
-
-  // Unknown categories come after predefined ones
-  return skillsOrder.length + CATEGORY_ORDER.length;
+  // Categories not in the skills list come after, in a stable group.
+  return skillsOrder.length;
 }
 
 function titleCase(s: string) {

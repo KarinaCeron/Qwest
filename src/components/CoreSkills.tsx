@@ -65,14 +65,14 @@ export function CoreSkills() {
 
   const performSave = async (options?: { silent?: boolean }) => {
     if (!user) return;
-    setSaving(true);
+    if (!options?.silent) setSaving(true);
     setSaveStatus('saving');
     const payload = buildPayload();
     const { error } = await supabase
       .from('profiles')
       .update(payload as any)
       .eq('user_id', user.id);
-    setSaving(false);
+    if (!options?.silent) setSaving(false);
     if (error) {
       setSaveStatus('idle');
       toast({ title: 'Could not save', description: error.message, variant: 'destructive' });

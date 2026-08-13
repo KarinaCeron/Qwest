@@ -87,7 +87,27 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     void loadSkills();
   }, [user?.id]);
 
+  // Load the user's salary expectation from My Qwest for comparison.
+  useEffect(() => {
+    if (!user) return;
+    const loadSalaryExpectation = async () => {
+      const { data } = await supabase
+        .from('compensation_items')
+        .select('value, min_value, currency, period')
+        .eq('user_id', user.id)
+        .eq('kind', 'salary')
+        .order('created_at', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (data) {
+        setSalaryExpectation(data as any);
+      }
+    };
+    void loadSalaryExpectation();
+  }, [user?.id]);
+
   const [formData, setFormData] = useState<JobApplicationFormData>({
+
     company: editingApplication?.company || '',
     role: editingApplication?.role || '',
     recruiterName: editingApplication?.recruiterName || '',

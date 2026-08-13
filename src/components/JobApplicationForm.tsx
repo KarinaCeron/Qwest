@@ -638,18 +638,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
               )}
               {jobAnalysis && (
                 <div className="flex items-center gap-2">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      navigator.clipboard.writeText(jobAnalysis);
-                      toast({ title: "Copied", description: "Insights copied to clipboard" });
-                    }}
-                  >
-                    <Copy className="h-4 w-4 mr-2" />
-                    Copy
-                  </Button>
+
                   <Button
                     type="button"
                     variant="ghost"

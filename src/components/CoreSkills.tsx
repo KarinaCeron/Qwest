@@ -15,6 +15,7 @@ export function CoreSkills() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [skills, setSkills] = useState<string[]>([]);
+  const [meanings, setMeanings] = useState<Record<string, string>>({});
   const [newSkill, setNewSkill] = useState('');
   const [bulk, setBulk] = useState('');
 
@@ -23,10 +24,11 @@ export function CoreSkills() {
     const load = async () => {
       const { data } = await supabase
         .from('profiles')
-        .select('skills')
+        .select('skills, skill_meanings')
         .eq('user_id', user.id)
         .maybeSingle();
       setSkills((((data as any)?.skills ?? []) as string[]).filter(Boolean));
+      setMeanings((((data as any)?.skill_meanings ?? {}) as Record<string, string>) || {});
       setLoading(false);
     };
     load();
@@ -36,6 +38,15 @@ export function CoreSkills() {
     const clean = value.trim();
     if (!clean) return;
     setSkills((prev) => (prev.some((s) => s.toLowerCase() === clean.toLowerCase()) ? prev : [...prev, clean]));
+  };
+
+  const removeSkill = (skill: string) => {
+    setSkills((prev) => prev.filter((s) => s !== skill));
+    setMeanings((prev) => {
+      const next = { ...prev };
+      delete next[skill];
+      return next;
+    });
   };
 
   const handleBulkAdd = () => {
@@ -58,9 +69,14 @@ export function CoreSkills() {
     if (!user) return;
     setSaving(true);
     const cleanSkills = skills.map((s) => s.trim()).filter(Boolean).slice(0, 100);
+    const cleanMeanings: Record<string, string> = {};
+    cleanSkills.forEach((s) => {
+      const meaning = (meanings[s] ?? '').trim();
+      if (meaning) cleanMeanings[s] = meaning.slice(0, 500);
+    });
     const { error } = await supabase
       .from('profiles')
-      .update({ skills: cleanSkills } as any)
+      .update({ skills: cleanSkills, skill_meanings: cleanMeanings } as any)
       .eq('user_id', user.id);
     setSaving(false);
     if (error) {
@@ -68,8 +84,10 @@ export function CoreSkills() {
       return;
     }
     setSkills(cleanSkills);
+    setMeanings(cleanMeanings);
     toast({ title: '✅ Core skills saved' });
   };
+
 
   if (loading) {
     return (
@@ -119,22 +137,34 @@ export function CoreSkills() {
               No skills yet. Add the strengths you want recruiters to see.
             </p>
           ) : (
-            <div className="flex flex-wrap gap-2">
+            <div className="space-y-3">
               {skills.map((skill) => (
-                <Badge key={skill} variant="secondary" className="gap-1 py-1 pl-3 pr-1 text-sm font-normal">
-                  {skill}
-                  <button
-                    type="button"
-                    aria-label={`Remove ${skill}`}
-                    className="rounded-full p-0.5 hover:bg-muted"
-                    onClick={() => setSkills((prev) => prev.filter((s) => s !== skill))}
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
+                <div key={skill} className="rounded-lg border bg-background/60 p-3 space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <Badge variant="secondary" className="py-1 text-sm font-normal">
+                      {skill}
+                    </Badge>
+                    <button
+                      type="button"
+                      aria-label={`Remove ${skill}`}
+                      className="rounded-full p-1 text-muted-foreground hover:bg-muted"
+                      onClick={() => removeSkill(skill)}
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  <Textarea
+                    rows={2}
+                    value={meanings[skill] ?? ''}
+                    onChange={(e) => setMeanings((prev) => ({ ...prev, [skill]: e.target.value }))}
+                    placeholder={`What does "${skill}" mean for you? e.g. how you apply it and the impact you create`}
+                    maxLength={500}
+                  />
+                </div>
               ))}
             </div>
           )}
+
 
           <div className="space-y-2">
             <label htmlFor="bulk_skills" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">

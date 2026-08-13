@@ -8,8 +8,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Plus, Sparkles, X } from 'lucide-react';
 
-type SaveStatus = 'idle' | 'saving' | 'saved';
-
 export function CoreSkills() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -17,7 +15,6 @@ export function CoreSkills() {
   const [skills, setSkills] = useState<string[]>([]);
   const [meanings, setMeanings] = useState<Record<string, string>>({});
   const [bulk, setBulk] = useState('');
-  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const loadedUserId = useRef<string | null>(null);
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -40,7 +37,6 @@ export function CoreSkills() {
 
   useEffect(() => {
     if (loadedUserId.current !== user?.id) return;
-    setSaveStatus('idle');
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     autoSaveTimer.current = setTimeout(() => {
       void performSave();
@@ -62,20 +58,17 @@ export function CoreSkills() {
 
   const performSave = async () => {
     if (!user) return;
-    setSaveStatus('saving');
     const payload = buildPayload();
     const { error } = await supabase
       .from('profiles')
       .update(payload as any)
       .eq('user_id', user.id);
     if (error) {
-      setSaveStatus('idle');
       toast({ title: 'Could not save', description: error.message, variant: 'destructive' });
       return;
     }
     setSkills(payload.skills);
     setMeanings(payload.skill_meanings);
-    setSaveStatus('saved');
   };
 
   const removeSkill = (skill: string) => {
@@ -103,9 +96,6 @@ export function CoreSkills() {
     setBulk('');
   };
 
-  const statusText =
-    saveStatus === 'saving' ? 'Saving…' : saveStatus === 'saved' ? 'Saved' : '';
-
   if (loading) {
     return (
       <div className="flex items-center justify-center py-10">
@@ -118,15 +108,10 @@ export function CoreSkills() {
     <div className="space-y-6">
       <Card className="bg-gradient-card">
         <CardHeader>
-          <div className="flex items-center justify-between gap-2">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Sparkles className="h-5 w-5" />
-              Core skills
-            </CardTitle>
-            <span className="text-xs text-muted-foreground whitespace-nowrap">
-              {statusText}
-            </span>
-          </div>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Sparkles className="h-5 w-5" />
+            Core skills
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">

@@ -199,7 +199,7 @@ export function parseInsights(text: string): InsightItem[] {
   return fromJson(text) ?? fromText(text);
 }
 
-export function JobInsights({ text }: { text: string }) {
+export function JobInsights({ text, skillsOrder }: { text: string; skillsOrder?: string[] }) {
   const items = parseInsights(text);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
@@ -213,8 +213,8 @@ export function JobInsights({ text }: { text: string }) {
   }
 
   const ordered = [...groups.entries()].sort(([a, la], [b, lb]) => {
-    const ra = categoryRank(a);
-    const rb = categoryRank(b);
+    const ra = categoryRank(a, skillsOrder);
+    const rb = categoryRank(b, skillsOrder);
     if (ra !== rb) return ra - rb;
     if (lb.length !== la.length) return lb.length - la.length;
     return a.localeCompare(b);

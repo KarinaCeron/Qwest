@@ -698,6 +698,24 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                   )}
                 </Button>
               </div>
+              {skillsOrder.length === 0 && (
+                <Alert className="border-primary/20 bg-primary/5">
+                  <Info className="h-4 w-4 text-primary" />
+                  <AlertTitle>Set up your core skills</AlertTitle>
+                  <AlertDescription className="flex flex-col gap-2">
+                    <span>Job insights are ordered by your core skills. Add them first so the analysis is mapped to what matters most to you.</span>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="w-fit"
+                      onClick={() => navigate('/cv')}
+                    >
+                      Go to Core Skills
+                    </Button>
+                  </AlertDescription>
+                </Alert>
+              )}
               {jobAnalysis ? (
                 <div className="rounded-md border bg-muted/30 p-4">
                   <JobInsights text={jobAnalysis} skillsOrder={skillsOrder} />

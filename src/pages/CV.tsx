@@ -13,6 +13,7 @@ import { CompensationPlanner } from '@/components/CompensationPlanner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { ProfileHero } from '@/components/ProfileHero';
+import { CoreSkills } from '@/components/CoreSkills';
 
 interface CVDocument {
   id: string;
@@ -147,10 +148,15 @@ const CV = () => {
         <ProfileHero />
 
         <Tabs defaultValue="compensation" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="compensation">Compensation</TabsTrigger>
+            <TabsTrigger value="skills">My Core Skills</TabsTrigger>
             <TabsTrigger value="cvs">My CVs</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="skills">
+            <CoreSkills />
+          </TabsContent>
 
           <TabsContent value="cvs" className="space-y-6">
             <Card className="bg-gradient-card">

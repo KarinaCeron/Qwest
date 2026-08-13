@@ -3,7 +3,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
@@ -17,7 +16,6 @@ export function CoreSkills() {
   const [loading, setLoading] = useState(true);
   const [skills, setSkills] = useState<string[]>([]);
   const [meanings, setMeanings] = useState<Record<string, string>>({});
-  const [newSkill, setNewSkill] = useState('');
   const [bulk, setBulk] = useState('');
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const loadedUserId = useRef<string | null>(null);
@@ -80,12 +78,6 @@ export function CoreSkills() {
     setSaveStatus('saved');
   };
 
-  const addSkill = (value: string) => {
-    const clean = value.trim();
-    if (!clean) return;
-    setSkills((prev) => (prev.some((s) => s.toLowerCase() === clean.toLowerCase()) ? prev : [...prev, clean]));
-  };
-
   const removeSkill = (skill: string) => {
     setSkills((prev) => prev.filter((s) => s !== skill));
     setMeanings((prev) => {
@@ -137,34 +129,25 @@ export function CoreSkills() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex gap-2">
-            <Input
-              value={newSkill}
-              onChange={(e) => setNewSkill(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  addSkill(newSkill);
-                  setNewSkill('');
-                }
-              }}
-              placeholder="Add a skill, e.g. Product Discovery"
-              maxLength={80}
+          <div className="space-y-2">
+            <label htmlFor="bulk_skills" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              Add skills
+            </label>
+            <Textarea
+              id="bulk_skills"
+              rows={3}
+              value={bulk}
+              onChange={(e) => setBulk(e.target.value)}
+              placeholder="One per line, or separated by commas"
             />
-            <Button
-              variant="outline"
-              onClick={() => {
-                addSkill(newSkill);
-                setNewSkill('');
-              }}
-            >
-              <Plus className="h-4 w-4" />
+            <Button variant="outline" size="sm" onClick={handleBulkAdd} disabled={!bulk.trim()}>
+              <Plus className="mr-1 h-4 w-4" /> Add all
             </Button>
           </div>
 
           {skills.length === 0 ? (
             <p className="rounded-lg border border-dashed p-4 text-center text-sm text-muted-foreground">
-              No skills yet. Add the strengths you want recruiters to see.
+              No skills yet. Paste your strengths above and click Add all.
             </p>
           ) : (
             <div className="space-y-3">
@@ -197,23 +180,6 @@ export function CoreSkills() {
               ))}
             </div>
           )}
-
-
-          <div className="space-y-2">
-            <label htmlFor="bulk_skills" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-              Paste multiple skills
-            </label>
-            <Textarea
-              id="bulk_skills"
-              rows={3}
-              value={bulk}
-              onChange={(e) => setBulk(e.target.value)}
-              placeholder="One per line, or separated by commas"
-            />
-            <Button variant="outline" size="sm" onClick={handleBulkAdd} disabled={!bulk.trim()}>
-              <Plus className="mr-1 h-4 w-4" /> Add all
-            </Button>
-          </div>
         </CardContent>
       </Card>
     </div>

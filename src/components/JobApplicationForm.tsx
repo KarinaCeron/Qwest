@@ -467,20 +467,20 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     }
     if (requested > desired) {
       return {
-        variant: 'warning' as const,
+        variant: 'exceeded' as const,
         title: 'You are asking more than your target',
         description: `Your desired target is ${salaryExpectation.currency} ${desired.toLocaleString()}. You requested ${salaryExpectation.currency} ${requested.toLocaleString()}.`,
       };
     }
     if (minimum !== null && !Number.isNaN(minimum) && requested < minimum) {
       return {
-        variant: 'warning' as const,
+        variant: 'below' as const,
         title: 'You are asking less than your minimum acceptable',
         description: `Your minimum acceptable is ${salaryExpectation.currency} ${minimum.toLocaleString()}. You requested ${salaryExpectation.currency} ${requested.toLocaleString()}.`,
       };
     }
     return {
-      variant: 'success' as const,
+      variant: 'in-range' as const,
       title: 'Your request is within target range',
       description: `Your target range is ${salaryExpectation.currency} ${minimum?.toLocaleString() ?? desired.toLocaleString()} – ${desired.toLocaleString()}.`,
     };

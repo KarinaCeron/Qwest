@@ -197,18 +197,43 @@ export function JobInsights({ text, skillsOrder }: { text: string; skillsOrder?:
     groups.get(key)!.push(item);
   }
 
-  const ordered = [...groups.entries()].sort(([a, la], [b, lb]) => {
-    const ra = categoryRank(a, skillsOrder);
-    const rb = categoryRank(b, skillsOrder);
-    if (ra !== rb) return ra - rb;
-    if (lb.length !== la.length) return lb.length - la.length;
-    return a.localeCompare(b);
+  const skills = (skillsOrder ?? []).map((s) => s.trim()).filter(Boolean);
+  const usedKeys = new Set<string>();
+
+  // One fixed section per core skill (in the user's order), even when empty.
+  const fixedSections: [string, InsightItem[]][] = skills.map((skill) => {
+    const matches: InsightItem[] = [];
+    for (const [cat, list] of groups.entries()) {
+      if (normalizeKey(cat) === normalizeKey(skill)) {
+        usedKeys.add(cat);
+        matches.push(...list);
+      }
+    }
+    return [skill, matches];
   });
 
+  const extraSections = [...groups.entries()]
+    .filter(([cat]) => !usedKeys.has(cat))
+    .sort(([a, la], [b, lb]) => {
+      const ra = categoryRank(a, skills);
+      const rb = categoryRank(b, skills);
+      if (ra !== rb) return ra - rb;
+      if (lb.length !== la.length) return lb.length - la.length;
+      return a.localeCompare(b);
+    });
+
+  const ordered: [string, InsightItem[]][] = [...fixedSections, ...extraSections];
+
   // Nothing structured found (single "Other" group with only notes) → plain formatting
-  if (ordered.length === 1 && OTHER_RE.test(ordered[0][0]) && ordered[0][1].every((i) => !i.requirement && !i.status)) {
+  if (
+    !skills.length &&
+    ordered.length === 1 &&
+    OTHER_RE.test(ordered[0][0]) &&
+    ordered[0][1].every((i) => !i.requirement && !i.status)
+  ) {
     return <FormattedText text={text} />;
   }
+
 
   const allCollapsed = ordered.every(([c]) => collapsed[c]);
 
@@ -245,7 +270,13 @@ export function JobInsights({ text, skillsOrder }: { text: string; skillsOrder?:
             </button>
             {!isCollapsed && (
               <div className="space-y-2">
+                {!list.length && (
+                  <div className="rounded-md border border-dashed bg-muted/30 p-3 text-sm text-muted-foreground">
+                    No insights found for this skill in the job description.
+                  </div>
+                )}
                 {list.map((item, i) => {
+
                   const { icon: Icon, className, label } = statusMeta(item.status);
                   return (
                     <div key={i} className="rounded-md border bg-background p-3">

@@ -33,6 +33,7 @@ interface JobApplicationFormProps {
 export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: JobApplicationFormProps) {
   const { toast } = useToast();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [isGeneratingCoverLetter, setIsGeneratingCoverLetter] = useState(false);
   const [isTailoringCV, setIsTailoringCV] = useState(false);
   const [tailoringResult, setTailoringResult] = useState<string | null>(null);

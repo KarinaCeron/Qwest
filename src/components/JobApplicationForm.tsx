@@ -1066,6 +1066,35 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                   </div>
                 </div>
 
+                <div className="space-y-2">
+                  <Label>AI Assistant</Label>
+                  <div className="grid gap-2 sm:grid-cols-2 mt-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full min-h-10 h-auto whitespace-normal px-3 text-center"
+                      onClick={handleGenerateCoverLetter}
+                      disabled={isGeneratingCoverLetter || !formData.jobContent}
+                    >
+                      {isGeneratingCoverLetter ? 'Generating...' : '✉️ Create Cover Letter'}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full min-h-10 h-auto whitespace-normal px-3 text-center"
+                      onClick={handleTailorCV}
+                      disabled={isTailoringCV || !formData.jobContent}
+                    >
+                      {isTailoringCV ? 'Tailoring...' : (
+                        <>
+                          <Wand2 className="h-4 w-4 mr-2" />
+                          Tailor my CV
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
                 <div className="flex flex-wrap gap-3 pt-4">
                   <Button type="button" variant="outline" onClick={() => setStep(2)}>
                     <ArrowLeft className="h-4 w-4 mr-2" />

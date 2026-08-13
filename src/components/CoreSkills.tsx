@@ -89,40 +89,6 @@ export function CoreSkills() {
       <Card className="bg-gradient-card">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Target className="h-5 w-5" />
-            Roles I'm chasing
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="core_role_1">Primary role</Label>
-              <Input
-                id="core_role_1"
-                value={roles[0]}
-                onChange={(e) => setRoles(([, b]) => [e.target.value, b])}
-                maxLength={80}
-                placeholder="e.g. VP of Product"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="core_role_2">Secondary role</Label>
-              <Input
-                id="core_role_2"
-                value={roles[1]}
-                onChange={(e) => setRoles(([a]) => [a, e.target.value])}
-                maxLength={80}
-                placeholder="e.g. Head of Growth (optional)"
-              />
-            </div>
-          </div>
-          <p className="text-xs text-muted-foreground">Highlight up to two target roles.</p>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-gradient-card">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
             <Sparkles className="h-5 w-5" />
             My core skills
           </CardTitle>

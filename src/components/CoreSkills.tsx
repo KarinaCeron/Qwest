@@ -168,6 +168,7 @@ AI Products`}
                       const value = e.target.value;
                       setMeanings((prev) => ({ ...prev, [skill]: value }));
                     }}
+                    onBlur={() => void save(skills, meanings)}
                     placeholder={`What does "${skill}" mean for you? e.g. how you apply it and the impact you create`}
                     maxLength={500}
                   />

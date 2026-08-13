@@ -697,7 +697,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
               </div>
               {jobAnalysis ? (
                 <div className="rounded-md border bg-muted/30 p-4">
-                  <JobInsights text={jobAnalysis} />
+                  <JobInsights text={jobAnalysis} skillsOrder={skillsOrder} />
                 </div>
               ) : (
                 <Textarea

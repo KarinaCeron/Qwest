@@ -1307,6 +1307,30 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                             onChange={(e) => handleUpdateInterviewQuestion(q.id, e.target.value)}
                             rows={2}
                           />
+                          <div className="flex flex-col">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              disabled={index === 0}
+                              title="Move up"
+                              onClick={() => handleMoveInterviewQuestion(index, -1)}
+                            >
+                              <ChevronUp className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              disabled={index === interviewQuestions.length - 1}
+                              title="Move down"
+                              onClick={() => handleMoveInterviewQuestion(index, 1)}
+                            >
+                              <ChevronDown className="h-4 w-4" />
+                            </Button>
+                          </div>
                           <Button
                             type="button"
                             variant="ghost"

@@ -27,10 +27,20 @@ const CATEGORY_ORDER = [
 
 const normalizeKey = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '');
 
-function categoryRank(category: string) {
-  if (OTHER_RE.test(category)) return CATEGORY_ORDER.length + 1;
-  const idx = CATEGORY_ORDER.findIndex((c) => normalizeKey(c) === normalizeKey(category));
-  return idx === -1 ? CATEGORY_ORDER.length : idx;
+function categoryRank(category: string, skillsOrder: string[] = []) {
+  if (OTHER_RE.test(category)) return Number.MAX_SAFE_INTEGER;
+  const normalizedCategory = normalizeKey(category);
+
+  // First priority: user's core skills list order
+  const skillIdx = skillsOrder.findIndex((s) => normalizeKey(s) === normalizedCategory);
+  if (skillIdx !== -1) return skillIdx;
+
+  // Second priority: predefined category order
+  const categoryIdx = CATEGORY_ORDER.findIndex((c) => normalizeKey(c) === normalizedCategory);
+  if (categoryIdx !== -1) return skillsOrder.length + categoryIdx;
+
+  // Unknown categories come after predefined ones
+  return skillsOrder.length + CATEGORY_ORDER.length;
 }
 
 function titleCase(s: string) {
@@ -189,7 +199,7 @@ export function parseInsights(text: string): InsightItem[] {
   return fromJson(text) ?? fromText(text);
 }
 
-export function JobInsights({ text }: { text: string }) {
+export function JobInsights({ text, skillsOrder }: { text: string; skillsOrder?: string[] }) {
   const items = parseInsights(text);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
@@ -203,8 +213,8 @@ export function JobInsights({ text }: { text: string }) {
   }
 
   const ordered = [...groups.entries()].sort(([a, la], [b, lb]) => {
-    const ra = categoryRank(a);
-    const rb = categoryRank(b);
+    const ra = categoryRank(a, skillsOrder);
+    const rb = categoryRank(b, skillsOrder);
     if (ra !== rb) return ra - rb;
     if (lb.length !== la.length) return lb.length - la.length;
     return a.localeCompare(b);

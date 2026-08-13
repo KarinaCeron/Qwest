@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { JobApplicationFormData, JobApplication, ApplicationQA, ApplicationBenefit, ApplicationInterviewQuestion } from '@/types/jobApplication';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,6 +36,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const [tailoringResult, setTailoringResult] = useState<string | null>(null);
   const [isAnalyzingJob, setIsAnalyzingJob] = useState(false);
   const [jobAnalysis, setJobAnalysis] = useState<string>(editingApplication?.jobInsights || '');
+  const [skillsOrder, setSkillsOrder] = useState<string[]>([]);
   const [isTailoringResultOpen, setIsTailoringResultOpen] = useState(false);
   const [isAnswerOpen, setIsAnswerOpen] = useState(false);
   const [employerQuestion, setEmployerQuestion] = useState('');
@@ -65,6 +66,21 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const [isResearching, setIsResearching] = useState(false);
   const [companyWebsite, setCompanyWebsite] = useState('');
   const [companyResearchText, setCompanyResearchText] = useState<string | null>(null);
+
+  // Load the user's core skills so job insights can be ordered the same way.
+  useEffect(() => {
+    if (!user) return;
+    const loadSkills = async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('skills')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const loaded = (((data as any)?.skills ?? []) as string[]).map((s) => (s ?? '').trim()).filter(Boolean);
+      setSkillsOrder(loaded);
+    };
+    void loadSkills();
+  }, [user?.id]);
 
   const [formData, setFormData] = useState<JobApplicationFormData>({
     company: editingApplication?.company || '',
@@ -681,7 +697,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
               </div>
               {jobAnalysis ? (
                 <div className="rounded-md border bg-muted/30 p-4">
-                  <JobInsights text={jobAnalysis} />
+                  <JobInsights text={jobAnalysis} skillsOrder={skillsOrder} />
                 </div>
               ) : (
                 <Textarea

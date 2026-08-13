@@ -147,10 +147,10 @@ const CV = () => {
       <main className="container mx-auto px-4 py-8 max-w-2xl space-y-6">
         <ProfileHero />
 
-        <Tabs defaultValue="compensation" className="space-y-6">
+        <Tabs defaultValue="skills" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="skills">Core Skills</TabsTrigger>
             <TabsTrigger value="compensation">Compensation</TabsTrigger>
-            <TabsTrigger value="skills">My Core Skills</TabsTrigger>
             <TabsTrigger value="cvs">My CVs</TabsTrigger>
           </TabsList>
 

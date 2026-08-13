@@ -32,7 +32,7 @@ export function CoreSkills() {
       setLoading(false);
     };
     load();
-  }, [user]);
+  }, [user?.id]);
 
   const addSkill = (value: string) => {
     const clean = value.trim();

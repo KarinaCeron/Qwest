@@ -22,6 +22,7 @@ export function CoreSkills() {
 
   useEffect(() => {
     if (!user) return;
+    if (loadedUserId.current === user.id) return;
     const load = async () => {
       const { data } = await supabase
         .from('profiles')
@@ -30,6 +31,7 @@ export function CoreSkills() {
         .maybeSingle();
       setSkills((((data as any)?.skills ?? []) as string[]).filter(Boolean));
       setMeanings((((data as any)?.skill_meanings ?? {}) as Record<string, string>) || {});
+      loadedUserId.current = user.id;
       setLoading(false);
     };
     load();

@@ -4,18 +4,16 @@ import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Plus, Save, Sparkles, Target, X } from 'lucide-react';
+import { Loader2, Plus, Save, Sparkles, X } from 'lucide-react';
 
 export function CoreSkills() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [roles, setRoles] = useState<[string, string]>(['', '']);
   const [skills, setSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState('');
   const [bulk, setBulk] = useState('');
@@ -25,11 +23,9 @@ export function CoreSkills() {
     const load = async () => {
       const { data } = await supabase
         .from('profiles')
-        .select('target_roles, skills')
+        .select('skills')
         .eq('user_id', user.id)
         .maybeSingle();
-      const loadedRoles = ((data as any)?.target_roles ?? []) as string[];
-      setRoles([loadedRoles[0] ?? '', loadedRoles[1] ?? '']);
       setSkills((((data as any)?.skills ?? []) as string[]).filter(Boolean));
       setLoading(false);
     };
@@ -61,11 +57,10 @@ export function CoreSkills() {
   const handleSave = async () => {
     if (!user) return;
     setSaving(true);
-    const target_roles = roles.map((r) => r.trim()).filter(Boolean).slice(0, 2);
     const cleanSkills = skills.map((s) => s.trim()).filter(Boolean).slice(0, 100);
     const { error } = await supabase
       .from('profiles')
-      .update({ target_roles, skills: cleanSkills } as any)
+      .update({ skills: cleanSkills } as any)
       .eq('user_id', user.id);
     setSaving(false);
     if (error) {
@@ -86,40 +81,6 @@ export function CoreSkills() {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-gradient-card">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Target className="h-5 w-5" />
-            Roles I'm chasing
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="core_role_1">Primary role</Label>
-              <Input
-                id="core_role_1"
-                value={roles[0]}
-                onChange={(e) => setRoles(([, b]) => [e.target.value, b])}
-                maxLength={80}
-                placeholder="e.g. VP of Product"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="core_role_2">Secondary role</Label>
-              <Input
-                id="core_role_2"
-                value={roles[1]}
-                onChange={(e) => setRoles(([a]) => [a, e.target.value])}
-                maxLength={80}
-                placeholder="e.g. Head of Growth (optional)"
-              />
-            </div>
-          </div>
-          <p className="text-xs text-muted-foreground">Highlight up to two target roles.</p>
-        </CardContent>
-      </Card>
-
       <Card className="bg-gradient-card">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
@@ -176,7 +137,9 @@ export function CoreSkills() {
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="bulk_skills">Paste multiple skills</Label>
+            <label htmlFor="bulk_skills" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              Paste multiple skills
+            </label>
             <Textarea
               id="bulk_skills"
               rows={3}

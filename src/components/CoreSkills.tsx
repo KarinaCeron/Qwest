@@ -137,7 +137,9 @@ export function CoreSkills() {
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="bulk_skills">Paste multiple skills</Label>
+            <label htmlFor="bulk_skills" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              Paste multiple skills
+            </label>
             <Textarea
               id="bulk_skills"
               rows={3}

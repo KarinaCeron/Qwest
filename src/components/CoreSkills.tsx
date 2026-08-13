@@ -16,7 +16,6 @@ export function CoreSkills() {
   const [meanings, setMeanings] = useState<Record<string, string>>({});
   const [bulk, setBulk] = useState('');
   const loadedUserId = useRef<string | null>(null);
-  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -27,7 +26,12 @@ export function CoreSkills() {
         .select('skills, skill_meanings')
         .eq('user_id', user.id)
         .maybeSingle();
-      setSkills((((data as any)?.skills ?? []) as string[]).filter(Boolean));
+      const loaded = (((data as any)?.skills ?? []) as string[]).map((s) => (s ?? '').trim()).filter(Boolean);
+      const deduped: string[] = [];
+      loaded.forEach((s) => {
+        if (!deduped.some((d) => d.toLowerCase() === s.toLowerCase())) deduped.push(s);
+      });
+      setSkills(deduped);
       setMeanings((((data as any)?.skill_meanings ?? {}) as Record<string, string>) || {});
       loadedUserId.current = user.id;
       setLoading(false);
@@ -35,65 +39,63 @@ export function CoreSkills() {
     load();
   }, [user?.id]);
 
-  useEffect(() => {
-    if (loadedUserId.current !== user?.id) return;
-    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
-    autoSaveTimer.current = setTimeout(() => {
-      void performSave();
-    }, 800);
-    return () => {
-      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
-    };
-  }, [meanings, skills, user?.id]);
-
-  const buildPayload = () => {
-    const cleanSkills = skills.map((s) => s.trim()).filter(Boolean).slice(0, 100);
+  const buildPayload = (skillList: string[], meaningMap: Record<string, string>) => {
+    const cleanSkills = skillList.map((s) => s.trim()).filter(Boolean).slice(0, 100);
     const cleanMeanings: Record<string, string> = {};
     cleanSkills.forEach((s) => {
-      const meaning = (meanings[s] ?? '').trim();
+      const meaning = (meaningMap[s] ?? '').trim();
       if (meaning) cleanMeanings[s] = meaning.slice(0, 500);
     });
     return { skills: cleanSkills, skill_meanings: cleanMeanings };
   };
 
-  const performSave = async () => {
+  const save = async (skillList: string[], meaningMap: Record<string, string>) => {
     if (!user) return;
-    const payload = buildPayload();
+    const payload = buildPayload(skillList, meaningMap);
     const { error } = await supabase
       .from('profiles')
       .update(payload as any)
       .eq('user_id', user.id);
     if (error) {
       toast({ title: 'Could not save', description: error.message, variant: 'destructive' });
-      return;
     }
-    setSkills(payload.skills);
-    setMeanings(payload.skill_meanings);
   };
 
   const removeSkill = (skill: string) => {
-    setSkills((prev) => prev.filter((s) => s !== skill));
-    setMeanings((prev) => {
-      const next = { ...prev };
-      delete next[skill];
-      return next;
-    });
+    const nextSkills = skills.filter((s) => s !== skill);
+    const nextMeanings = { ...meanings };
+    delete nextMeanings[skill];
+    setSkills(nextSkills);
+    setMeanings(nextMeanings);
+    void save(nextSkills, nextMeanings);
   };
 
   const handleBulkAdd = () => {
     const items = bulk
-      .split(/[\n,;]/)
-      .map((s) => s.trim())
+      .split(/[\n,;]+/)
+      .map((s) => s.replace(/\s+/g, ' ').trim())
       .filter(Boolean);
     if (items.length === 0) return;
-    setSkills((prev) => {
-      const next = [...prev];
-      items.forEach((item) => {
-        if (!next.some((s) => s.toLowerCase() === item.toLowerCase())) next.push(item);
-      });
-      return next;
+    const next = [...skills];
+    let added = 0;
+    let duplicates = 0;
+    items.forEach((item) => {
+      if (next.some((s) => s.toLowerCase() === item.toLowerCase())) {
+        duplicates += 1;
+        return;
+      }
+      next.push(item);
+      added += 1;
     });
+    setSkills(next);
     setBulk('');
+    if (added > 0) void save(next, meanings);
+    if (duplicates > 0) {
+      toast({
+        title: added > 0 ? `${added} skill${added > 1 ? 's' : ''} added` : 'Nothing to add',
+        description: `${duplicates} duplicate${duplicates > 1 ? 's' : ''} skipped.`,
+      });
+    }
   };
 
   if (loading) {

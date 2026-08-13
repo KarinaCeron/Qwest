@@ -65,14 +65,14 @@ export function CoreSkills() {
 
   const performSave = async (options?: { silent?: boolean }) => {
     if (!user) return;
-    setSaving(true);
+    if (!options?.silent) setSaving(true);
     setSaveStatus('saving');
     const payload = buildPayload();
     const { error } = await supabase
       .from('profiles')
       .update(payload as any)
       .eq('user_id', user.id);
-    setSaving(false);
+    if (!options?.silent) setSaving(false);
     if (error) {
       setSaveStatus('idle');
       toast({ title: 'Could not save', description: error.message, variant: 'destructive' });
@@ -221,9 +221,9 @@ export function CoreSkills() {
               {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
               Save core skills
             </Button>
-            {statusText && (
-              <span className="text-xs text-muted-foreground whitespace-nowrap">{statusText}</span>
-            )}
+            <span className="text-xs text-muted-foreground whitespace-nowrap w-20 text-right">
+              {statusText}
+            </span>
           </div>
         </CardContent>
       </Card>

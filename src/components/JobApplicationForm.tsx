@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { JobApplicationFormData, JobApplication, ApplicationQA, ApplicationBenefit, ApplicationInterviewQuestion } from '@/types/jobApplication';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

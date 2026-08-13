@@ -221,9 +221,9 @@ export function CoreSkills() {
               {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
               Save core skills
             </Button>
-            {statusText && (
-              <span className="text-xs text-muted-foreground whitespace-nowrap">{statusText}</span>
-            )}
+            <span className="text-xs text-muted-foreground whitespace-nowrap w-20 text-right">
+              {statusText}
+            </span>
           </div>
         </CardContent>
       </Card>

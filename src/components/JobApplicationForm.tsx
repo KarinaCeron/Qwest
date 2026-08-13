@@ -960,8 +960,16 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
 
                     {salaryComparison && (
                       <Alert
-                        variant={salaryComparison.variant === 'success' ? 'default' : salaryComparison.variant === 'warning' ? 'destructive' : 'default'}
-                        className={salaryComparison.variant === 'success' ? 'bg-emerald-50 text-emerald-900 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-100 dark:border-emerald-900' : undefined}
+                        variant="default"
+                        className={
+                          salaryComparison.variant === 'below'
+                            ? 'bg-red-50 text-red-900 border-red-200 dark:bg-red-950 dark:text-red-100 dark:border-red-900'
+                            : salaryComparison.variant === 'in-range'
+                              ? 'bg-emerald-50 text-emerald-900 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-100 dark:border-emerald-900'
+                              : salaryComparison.variant === 'exceeded'
+                                ? 'bg-blue-50 text-blue-900 border-blue-200 dark:bg-blue-950 dark:text-blue-100 dark:border-blue-900'
+                                : 'bg-muted/50'
+                        }
                       >
                         <Info className="h-4 w-4" />
                         <AlertTitle>{salaryComparison.title}</AlertTitle>

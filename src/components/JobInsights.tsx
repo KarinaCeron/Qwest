@@ -13,17 +13,6 @@ export interface InsightItem {
 
 const OTHER_RE = /^(other|others|otros|misc|miscellaneous|general)$/i;
 
-/** Preferred display order for insight categories. */
-const CATEGORY_ORDER = [
-  'Global Product Management',
-  'Cross-functional Leadership',
-  'Product Strategy',
-  'Product Discovery',
-  'Roadmapping',
-  'Product Operations',
-  'Customer Research',
-  'AI Products',
-];
 
 const normalizeKey = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '');
 

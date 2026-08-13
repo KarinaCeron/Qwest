@@ -15,6 +15,7 @@ export function CoreSkills() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [skills, setSkills] = useState<string[]>([]);
+  const [meanings, setMeanings] = useState<Record<string, string>>({});
   const [newSkill, setNewSkill] = useState('');
   const [bulk, setBulk] = useState('');
 
@@ -23,10 +24,11 @@ export function CoreSkills() {
     const load = async () => {
       const { data } = await supabase
         .from('profiles')
-        .select('skills')
+        .select('skills, skill_meanings')
         .eq('user_id', user.id)
         .maybeSingle();
       setSkills((((data as any)?.skills ?? []) as string[]).filter(Boolean));
+      setMeanings((((data as any)?.skill_meanings ?? {}) as Record<string, string>) || {});
       setLoading(false);
     };
     load();
@@ -36,6 +38,15 @@ export function CoreSkills() {
     const clean = value.trim();
     if (!clean) return;
     setSkills((prev) => (prev.some((s) => s.toLowerCase() === clean.toLowerCase()) ? prev : [...prev, clean]));
+  };
+
+  const removeSkill = (skill: string) => {
+    setSkills((prev) => prev.filter((s) => s !== skill));
+    setMeanings((prev) => {
+      const next = { ...prev };
+      delete next[skill];
+      return next;
+    });
   };
 
   const handleBulkAdd = () => {
@@ -58,9 +69,14 @@ export function CoreSkills() {
     if (!user) return;
     setSaving(true);
     const cleanSkills = skills.map((s) => s.trim()).filter(Boolean).slice(0, 100);
+    const cleanMeanings: Record<string, string> = {};
+    cleanSkills.forEach((s) => {
+      const meaning = (meanings[s] ?? '').trim();
+      if (meaning) cleanMeanings[s] = meaning.slice(0, 500);
+    });
     const { error } = await supabase
       .from('profiles')
-      .update({ skills: cleanSkills } as any)
+      .update({ skills: cleanSkills, skill_meanings: cleanMeanings } as any)
       .eq('user_id', user.id);
     setSaving(false);
     if (error) {
@@ -68,8 +84,10 @@ export function CoreSkills() {
       return;
     }
     setSkills(cleanSkills);
+    setMeanings(cleanMeanings);
     toast({ title: '✅ Core skills saved' });
   };
+
 
   if (loading) {
     return (

@@ -89,6 +89,7 @@ Deno.serve(async (req) => {
           question: jobContent,
           role: role || "",
           company: company || "",
+          core_skills: coreSkills,
           user_id: user.id,
           user_email: user.email || "",
         }),

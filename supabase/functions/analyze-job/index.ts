@@ -45,6 +45,23 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Load the user's core skills (name -> explanation) to send along with the job description.
+    const { data: profile } = await supabaseClient
+      .from("profiles")
+      .select("skills, skill_meanings")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    const skillList: string[] = Array.isArray((profile as any)?.skills)
+      ? ((profile as any).skills as unknown[]).map((s) => String(s ?? "").trim()).filter(Boolean)
+      : [];
+    const meanings = ((profile as any)?.skill_meanings ?? {}) as Record<string, string>;
+    const coreSkills: Record<string, string> = {};
+    for (const skill of skillList) {
+      coreSkills[skill] = (meanings?.[skill] ?? "").trim();
+    }
+    const coreSkillsJson = JSON.stringify(coreSkills);
+
     // The n8n webhook is registered for GET only, and long job descriptions in the
     // query string make the request exceed n8n's header limit (HTTP 431).
     // -> truncate the description to a safe size for the URL.
@@ -56,6 +73,7 @@ Deno.serve(async (req) => {
     url.searchParams.set("question", desc);
     url.searchParams.set("role", (role || "").slice(0, 200));
     url.searchParams.set("company", (company || "").slice(0, 200));
+    url.searchParams.set("core_skills", coreSkillsJson.slice(0, 4000));
     url.searchParams.set("user_id", user.id);
     url.searchParams.set("user_email", user.email || "");
 

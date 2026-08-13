@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS skill_meanings jsonb NOT NULL DEFAULT '{}'::jsonb;

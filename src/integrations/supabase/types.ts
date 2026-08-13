@@ -346,6 +346,7 @@ export type Database = {
           linkedin_url: string | null
           location: string | null
           portfolio_url: string | null
+          skill_meanings: Json
           skills: string[]
           target_roles: string[]
           updated_at: string
@@ -362,6 +363,7 @@ export type Database = {
           linkedin_url?: string | null
           location?: string | null
           portfolio_url?: string | null
+          skill_meanings?: Json
           skills?: string[]
           target_roles?: string[]
           updated_at?: string
@@ -378,6 +380,7 @@ export type Database = {
           linkedin_url?: string | null
           location?: string | null
           portfolio_url?: string | null
+          skill_meanings?: Json
           skills?: string[]
           target_roles?: string[]
           updated_at?: string

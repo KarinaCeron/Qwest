@@ -751,100 +751,6 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
             
 
             
-            {generatedCoverLetter && (
-              <div className="mt-4 p-4 bg-gradient-card border rounded-lg">
-                <h4 className="font-semibold mb-2 text-foreground">Generated Cover Letter</h4>
-                <p className="text-sm text-muted-foreground mb-3">
-                  Your cover letter has been generated successfully.
-                </p>
-                <Sheet open={isCoverLetterOpen} onOpenChange={setIsCoverLetterOpen}>
-                  <SheetTrigger asChild>
-                    <Button variant="outline" className="w-full">
-                      <FileText className="h-4 w-4 mr-2" />
-                      View Cover Letter
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="right" className="w-[500px] sm:w-[600px]">
-                    <SheetHeader>
-                      <SheetTitle className="flex items-center gap-2">
-                        <FileText className="h-5 w-5" />
-                        Cover Letter for {formData.company}
-                      </SheetTitle>
-                    </SheetHeader>
-                    <div className="mt-6">
-                      <div className="bg-background border rounded-lg p-4 max-h-[calc(100vh-200px)] overflow-y-auto">
-                        <pre className="whitespace-pre-wrap text-sm text-foreground leading-relaxed">
-                          {generatedCoverLetter}
-                        </pre>
-                      </div>
-                      <div className="flex gap-2 mt-4">
-                        <Button
-                          variant="outline"
-                          className="flex-1"
-                          onClick={() => {
-                            navigator.clipboard.writeText(generatedCoverLetter);
-                            toast({ title: "Copied", description: "Cover letter copied to clipboard" });
-                          }}
-                        >
-                          <Copy className="h-4 w-4 mr-2" />
-                          Copy to Clipboard
-                        </Button>
-                        <Button variant="outline" onClick={() => setIsCoverLetterOpen(false)}>
-                          Close
-                        </Button>
-                      </div>
-                    </div>
-                  </SheetContent>
-                </Sheet>
-              </div>
-            )}
-
-            {tailoringResult && (
-              <Sheet open={isTailoringResultOpen} onOpenChange={setIsTailoringResultOpen}>
-                <SheetTrigger asChild>
-                  <div className="mt-4 p-4 bg-gradient-card border rounded-lg cursor-pointer">
-                    <h4 className="font-semibold mb-2 text-foreground">CV Tailoring Recommendations</h4>
-                    <p className="text-sm text-muted-foreground mb-3">Your recommendations are ready.</p>
-                    <Button variant="outline" className="w-full" type="button">
-                      <Wand2 className="h-4 w-4 mr-2" />
-                      View Recommendations
-                    </Button>
-                  </div>
-                </SheetTrigger>
-                <SheetContent side="right" className="w-[500px] sm:w-[600px]">
-                  <SheetHeader>
-                    <SheetTitle className="flex items-center gap-2">
-                      <Wand2 className="h-5 w-5" />
-                      CV Recommendations for {formData.company}
-                    </SheetTitle>
-                  </SheetHeader>
-                  <div className="mt-6">
-                    <div className="bg-background border rounded-lg p-4 max-h-[calc(100vh-200px)] overflow-y-auto">
-                      <pre className="whitespace-pre-wrap text-sm text-foreground leading-relaxed">
-                        {tailoringResult}
-                      </pre>
-                    </div>
-                    <div className="flex gap-2 mt-4">
-                      <Button
-                        variant="outline"
-                        className="flex-1"
-                        type="button"
-                        onClick={() => {
-                          navigator.clipboard.writeText(tailoringResult);
-                          toast({ title: "Copied", description: "Recommendations copied to clipboard" });
-                        }}
-                      >
-                        <Copy className="h-4 w-4 mr-2" />
-                        Copy to Clipboard
-                      </Button>
-                      <Button variant="outline" type="button" onClick={() => setIsTailoringResultOpen(false)}>
-                        Close
-                      </Button>
-                    </div>
-                  </div>
-                </SheetContent>
-              </Sheet>
-            )}
 
             <div className="space-y-2">
               <Label htmlFor="notes">My take on this role</Label>
@@ -1223,6 +1129,101 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                     </Button>
                   </div>
                 </div>
+
+            {generatedCoverLetter && (
+              <div className="mt-4 p-4 bg-gradient-card border rounded-lg">
+                <h4 className="font-semibold mb-2 text-foreground">Generated Cover Letter</h4>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Your cover letter has been generated successfully.
+                </p>
+                <Sheet open={isCoverLetterOpen} onOpenChange={setIsCoverLetterOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" className="w-full">
+                      <FileText className="h-4 w-4 mr-2" />
+                      View Cover Letter
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="right" className="w-[500px] sm:w-[600px]">
+                    <SheetHeader>
+                      <SheetTitle className="flex items-center gap-2">
+                        <FileText className="h-5 w-5" />
+                        Cover Letter for {formData.company}
+                      </SheetTitle>
+                    </SheetHeader>
+                    <div className="mt-6">
+                      <div className="bg-background border rounded-lg p-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+                        <pre className="whitespace-pre-wrap text-sm text-foreground leading-relaxed">
+                          {generatedCoverLetter}
+                        </pre>
+                      </div>
+                      <div className="flex gap-2 mt-4">
+                        <Button
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => {
+                            navigator.clipboard.writeText(generatedCoverLetter);
+                            toast({ title: "Copied", description: "Cover letter copied to clipboard" });
+                          }}
+                        >
+                          <Copy className="h-4 w-4 mr-2" />
+                          Copy to Clipboard
+                        </Button>
+                        <Button variant="outline" onClick={() => setIsCoverLetterOpen(false)}>
+                          Close
+                        </Button>
+                      </div>
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              </div>
+            )}
+
+            {tailoringResult && (
+              <Sheet open={isTailoringResultOpen} onOpenChange={setIsTailoringResultOpen}>
+                <SheetTrigger asChild>
+                  <div className="mt-4 p-4 bg-gradient-card border rounded-lg cursor-pointer">
+                    <h4 className="font-semibold mb-2 text-foreground">CV Tailoring Recommendations</h4>
+                    <p className="text-sm text-muted-foreground mb-3">Your recommendations are ready.</p>
+                    <Button variant="outline" className="w-full" type="button">
+                      <Wand2 className="h-4 w-4 mr-2" />
+                      View Recommendations
+                    </Button>
+                  </div>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[500px] sm:w-[600px]">
+                  <SheetHeader>
+                    <SheetTitle className="flex items-center gap-2">
+                      <Wand2 className="h-5 w-5" />
+                      CV Recommendations for {formData.company}
+                    </SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-6">
+                    <div className="bg-background border rounded-lg p-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+                      <pre className="whitespace-pre-wrap text-sm text-foreground leading-relaxed">
+                        {tailoringResult}
+                      </pre>
+                    </div>
+                    <div className="flex gap-2 mt-4">
+                      <Button
+                        variant="outline"
+                        className="flex-1"
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(tailoringResult);
+                          toast({ title: "Copied", description: "Recommendations copied to clipboard" });
+                        }}
+                      >
+                        <Copy className="h-4 w-4 mr-2" />
+                        Copy to Clipboard
+                      </Button>
+                      <Button variant="outline" type="button" onClick={() => setIsTailoringResultOpen(false)}>
+                        Close
+                      </Button>
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            )}
 
                 <div className="flex flex-wrap gap-3 pt-4">
                   <Button type="button" variant="outline" onClick={() => setStep(2)}>

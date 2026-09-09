@@ -291,15 +291,36 @@ export default function TargetCompaniesPage() {
             <TabsTrigger value="archived">Archived ({archivedItems.length})</TabsTrigger>
           </TabsList>
         </Tabs>
-        <div className="relative mb-4 max-w-sm">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by company or role…"
-            className="pl-9"
-            aria-label="Search target companies"
-          />
+        <div className="mb-4 flex flex-wrap items-center gap-3">
+          <div className="relative w-full max-w-sm">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by company or role…"
+              className="pl-9"
+              aria-label="Search target companies"
+            />
+          </div>
+          {tab === 'active' && (
+            <div className="flex items-center gap-1 rounded-md border bg-muted/40 p-1">
+              {([
+                { key: 'all', label: `All (${activeItems.length})` },
+                { key: 'to_review', label: `To review (${toReviewCount})` },
+                { key: 'reviewed', label: `Reviewed (${reviewedCount})` },
+              ] as const).map((opt) => (
+                <Button
+                  key={opt.key}
+                  size="sm"
+                  variant={reviewFilter === opt.key ? 'default' : 'ghost'}
+                  className="h-8"
+                  onClick={() => setReviewFilter(opt.key)}
+                >
+                  {opt.label}
+                </Button>
+              ))}
+            </div>
+          )}
         </div>
         <Card>
           <CardContent className="p-0">
@@ -307,7 +328,7 @@ export default function TargetCompaniesPage() {
               <div className="flex items-center justify-center gap-2 p-12 text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" /> Loading your target companies…
               </div>
-            ) : visibleItems.length === 0 && search.trim() ? (
+            ) : visibleItems.length === 0 && (search.trim() || (tab === 'active' && reviewFilter !== 'all')) ? (
               <div className="flex flex-col items-center gap-3 p-12 text-center">
                 <Search className="h-10 w-10 text-muted-foreground" />
                 <p className="text-muted-foreground">No companies match your search.</p>

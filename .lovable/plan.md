@@ -1,18 +1,20 @@
-# Simplify target-companies row header
+# Simplify target-companies rows and show founders
 
-Update the My Target Companies table so the company cell shows only the company name, role, and total score, while removing the explanation text and the separate Total column.
+Two changes in My Target Companies.
 
-## What changes
+## 1. Company cell in the table
 
-1. **Remove the explanation text** under each company name (the `final_decision` verdict currently shown below the role).
-2. **Move the total score** (`X/25`) to sit directly below the company name (and role if present) instead of in its own Total column.
-3. **Remove the Total column** from the table header.
-4. **Keep everything else unchanged**: the five criteria star-rating columns and the three-dots actions menu remain exactly as they are now.
+- Remove the explanation text shown under each company name (the verdict sentence).
+- Move the total score (`X/25`) so it sits directly below the company name and role.
+- Remove the separate Total column from the table.
+- Everything else stays exactly as it is: the five criteria star columns and the three-dots actions menu.
+
+## 2. Founders missing in Company insights
+
+The report data does contain founders — GreenSQA stores it as `founders`, Open International as `Founders` — but the insights panel only prints industry, stage, location and founded, so the name never shows. Add a Founders line to the company facts block, and read the key case-insensitively so both spellings display. Also add the company website as a clickable link in the same block.
 
 ## Technical notes
 
-- File: `src/pages/TargetCompanies.tsx`
-- Remove the `final_decision` block inside the company `TableCell`.
-- Add the total score display under the company name using the existing `totalOf` helper.
-- Remove the `Total` `TableHead` and its corresponding `TableCell`.
-- No database or Edge Function changes are required.
+- `src/pages/TargetCompanies.tsx`: drop the `final_decision` block from the company cell, render `totalOf(row)` there instead, and remove the Total `TableHead`/`TableCell`.
+- `src/components/TargetCompanyReport.tsx`: add a small case-insensitive lookup helper over `evaluation.company` and render Founders (plus website link) alongside the existing fields.
+- No database or Edge Function changes.

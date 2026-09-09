@@ -243,7 +243,7 @@ export function CandidateProfile() {
                     Summary {saving && <span className="normal-case">— saving…</span>}
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Auto-generated from your Qwest. Edits are allowed, but will be replaced when your roles, skills, compensation, or benefits change.
+                    Auto-generated from your Qwest. Edit it freely — your text is kept. Use Refresh to rebuild it from your latest data.
                   </p>
                 </div>
                 <Button type="button" variant="ghost" size="sm" onClick={handleRegenerate} className="h-7 gap-1.5 text-xs shrink-0">

@@ -57,13 +57,6 @@ const CRITERIA = [
 
 const db = supabase as any;
 
-const scoreClass = (score: number | null) => {
-  if (score === null || score === undefined) return 'bg-slate-50 text-slate-500 border-slate-200';
-  if (score <= 1) return 'bg-red-50 text-red-700 border-red-200';
-  if (score === 2) return 'bg-amber-50 text-amber-700 border-amber-200';
-  if (score === 3) return 'bg-sky-50 text-sky-700 border-sky-200';
-  return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-};
 
 const totalOf = (c: TargetCompany) =>
   CRITERIA.reduce((sum, cr) => sum + (Number(c[cr.column] ?? 0) || 0), 0);

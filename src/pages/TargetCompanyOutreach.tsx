@@ -371,16 +371,27 @@ export default function TargetCompanyOutreachPage() {
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {founders.map((founder) => (
-                        <Button key={founder} variant="secondary" size="sm" asChild>
-                          <a
-                            href={searchUrl(`${founder} ${company.company}`)}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                        <div key={founder} className="flex items-center rounded-md border bg-secondary">
+                          <Button variant="ghost" size="sm" asChild>
+                            <a
+                              href={searchUrl(`${founder} ${company.company}`)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <Linkedin className="mr-2 h-4 w-4" />
+                              {founder}
+                            </a>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="px-2"
+                            aria-label={`Copy LinkedIn search link for ${founder}`}
+                            onClick={() => copySearch(searchUrl(`${founder} ${company.company}`))}
                           >
-                            <Linkedin className="mr-2 h-4 w-4" />
-                            {founder}
-                          </a>
-                        </Button>
+                            <Copy className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
                       ))}
                     </div>
                   </div>

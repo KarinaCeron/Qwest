@@ -253,22 +253,37 @@ export default function TargetCompaniesPage() {
 
 
       <main className="container mx-auto px-4 py-8">
+        <Tabs value={tab} onValueChange={(v) => setTab(v as 'active' | 'archived')}>
+          <TabsList className="mb-4">
+            <TabsTrigger value="active">Active ({activeItems.length})</TabsTrigger>
+            <TabsTrigger value="archived">Archived ({archivedItems.length})</TabsTrigger>
+          </TabsList>
+        </Tabs>
         <Card>
           <CardContent className="p-0">
             {isLoading ? (
               <div className="flex items-center justify-center gap-2 p-12 text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" /> Loading your target companies…
               </div>
-            ) : items.length === 0 ? (
+            ) : visibleItems.length === 0 ? (
               <div className="flex flex-col items-center gap-3 p-12 text-center">
-                <Target className="h-10 w-10 text-muted-foreground" />
-                <p className="text-muted-foreground">
-                  No target companies yet. Add one and it will be scored automatically.
-                </p>
-                <Button onClick={() => setDialogOpen(true)} className="bg-gradient-primary">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add company
-                </Button>
+                {tab === 'active' ? (
+                  <>
+                    <Target className="h-10 w-10 text-muted-foreground" />
+                    <p className="text-muted-foreground">
+                      No target companies yet. Add one and it will be scored automatically.
+                    </p>
+                    <Button onClick={() => setDialogOpen(true)} className="bg-gradient-primary">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add company
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Archive className="h-10 w-10 text-muted-foreground" />
+                    <p className="text-muted-foreground">No archived companies yet.</p>
+                  </>
+                )}
               </div>
             ) : (
               <div className="overflow-x-auto">

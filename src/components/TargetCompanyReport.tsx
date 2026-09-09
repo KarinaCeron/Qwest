@@ -15,6 +15,15 @@ export const SCORECARD_MAP = [
 
 type AnyRecord = Record<string, any>;
 
+/** Case-insensitive lookup: the webhook returns `founders` or `Founders`. */
+const pick = (obj: AnyRecord, key: string): string | null => {
+  const found = Object.keys(obj ?? {}).find((k) => k.toLowerCase() === key.toLowerCase());
+  const value = found ? obj[found] : null;
+  if (value === null || value === undefined || value === '') return null;
+  return String(value);
+};
+
+
 const severityClass = (s: string) => {
   const v = (s || '').toLowerCase();
   if (v.startsWith('high') || v.startsWith('alta')) return 'bg-red-50 text-red-700 border-red-200';

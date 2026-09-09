@@ -436,6 +436,17 @@ export default function TargetCompaniesPage() {
                               </DropdownMenuItem>
                               {!row.archived && (
                                 <>
+                                  {row.review_status === 'reviewed' ? (
+                                    <DropdownMenuItem onClick={() => handleSetReviewStatus(row, 'to_review')}>
+                                      <RotateCcw className="mr-2 h-4 w-4" />
+                                      Move back to To review
+                                    </DropdownMenuItem>
+                                  ) : (
+                                    <DropdownMenuItem onClick={() => handleSetReviewStatus(row, 'reviewed')}>
+                                      <CheckCircle2 className="mr-2 h-4 w-4" />
+                                      Mark as reviewed
+                                    </DropdownMenuItem>
+                                  )}
                                   <DropdownMenuItem
                                     onClick={() => navigate(`/target-companies/${row.id}/outreach`)}
                                   >

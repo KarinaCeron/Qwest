@@ -214,18 +214,38 @@ export default function TargetCompaniesPage() {
     toast({ title: 'Removed', description: `${row.company} is no longer a target company.` });
   };
 
+  const handleSetReviewStatus = async (row: TargetCompany, review_status: 'to_review' | 'reviewed') => {
+    const { error } = await db.from('target_companies').update({ review_status }).eq('id', row.id);
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      return;
+    }
+    setItems((prev) => prev.map((i) => (i.id === row.id ? { ...i, review_status } : i)));
+    toast({
+      title: review_status === 'reviewed' ? 'Marked as reviewed' : 'Moved to To review',
+      description: `${row.company} is now ${review_status === 'reviewed' ? 'reviewed' : 'pending review'}.`,
+    });
+  };
+
   const activeItems = items.filter((i) => !i.archived);
   const archivedItems = items.filter((i) => i.archived);
+  const toReviewCount = activeItems.filter((i) => i.review_status !== 'reviewed').length;
+  const reviewedCount = activeItems.filter((i) => i.review_status === 'reviewed').length;
   const tabItems = tab === 'active' ? activeItems : archivedItems;
   const visibleItems = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return tabItems;
-    return tabItems.filter(
-      (i) =>
+    return tabItems.filter((i) => {
+      if (tab === 'active' && reviewFilter !== 'all') {
+        const status = i.review_status === 'reviewed' ? 'reviewed' : 'to_review';
+        if (status !== reviewFilter) return false;
+      }
+      if (!q) return true;
+      return (
         i.company.toLowerCase().includes(q) ||
         (i.role_title ?? '').toLowerCase().includes(q)
-    );
-  }, [tabItems, search]);
+      );
+    });
+  }, [tabItems, search, reviewFilter, tab]);
 
   const exportToExcel = () => {
     const rows = activeItems.map((c) => {

@@ -469,6 +469,10 @@ export default function TargetCompaniesPage() {
                                 <FileText className="mr-2 h-4 w-4" />
                                 View insights
                               </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => openEditDialog(row)}>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Edit details
+                              </DropdownMenuItem>
                               {!row.archived && (
                                 <>
                                   {row.review_status === 'reviewed' ? (

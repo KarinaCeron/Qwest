@@ -20,7 +20,10 @@ import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from '@/components/ui/sheet';
 import { FormattedText } from '@/components/FormattedText';
-import { Plus, Loader2, RefreshCw, Trash2, FileText, Target } from 'lucide-react';
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Plus, Loader2, RefreshCw, Trash2, FileText, Target, MoreHorizontal, Send } from 'lucide-react';
 
 type TargetCompany = {
   id: string;

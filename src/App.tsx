@@ -12,6 +12,7 @@ import CV from "./pages/CV";
 import Templates from "./pages/Templates";
 import QuestionBank from "./pages/QuestionBank";
 import Tasks from "./pages/Tasks";
+import TargetCompanies from "./pages/TargetCompanies";
 
 import { GlobalChat } from "./components/GlobalChat";
 

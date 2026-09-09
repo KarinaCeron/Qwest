@@ -88,7 +88,7 @@ export default function TargetCompanyOutreachPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
-  const [draftingId, setDraftingId] = useState<string | null>(null);
+  
 
   const copySearch = async (url: string) => {
     try {

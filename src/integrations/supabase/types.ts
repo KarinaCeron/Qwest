@@ -394,6 +394,7 @@ export type Database = {
       target_companies: {
         Row: {
           analysis: string | null
+          archived: boolean
           company: string
           confidence: Json
           created_at: string
@@ -415,6 +416,7 @@ export type Database = {
         }
         Insert: {
           analysis?: string | null
+          archived?: boolean
           company: string
           confidence?: Json
           created_at?: string
@@ -436,6 +438,7 @@ export type Database = {
         }
         Update: {
           analysis?: string | null
+          archived?: boolean
           company?: string
           confidence?: Json
           created_at?: string

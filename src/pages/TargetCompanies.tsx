@@ -24,7 +24,8 @@ import { TargetCompanyReport } from '@/components/TargetCompanyReport';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Plus, Loader2, RefreshCw, Trash2, FileText, Target, MoreHorizontal, Send } from 'lucide-react';
+import { Plus, Loader2, RefreshCw, Trash2, FileText, Target, MoreHorizontal, Send, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 type TargetCompany = {
   id: string;
@@ -192,6 +193,22 @@ export default function TargetCompaniesPage() {
     toast({ title: 'Removed', description: `${row.company} is no longer a target company.` });
   };
 
+  const exportToExcel = () => {
+    const rows = items.map((c) => {
+      const row: Record<string, string | number> = { Company: c.company };
+      CRITERIA.forEach((cr) => {
+        const v = c[cr.column];
+        row[cr.label] = v === null || v === undefined ? '' : Number(v);
+      });
+      row.Total = totalOf(c);
+      return row;
+    });
+    const sheet = XLSX.utils.json_to_sheet(rows);
+    const book = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(book, sheet, 'Target companies');
+    XLSX.writeFile(book, `target-companies-${new Date().toISOString().slice(0, 10)}.xlsx`);
+  };
+
   if (loading || !user) return null;
 
   return (
@@ -199,12 +216,19 @@ export default function TargetCompaniesPage() {
       <AppHeader
         subtitle="My Target Companies"
         actions={
-          <Button onClick={() => setDialogOpen(true)} className="bg-gradient-primary">
-            <Plus className="mr-2 h-4 w-4" />
-            Add company
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={exportToExcel} disabled={items.length === 0}>
+              <Download className="mr-2 h-4 w-4" />
+              Export to Excel
+            </Button>
+            <Button onClick={() => setDialogOpen(true)} className="bg-gradient-primary">
+              <Plus className="mr-2 h-4 w-4" />
+              Add company
+            </Button>
+          </div>
         }
       />
+
 
       <main className="container mx-auto px-4 py-8">
         <Card>

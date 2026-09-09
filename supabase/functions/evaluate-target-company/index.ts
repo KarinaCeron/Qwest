@@ -213,7 +213,14 @@ Deno.serve(async (req) => {
       url.searchParams.set("company", payload.company);
       if (website) url.searchParams.set("website", website);
       if (role) url.searchParams.set("role", role);
+      if (candidateProfile) url.searchParams.set("candidate_profile", candidateProfile.slice(0, 2000));
+      if (jobDescription) url.searchParams.set("job_description", jobDescription.slice(0, 1500));
       url.searchParams.set("mode", payload.mode);
+      console.log(
+        `evaluate-target-company: GET query params: ${JSON.stringify(
+          Object.fromEntries(url.searchParams.entries()),
+        )}`,
+      );
       res = await fetch(url.toString(), { method: "GET" });
       text = await res.text();
       console.log(`evaluate-target-company: n8n GET [${res.status}] length ${text.length}`);

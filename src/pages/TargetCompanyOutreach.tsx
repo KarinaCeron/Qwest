@@ -70,7 +70,8 @@ export default function TargetCompanyOutreachPage() {
   const [company, setCompany] = useState<TargetCompany | null>(null);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [customTitle, setCustomTitle] = useState('');
+  const [roleInput, setRoleInput] = useState('');
+  const [generatedLink, setGeneratedLink] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);

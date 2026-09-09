@@ -134,19 +134,15 @@ export function CandidateProfile() {
     load();
   }, [user, persist]);
 
-  // Keep the summary in sync with core skills / compensation / benefits:
-  // regenerate when the source data changes and the user hasn't customized the text.
+  // Always keep the summary in sync with core skills / compensation / benefits:
+  // whenever the source data changes, regenerate and persist the summary.
   useEffect(() => {
     if (!loadedRef.current) return;
     const generated = buildSummary(targetRoles, skills, compItems);
     if (generated === lastGeneratedRef.current) return;
-    const untouched =
-      !latestRef.current.trim() || latestRef.current === lastGeneratedRef.current;
     lastGeneratedRef.current = generated;
-    if (untouched) {
-      setSummary(generated);
-      persist(generated);
-    }
+    setSummary(generated);
+    persist(generated);
   }, [targetRoles, skills, compItems, persist]);
 
   const handleRegenerate = () => {
@@ -251,7 +247,7 @@ export function CandidateProfile() {
                 maxLength={2000}
               />
               <p className="text-xs text-muted-foreground">
-                This summary is generated from your Qwest and saves automatically. You can edit it at any time.
+                This summary is regenerated automatically whenever your core skills, compensation, or benefits change. Manual edits are kept until the next change in your Qwest.
               </p>
             </div>
           </>

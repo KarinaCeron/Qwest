@@ -121,7 +121,7 @@ export function CandidateProfile() {
     };
   }, []);
 
-  const persist = async (value: string) => {
+  const persist = useCallback(async (value: string) => {
     if (!user) return;
     setSaving(true);
     const { error } = await supabase
@@ -132,7 +132,7 @@ export function CandidateProfile() {
     if (error) {
       toast({ title: '❌ Could not save your candidate profile', description: error.message, variant: 'destructive' });
     }
-  };
+  }, [user, toast]);
 
   const handleChange = (value: string) => {
     setSummary(value);

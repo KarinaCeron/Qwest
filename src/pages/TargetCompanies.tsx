@@ -19,6 +19,7 @@ import {
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from '@/components/ui/sheet';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { StarRating } from '@/components/StarRating';
 import { TargetCompanyReport } from '@/components/TargetCompanyReport';
 import {
@@ -77,6 +78,7 @@ export default function TargetCompaniesPage() {
   const [saving, setSaving] = useState(false);
   const [evaluatingId, setEvaluatingId] = useState<string | null>(null);
   const [detail, setDetail] = useState<TargetCompany | null>(null);
+  const [tab, setTab] = useState<'active' | 'archived'>('active');
 
   useEffect(() => {
     if (!loading && !user) navigate('/auth');

@@ -138,15 +138,6 @@ export default function TargetCompanyOutreachPage() {
     return values.reduce((sum, v) => sum + (Number(v ?? 0) || 0), 0);
   }, [company]);
 
-  const founders = useMemo(() => {
-    const raw = pick(company?.evaluation?.company, 'founders');
-    if (!raw) return [] as string[];
-    return raw
-      .split(/,| and | y |;|\n/)
-      .map((s) => s.replace(/\(.*?\)/g, '').trim())
-      .filter((s) => s.length > 2 && /[a-zA-Z]/.test(s))
-      .slice(0, 4);
-  }, [company]);
 
   const openAdd = () => {
     setEditingId(null);

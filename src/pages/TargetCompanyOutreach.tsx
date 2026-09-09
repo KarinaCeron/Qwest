@@ -251,28 +251,8 @@ export default function TargetCompanyOutreachPage() {
     if (error) toast({ title: 'Error', description: error.message, variant: 'destructive' });
   };
 
-  const draftMessage = async (contact: Contact) => {
-    setDraftingId(contact.id);
-    try {
-      const { data, error } = await supabase.functions.invoke('draft-outreach', {
-        body: { companyId: id, contactName: contact.name, contactTitle: contact.title ?? '' },
-      });
-      if (error) throw error;
-      if (typeof data?.message !== 'string' || !data.message.trim()) {
-        throw new Error('No message was generated.');
-      }
-      await saveDraft(contact, data.message.trim());
-      toast({ title: 'Draft ready', description: `A message for ${contact.name} was generated.` });
-    } catch (e) {
-      toast({
-        title: 'Error',
-        description: e instanceof Error ? e.message : 'Could not draft the message.',
-        variant: 'destructive',
-      });
-    } finally {
-      setDraftingId(null);
-    }
-  };
+
+
 
   const copyDraft = async (text: string) => {
     await navigator.clipboard.writeText(text);

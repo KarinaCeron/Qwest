@@ -205,7 +205,7 @@ Deno.serve(async (req) => {
     }
 
     const clean = unwrap(text).replace(/\\n/g, "\n");
-    const parsed = parseScorecard(clean);
+    const parsed = parseStructured(clean) ?? parseScorecard(clean);
 
     return new Response(JSON.stringify({ text: clean, ...parsed }), {
       status: 200,

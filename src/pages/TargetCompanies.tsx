@@ -299,7 +299,7 @@ export default function TargetCompaniesPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {items.map((row) => (
+                    {visibleItems.map((row) => (
                       <TableRow key={row.id}>
                         <TableCell>
                           <div className="font-medium text-foreground">{row.company}</div>
@@ -352,19 +352,33 @@ export default function TargetCompaniesPage() {
                                 <FileText className="mr-2 h-4 w-4" />
                                 View insights
                               </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => navigate(`/target-companies/${row.id}/outreach`)}
-                              >
-                                <Send className="mr-2 h-4 w-4" />
-                                Prepare outreach
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                disabled={evaluatingId === row.id}
-                                onClick={() => evaluate(row)}
-                              >
-                                <RefreshCw className="mr-2 h-4 w-4" />
-                                Update evaluation
-                              </DropdownMenuItem>
+                              {!row.archived && (
+                                <>
+                                  <DropdownMenuItem
+                                    onClick={() => navigate(`/target-companies/${row.id}/outreach`)}
+                                  >
+                                    <Send className="mr-2 h-4 w-4" />
+                                    Prepare outreach
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    disabled={evaluatingId === row.id}
+                                    onClick={() => evaluate(row)}
+                                  >
+                                    <RefreshCw className="mr-2 h-4 w-4" />
+                                    Update evaluation
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleSetArchived(row, true)}>
+                                    <Archive className="mr-2 h-4 w-4" />
+                                    Archive
+                                  </DropdownMenuItem>
+                                </>
+                              )}
+                              {row.archived && (
+                                <DropdownMenuItem onClick={() => handleSetArchived(row, false)}>
+                                  <ArchiveRestore className="mr-2 h-4 w-4" />
+                                  Restore
+                                </DropdownMenuItem>
+                              )}
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 className="text-destructive focus:text-destructive"

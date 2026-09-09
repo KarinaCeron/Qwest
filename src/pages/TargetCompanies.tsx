@@ -291,7 +291,9 @@ export default function TargetCompaniesPage() {
                                 <FileText className="mr-2 h-4 w-4" />
                                 View insights
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => navigate('/templates')}>
+                              <DropdownMenuItem
+                                onClick={() => navigate(`/target-companies/${row.id}/outreach`)}
+                              >
                                 <Send className="mr-2 h-4 w-4" />
                                 Prepare outreach
                               </DropdownMenuItem>

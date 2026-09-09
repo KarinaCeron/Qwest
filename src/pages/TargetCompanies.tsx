@@ -19,12 +19,13 @@ import {
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from '@/components/ui/sheet';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { StarRating } from '@/components/StarRating';
 import { TargetCompanyReport } from '@/components/TargetCompanyReport';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Plus, Loader2, RefreshCw, Trash2, FileText, Target, MoreHorizontal, Send, Download } from 'lucide-react';
+import { Plus, Loader2, RefreshCw, Trash2, FileText, Target, MoreHorizontal, Send, Download, Archive, ArchiveRestore } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 type TargetCompany = {
@@ -44,6 +45,7 @@ type TargetCompany = {
   analysis: string | null;
   evaluation: Record<string, any> | null;
   evaluated_at: string | null;
+  archived: boolean;
   created_at: string;
 };
 
@@ -76,6 +78,7 @@ export default function TargetCompaniesPage() {
   const [saving, setSaving] = useState(false);
   const [evaluatingId, setEvaluatingId] = useState<string | null>(null);
   const [detail, setDetail] = useState<TargetCompany | null>(null);
+  const [tab, setTab] = useState<'active' | 'archived'>('active');
 
   useEffect(() => {
     if (!loading && !user) navigate('/auth');
@@ -183,6 +186,21 @@ export default function TargetCompaniesPage() {
     }
   };
 
+  const handleSetArchived = async (row: TargetCompany, archived: boolean) => {
+    const { error } = await db.from('target_companies').update({ archived }).eq('id', row.id);
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      return;
+    }
+    setItems((prev) => prev.map((i) => (i.id === row.id ? { ...i, archived } : i)));
+    toast({
+      title: archived ? 'Archived' : 'Restored',
+      description: archived
+        ? `${row.company} was moved to Archived.`
+        : `${row.company} is active again.`,
+    });
+  };
+
   const handleDelete = async (row: TargetCompany) => {
     const { error } = await db.from('target_companies').delete().eq('id', row.id);
     if (error) {
@@ -193,8 +211,12 @@ export default function TargetCompaniesPage() {
     toast({ title: 'Removed', description: `${row.company} is no longer a target company.` });
   };
 
+  const activeItems = items.filter((i) => !i.archived);
+  const archivedItems = items.filter((i) => i.archived);
+  const visibleItems = tab === 'active' ? activeItems : archivedItems;
+
   const exportToExcel = () => {
-    const rows = items.map((c) => {
+    const rows = activeItems.map((c) => {
       const row: Record<string, string | number> = { Company: c.company };
       CRITERIA.forEach((cr) => {
         const v = c[cr.column];
@@ -217,7 +239,7 @@ export default function TargetCompaniesPage() {
         subtitle="My Target Companies"
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={exportToExcel} disabled={items.length === 0}>
+            <Button variant="outline" onClick={exportToExcel} disabled={activeItems.length === 0}>
               <Download className="mr-2 h-4 w-4" />
               Export to Excel
             </Button>
@@ -231,22 +253,37 @@ export default function TargetCompaniesPage() {
 
 
       <main className="container mx-auto px-4 py-8">
+        <Tabs value={tab} onValueChange={(v) => setTab(v as 'active' | 'archived')}>
+          <TabsList className="mb-4">
+            <TabsTrigger value="active">Active ({activeItems.length})</TabsTrigger>
+            <TabsTrigger value="archived">Archived ({archivedItems.length})</TabsTrigger>
+          </TabsList>
+        </Tabs>
         <Card>
           <CardContent className="p-0">
             {isLoading ? (
               <div className="flex items-center justify-center gap-2 p-12 text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" /> Loading your target companies…
               </div>
-            ) : items.length === 0 ? (
+            ) : visibleItems.length === 0 ? (
               <div className="flex flex-col items-center gap-3 p-12 text-center">
-                <Target className="h-10 w-10 text-muted-foreground" />
-                <p className="text-muted-foreground">
-                  No target companies yet. Add one and it will be scored automatically.
-                </p>
-                <Button onClick={() => setDialogOpen(true)} className="bg-gradient-primary">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add company
-                </Button>
+                {tab === 'active' ? (
+                  <>
+                    <Target className="h-10 w-10 text-muted-foreground" />
+                    <p className="text-muted-foreground">
+                      No target companies yet. Add one and it will be scored automatically.
+                    </p>
+                    <Button onClick={() => setDialogOpen(true)} className="bg-gradient-primary">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add company
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Archive className="h-10 w-10 text-muted-foreground" />
+                    <p className="text-muted-foreground">No archived companies yet.</p>
+                  </>
+                )}
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -262,7 +299,7 @@ export default function TargetCompaniesPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {items.map((row) => (
+                    {visibleItems.map((row) => (
                       <TableRow key={row.id}>
                         <TableCell>
                           <div className="font-medium text-foreground">{row.company}</div>
@@ -315,19 +352,33 @@ export default function TargetCompaniesPage() {
                                 <FileText className="mr-2 h-4 w-4" />
                                 View insights
                               </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => navigate(`/target-companies/${row.id}/outreach`)}
-                              >
-                                <Send className="mr-2 h-4 w-4" />
-                                Prepare outreach
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                disabled={evaluatingId === row.id}
-                                onClick={() => evaluate(row)}
-                              >
-                                <RefreshCw className="mr-2 h-4 w-4" />
-                                Update evaluation
-                              </DropdownMenuItem>
+                              {!row.archived && (
+                                <>
+                                  <DropdownMenuItem
+                                    onClick={() => navigate(`/target-companies/${row.id}/outreach`)}
+                                  >
+                                    <Send className="mr-2 h-4 w-4" />
+                                    Prepare outreach
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    disabled={evaluatingId === row.id}
+                                    onClick={() => evaluate(row)}
+                                  >
+                                    <RefreshCw className="mr-2 h-4 w-4" />
+                                    Update evaluation
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleSetArchived(row, true)}>
+                                    <Archive className="mr-2 h-4 w-4" />
+                                    Archive
+                                  </DropdownMenuItem>
+                                </>
+                              )}
+                              {row.archived && (
+                                <DropdownMenuItem onClick={() => handleSetArchived(row, false)}>
+                                  <ArchiveRestore className="mr-2 h-4 w-4" />
+                                  Restore
+                                </DropdownMenuItem>
+                              )}
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 className="text-destructive focus:text-destructive"

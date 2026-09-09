@@ -134,6 +134,7 @@ export default function TargetCompaniesPage() {
         verdicts: data.verdicts ?? {},
         final_decision: data.decision ?? null,
         analysis: data.text,
+        evaluation: data.evaluation ?? null,
         evaluated_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };

@@ -90,23 +90,72 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     void loadSkills();
   }, [user?.id]);
 
-  // Load the user's salary expectations from My Qwest for comparison (one per currency).
+  // Auto-load existing company insights when editing an application.
   useEffect(() => {
-    if (!user) return;
-    const loadSalaryExpectation = async () => {
-      const { data } = await supabase
-        .from('compensation_items')
-        .select('value, min_value, currency, period')
-        .eq('user_id', user.id)
-        .eq('kind', 'salary')
-        .order('created_at', { ascending: true });
-      if (data) {
-        setSalaryTargets(data as any);
-      }
-    };
-    void loadSalaryExpectation();
+    if (editingApplication?.company) {
+      void loadExistingCompanyInsights(editingApplication.company);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  }, [user?.id]);
+  const normalizeCompanyKey = (value: string) =>
+    value.toLowerCase().replace(/\s+/g, ' ').trim();
+
+  const findExistingCompanyInsights = async (company: string) => {
+    if (!user) return null;
+    const normalized = normalizeCompanyKey(company);
+    const db = supabase as any;
+    const { data: targets } = await db
+      .from('target_companies')
+      .select(
+        'company, analysis, evaluation, score_stage, score_history, score_compensation, score_culture, score_path, evaluated_at'
+      )
+      .eq('user_id', user.id)
+      .order('evaluated_at', { ascending: false, nullsFirst: false });
+
+    const match = (targets ?? []).find(
+      (t: any) => normalizeCompanyKey(t.company ?? '') === normalized
+    );
+
+    if (match && (match.evaluation || match.analysis)) {
+      return {
+        source: 'target' as const,
+        text: match.analysis ?? null,
+        evaluation: match.evaluation ?? null,
+        scores: {
+          stage: match.score_stage,
+          history: match.score_history,
+          compensation: match.score_compensation,
+          culture: match.score_culture,
+          path: match.score_path,
+        },
+      };
+    }
+    return null;
+  };
+
+  const loadExistingCompanyInsights = async (company: string) => {
+    const trimmed = company.trim();
+    if (!trimmed) {
+      setCompanyResearchText(null);
+      setCompanyEvaluation(null);
+      setCompanyScores(null);
+      setResearchSource(null);
+      return;
+    }
+    const match = await findExistingCompanyInsights(trimmed);
+    if (match) {
+      setCompanyResearchText(match.text);
+      setCompanyEvaluation(match.evaluation);
+      setCompanyScores(match.scores);
+      setResearchSource(match.source);
+    } else {
+      setCompanyResearchText(null);
+      setCompanyEvaluation(null);
+      setCompanyScores(null);
+      setResearchSource(null);
+    }
+  };
 
   const [formData, setFormData] = useState<JobApplicationFormData>({
 
@@ -340,38 +389,16 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     setCompanyEvaluation(null);
     setCompanyScores(null);
     setResearchSource(null);
-    const db = supabase as any;
     try {
-      const companyKey = company.toLowerCase();
-      const normalized = companyKey.replace(/\s+/g, ' ').trim();
-      const { data: { user } } = await supabase.auth.getUser();
-
       // 1. Reuse insights already stored in My Target Companies
-      if (user) {
-        const { data: targets } = await db
-          .from('target_companies')
-          .select('company, analysis, evaluation, score_stage, score_history, score_compensation, score_culture, score_path, evaluated_at')
-          .eq('user_id', user.id)
-          .order('evaluated_at', { ascending: false, nullsFirst: false });
-
-        const match = (targets ?? []).find(
-          (t: any) => (t.company ?? '').toLowerCase().replace(/\s+/g, ' ').trim() === normalized,
-        );
-
-        if (match && (match.evaluation || match.analysis)) {
-          setCompanyEvaluation(match.evaluation ?? null);
-          setCompanyResearchText(match.analysis ?? null);
-          setCompanyScores({
-            stage: match.score_stage,
-            history: match.score_history,
-            compensation: match.score_compensation,
-            culture: match.score_culture,
-            path: match.score_path,
-          });
-          setResearchSource('target');
-          toast({ title: 'Insights already available', description: `Showing saved insights for ${company}.` });
-          return;
-        }
+      const match = await findExistingCompanyInsights(company);
+      if (match) {
+        setCompanyEvaluation(match.evaluation);
+        setCompanyResearchText(match.text);
+        setCompanyScores(match.scores);
+        setResearchSource(match.source);
+        toast({ title: 'Insights already available', description: `Showing saved insights for ${company}.` });
+        return;
       }
 
       // 2. Otherwise run the same evaluation used in My Target Companies
@@ -402,6 +429,8 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
 
       // 3. Save it as a target company and keep the plain-text cache
       if (user) {
+        const db = supabase as any;
+        const companyKey = company.toLowerCase();
         const { error: insertError } = await db.from('target_companies').insert({
           user_id: user.id,
           company,
@@ -625,6 +654,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 id="company"
                 value={formData.company}
                 onChange={(e) => handleChange('company', e.target.value)}
+                onBlur={() => loadExistingCompanyInsights(formData.company)}
                 placeholder="e.g. Google, Microsoft..."
                 required
                 maxLength={120}

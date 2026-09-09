@@ -1,4 +1,5 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const N8N_WEBHOOK_URL =
   "https://karinaceron.app.n8n.cloud/webhook/dd564ef4-d017-43cb-bac2-e6c9efc57ac0";
@@ -160,11 +161,39 @@ Deno.serve(async (req) => {
     const jobDescription =
       typeof body.jobDescription === "string" ? body.jobDescription.trim().slice(0, 6000) : "";
 
+    // Identify the caller and fetch their Qwest candidate profile summary.
+    let candidateProfile = "";
+    const authHeader = req.headers.get("Authorization") ?? "";
+    const token = authHeader.replace(/^Bearer\s+/i, "");
+    if (token) {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+      const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+      if (supabaseUrl && serviceKey) {
+        const admin = createClient(supabaseUrl, serviceKey);
+        const { data: userData, error: userError } = await admin.auth.getUser(token);
+        if (userError) {
+          console.warn(`evaluate-target-company: auth.getUser failed: ${userError.message}`);
+        } else if (userData?.user) {
+          const { data: profile, error: profileError } = await admin
+            .from("profiles")
+            .select("candidate_profile")
+            .eq("user_id", userData.user.id)
+            .maybeSingle();
+          if (profileError) {
+            console.warn(`evaluate-target-company: profile fetch failed: ${profileError.message}`);
+          } else if (typeof profile?.candidate_profile === "string") {
+            candidateProfile = profile.candidate_profile.trim().slice(0, 4000);
+          }
+        }
+      }
+    }
+
     const payload = {
       company: company.slice(0, 120),
       website,
       role,
       job_description: jobDescription,
+      candidate_profile: candidateProfile,
       mode: "target-company-scorecard",
       scorecard: SCORECARD_INSTRUCTIONS,
     };

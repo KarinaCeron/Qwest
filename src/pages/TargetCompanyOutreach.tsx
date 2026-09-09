@@ -80,6 +80,24 @@ export default function TargetCompanyOutreachPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const openSearch = (keywords: string) => {
+    const url = searchUrl(keywords);
+    let opened: Window | null = null;
+    try {
+      opened = window.open(url, '_blank', 'noopener,noreferrer');
+    } catch {
+      opened = null;
+    }
+    if (!opened) {
+      navigator.clipboard?.writeText(url);
+      toast({
+        title: 'Search address copied',
+        description: 'Your browser blocked the new tab. Paste the address in a new browser tab.',
+      });
+    }
+  };
+
+
   const [company, setCompany] = useState<TargetCompany | null>(null);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -322,8 +340,10 @@ export default function TargetCompanyOutreachPage() {
                   Find people on LinkedIn
                 </CardTitle>
                 <CardDescription>
-                  Each button opens a LinkedIn people search for that title at {company.company}. Copy the
-                  profile link of anyone useful and add them below.
+                  Each button opens a LinkedIn people search for that title at {company.company} in a new
+                  tab. If your browser blocks it (common inside this preview window), the search address is
+                  copied to your clipboard instead — paste it in a new tab. Copy the profile link of anyone
+                  useful and add them below.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -333,16 +353,10 @@ export default function TargetCompanyOutreachPage() {
                       key={title}
                       variant="outline"
                       size="sm"
-                      asChild
+                      onClick={() => openSearch(`${title} ${company.company}`)}
                     >
-                      <a
-                        href={searchUrl(`${title} ${company.company}`)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Linkedin className="mr-2 h-4 w-4" />
-                        {title}
-                      </a>
+                      <Linkedin className="mr-2 h-4 w-4" />
+                      {title}
                     </Button>
                   ))}
                 </div>
@@ -354,15 +368,14 @@ export default function TargetCompanyOutreachPage() {
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {founders.map((founder) => (
-                        <Button key={founder} variant="secondary" size="sm" asChild>
-                          <a
-                            href={searchUrl(`${founder} ${company.company}`)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <Linkedin className="mr-2 h-4 w-4" />
-                            {founder}
-                          </a>
+                        <Button
+                          key={founder}
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => openSearch(`${founder} ${company.company}`)}
+                        >
+                          <Linkedin className="mr-2 h-4 w-4" />
+                          {founder}
                         </Button>
                       ))}
                     </div>
@@ -378,15 +391,14 @@ export default function TargetCompanyOutreachPage() {
                   <Button
                     variant="outline"
                     disabled={!customTitle.trim()}
-                    onClick={() =>
-                      window.open(searchUrl(`${customTitle.trim()} ${company.company}`), '_blank', 'noopener')
-                    }
+                    onClick={() => openSearch(`${customTitle.trim()} ${company.company}`)}
                   >
                     <Search className="mr-2 h-4 w-4" />
                     Search
                   </Button>
                 </div>
               </CardContent>
+
             </Card>
 
             <Card>

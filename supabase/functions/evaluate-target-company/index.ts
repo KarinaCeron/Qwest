@@ -169,6 +169,7 @@ Deno.serve(async (req) => {
       scorecard: SCORECARD_INSTRUCTIONS,
     };
 
+    console.log(`evaluate-target-company: payload enviado al webhook: ${JSON.stringify(payload)}`);
     console.log(`evaluate-target-company: POST to n8n for "${company}"`);
     let res = await fetch(N8N_WEBHOOK_URL, {
       method: "POST",

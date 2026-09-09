@@ -25,7 +25,7 @@ import { TargetCompanyReport } from '@/components/TargetCompanyReport';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Plus, Loader2, RefreshCw, Trash2, FileText, Target, MoreHorizontal, Send, Download, Archive, ArchiveRestore, Search } from 'lucide-react';
+import { Plus, Loader2, RefreshCw, Trash2, FileText, Target, MoreHorizontal, Send, Download, Archive, ArchiveRestore, Search, CheckCircle2, RotateCcw } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 type TargetCompany = {
@@ -46,6 +46,7 @@ type TargetCompany = {
   evaluation: Record<string, any> | null;
   evaluated_at: string | null;
   archived: boolean;
+  review_status: 'to_review' | 'reviewed' | string;
   created_at: string;
 };
 
@@ -80,6 +81,7 @@ export default function TargetCompaniesPage() {
   const [detail, setDetail] = useState<TargetCompany | null>(null);
   const [tab, setTab] = useState<'active' | 'archived'>('active');
   const [search, setSearch] = useState('');
+  const [reviewFilter, setReviewFilter] = useState<'all' | 'to_review' | 'reviewed'>('all');
 
   useEffect(() => {
     if (!loading && !user) navigate('/auth');

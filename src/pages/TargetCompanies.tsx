@@ -263,9 +263,7 @@ export default function TargetCompaniesPage() {
                           const score = row[c.column] as number | null;
                           return (
                             <TableCell key={c.key} className="text-center">
-                              <Badge variant="outline" className={scoreClass(score)}>
-                                {score === null || score === undefined ? '—' : `${score}/5`}
-                              </Badge>
+                              <StarRating score={score} />
                               {row.confidence?.[c.key] && (
                                 <div className="mt-1 text-[11px] text-muted-foreground">
                                   {row.confidence[c.key]}

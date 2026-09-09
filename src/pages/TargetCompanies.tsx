@@ -20,7 +20,6 @@ import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from '@/components/ui/sheet';
 import { StarRating } from '@/components/StarRating';
-import { StarRating } from '@/components/StarRating';
 import { TargetCompanyReport } from '@/components/TargetCompanyReport';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,

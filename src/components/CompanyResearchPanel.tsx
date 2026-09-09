@@ -58,7 +58,7 @@ export function CompanyResearchPanel({ company, isLoading, text, evaluation, sco
                   {scoreRows.map((c) => (
                     <div key={c.key} className="flex items-center justify-between gap-3">
                       <span className="text-sm text-foreground/90">{c.label}</span>
-                      <StarRating value={scores?.[c.key] ?? 0} />
+                      <StarRating score={scores?.[c.key] ?? 0} showValue={false} />
                     </div>
                   ))}
                 </div>

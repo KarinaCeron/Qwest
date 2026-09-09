@@ -56,23 +56,10 @@ const STATUSES = [
   { value: 'no_response', label: 'No response' },
 ] as const;
 
-const DEFAULT_TITLES = [
-  'CEO', 'CTO', 'CPO', 'VP Product', 'Head of Product', 'Head of Talent', 'Founder',
-];
-
 const emptyForm = { name: '', title: '', linkedin_url: '', email: '', notes: '' };
 
 const searchUrl = (keywords: string) =>
   `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(keywords)}`;
-
-/** Case-insensitive lookup on the stored report (founders vs Founders). */
-const pick = (obj: Record<string, any> | null | undefined, key: string): string | null => {
-  if (!obj) return null;
-  const found = Object.keys(obj).find((k) => k.toLowerCase() === key.toLowerCase());
-  const value = found ? obj[found] : null;
-  if (value === null || value === undefined || value === '') return null;
-  return String(value);
-};
 
 export default function TargetCompanyOutreachPage() {
   const { id } = useParams<{ id: string }>();
@@ -83,7 +70,8 @@ export default function TargetCompanyOutreachPage() {
   const [company, setCompany] = useState<TargetCompany | null>(null);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [customTitle, setCustomTitle] = useState('');
+  const [roleInput, setRoleInput] = useState('');
+  const [generatedLink, setGeneratedLink] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
@@ -150,15 +138,6 @@ export default function TargetCompanyOutreachPage() {
     return values.reduce((sum, v) => sum + (Number(v ?? 0) || 0), 0);
   }, [company]);
 
-  const founders = useMemo(() => {
-    const raw = pick(company?.evaluation?.company, 'founders');
-    if (!raw) return [] as string[];
-    return raw
-      .split(/,| and | y |;|\n/)
-      .map((s) => s.replace(/\(.*?\)/g, '').trim())
-      .filter((s) => s.length > 2 && /[a-zA-Z]/.test(s))
-      .slice(0, 4);
-  }, [company]);
 
   const openAdd = () => {
     setEditingId(null);
@@ -258,6 +237,15 @@ export default function TargetCompanyOutreachPage() {
     await navigator.clipboard.writeText(text);
     toast({ title: 'Copied', description: 'The message is on your clipboard.' });
   };
+  const createLinkedInSearch = () => {
+    const role = roleInput.trim();
+    if (!role) {
+      toast({ title: 'Enter a role', description: 'Type a role to search for on LinkedIn.', variant: 'destructive' });
+      return;
+    }
+    if (!company) return;
+    setGeneratedLink(searchUrl(`${role} ${company.company}`));
+  };
 
   if (loading || !user) return null;
 
@@ -313,106 +301,51 @@ export default function TargetCompanyOutreachPage() {
                   Find people on LinkedIn
                 </CardTitle>
                 <CardDescription>
-                  Each link searches LinkedIn for that title at {company.company}. If the opened tab asks you
-                  to sign in, use the copy icon and paste the link into your own browser tab instead.
+                  Type a role at {company.company}, create the LinkedIn people search, then open or copy the link.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex flex-wrap gap-2">
-                  {DEFAULT_TITLES.map((title) => (
-                    <div key={title} className="flex items-center rounded-md border">
-                      <Button variant="ghost" size="sm" asChild>
-                        <a
-                          href={searchUrl(`${title} ${company.company}`)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <Linkedin className="mr-2 h-4 w-4" />
-                          {title}
-                        </a>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="px-2"
-                        aria-label={`Copy LinkedIn search link for ${title}`}
-                        onClick={() => copySearch(searchUrl(`${title} ${company.company}`))}
-                      >
-                        <Copy className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-
-                {founders.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                      Founders named in the research
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {founders.map((founder) => (
-                        <div key={founder} className="flex items-center rounded-md border bg-secondary">
-                          <Button variant="ghost" size="sm" asChild>
-                            <a
-                              href={searchUrl(`${founder} ${company.company}`)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <Linkedin className="mr-2 h-4 w-4" />
-                              {founder}
-                            </a>
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="px-2"
-                            aria-label={`Copy LinkedIn search link for ${founder}`}
-                            onClick={() => copySearch(searchUrl(`${founder} ${company.company}`))}
-                          >
-                            <Copy className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <Input
-                    value={customTitle}
-                    onChange={(e) => setCustomTitle(e.target.value)}
-                    placeholder="Any other title, e.g. Director of Engineering"
+                    value={roleInput}
+                    onChange={(e) => {
+                      setRoleInput(e.target.value);
+                      if (!e.target.value.trim()) setGeneratedLink(null);
+                    }}
+                    placeholder="e.g. Head of Product"
                   />
-                  {customTitle.trim() ? (
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" asChild>
-                        <a
-                          href={searchUrl(`${customTitle.trim()} ${company.company}`)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <Search className="mr-2 h-4 w-4" />
-                          Search
+                  <Button onClick={createLinkedInSearch} className="bg-gradient-primary shrink-0">
+                    <Search className="mr-2 h-4 w-4" />
+                    Create LinkedIn search
+                  </Button>
+                </div>
+
+                {generatedLink && (
+                  <div className="flex flex-col gap-3 rounded-md border bg-muted/30 p-3 sm:flex-row sm:items-center">
+                    <Input
+                      value={generatedLink}
+                      readOnly
+                      className="border-0 bg-transparent shadow-none"
+                    />
+                    <div className="flex shrink-0 gap-2">
+                      <Button variant="outline" size="sm" asChild>
+                        <a href={generatedLink} target="_blank" rel="noopener noreferrer">
+                          <Linkedin className="mr-2 h-4 w-4" />
+                          Open LinkedIn
                         </a>
                       </Button>
                       <Button
                         variant="outline"
-                        size="icon"
-                        aria-label="Copy LinkedIn search link"
-                        onClick={() => copySearch(searchUrl(`${customTitle.trim()} ${company.company}`))}
+                        size="sm"
+                        onClick={() => copySearch(generatedLink)}
                       >
-                        <Copy className="h-4 w-4" />
+                        <Copy className="mr-2 h-4 w-4" />
+                        Copy link
                       </Button>
                     </div>
-                  ) : (
-                    <Button variant="outline" disabled>
-                      <Search className="mr-2 h-4 w-4" />
-                      Search
-                    </Button>
-                  )}
-                </div>
+                  </div>
+                )}
               </CardContent>
-
             </Card>
 
             <Card>

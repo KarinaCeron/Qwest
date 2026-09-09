@@ -68,6 +68,10 @@ export function CandidateProfile() {
   const [compItems, setCompItems] = useState<CompensationItem[]>([]);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestRef = useRef(summary);
+  // Last auto-generated text; if the summary still matches it, the user hasn't
+  // customized it, so it's safe to regenerate when the source data changes.
+  const lastGeneratedRef = useRef<string | null>(null);
+  const loadedRef = useRef(false);
 
   useEffect(() => {
     latestRef.current = summary;
@@ -116,9 +120,11 @@ export function CandidateProfile() {
       setCompItems(loadedCompItems);
       setSummary(loadedSummary);
       setLoading(false);
+      loadedRef.current = true;
 
       if (!loadedSummary.trim()) {
         const generated = buildSummary(loadedTargetRoles, loadedSkills, loadedCompItems);
+        lastGeneratedRef.current = generated;
         setSummary(generated);
         persist(generated);
         toast({ title: '✨ Summary generated from your Qwest' });
@@ -126,6 +132,29 @@ export function CandidateProfile() {
     };
     load();
   }, [user, persist]);
+
+  // Keep the summary in sync with core skills / compensation / benefits:
+  // regenerate when the source data changes and the user hasn't customized the text.
+  useEffect(() => {
+    if (!loadedRef.current) return;
+    const generated = buildSummary(targetRoles, skills, compItems);
+    if (generated === lastGeneratedRef.current) return;
+    const untouched =
+      !latestRef.current.trim() || latestRef.current === lastGeneratedRef.current;
+    lastGeneratedRef.current = generated;
+    if (untouched) {
+      setSummary(generated);
+      persist(generated);
+    }
+  }, [targetRoles, skills, compItems, persist]);
+
+  const handleRegenerate = () => {
+    const generated = buildSummary(targetRoles, skills, compItems);
+    lastGeneratedRef.current = generated;
+    setSummary(generated);
+    persist(generated);
+    toast({ title: '✨ Summary regenerated from your Qwest' });
+  };
 
   // Flush pending autosave on unmount
   useEffect(() => {

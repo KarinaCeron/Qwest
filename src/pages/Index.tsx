@@ -16,17 +16,11 @@ import { useToast } from '@/hooks/use-toast';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import emptyStateImage from '@/assets/empty-state.jpg';
 
+import type { FiltersState as JobApplicationFiltersState } from '@/components/JobApplicationFilters';
+
 type DateField = 'created' | 'statusChanged';
 
-interface FiltersState {
-  search: string;
-  status: ApplicationStatus | 'all';
-  priority: Priority | 'all';
-  company: string;
-  dateField: DateField;
-  dateFrom: string;
-  dateTo: string;
-}
+interface FiltersState extends JobApplicationFiltersState {}
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -40,7 +34,7 @@ const Index = () => {
   const [loadingData, setLoadingData] = useState(true);
   const [filters, setFilters] = useState<FiltersState>({
     search: '',
-    status: 'all',
+    status: [],
     priority: 'all',
     company: '',
     dateField: 'created',
@@ -94,7 +88,7 @@ const Index = () => {
         app.role.toLowerCase().includes(filters.search.toLowerCase()) ||
         app.recruiterName?.toLowerCase().includes(filters.search.toLowerCase());
 
-      const matchesStatus = filters.status === 'all' || app.status === filters.status;
+      const matchesStatus = filters.status.length === 0 || filters.status.includes(app.status);
       const matchesPriority = filters.priority === 'all' || app.priority === filters.priority;
       const matchesCompany = !filters.company || app.company === filters.company;
 
@@ -166,10 +160,13 @@ const Index = () => {
     { key: 'no-response', label: 'No Response', description: 'No news for over a month. Applications land here automatically after 30 days without a status change.', icon: FileX, iconColor: 'text-gray-500', ringColor: 'ring-gray-500', count: statusStats.noResponse },
   ];
 
-  const handleStatusFilter = (status: ApplicationStatus | 'all') => {
+  const handleStatusFilter = (status: ApplicationStatus) => {
+    const next = filters.status.includes(status)
+      ? filters.status.filter((s) => s !== status)
+      : [...filters.status, status];
     setFilters({
       search: '',
-      status: filters.status === status ? 'all' : status,
+      status: next,
       priority: 'all',
       company: '',
       dateField: filters.dateField,
@@ -363,7 +360,7 @@ const Index = () => {
                     <TooltipTrigger asChild>
                       <Card
                         className={`bg-gradient-card cursor-pointer transition-all hover:shadow-lg ${
-                          filters.status === key ? `ring-2 ${ringColor} shadow-lg` : ''
+                          filters.status.includes(key) ? `ring-2 ${ringColor} shadow-lg` : ''
                         }`}
                         onClick={() => handleStatusFilter(key)}
                         onDrop={(e) => handleDrop(e, key)}

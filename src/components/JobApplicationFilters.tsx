@@ -11,15 +11,25 @@ import { cn } from '@/lib/utils';
 
 export type DateField = 'created' | 'statusChanged';
 
-interface FiltersState {
+export interface FiltersState {
   search: string;
-  status: ApplicationStatus | 'all';
+  status: ApplicationStatus[];
   priority: Priority | 'all';
   company: string;
   dateField: DateField;
   dateFrom: string;
   dateTo: string;
 }
+
+const STATUS_OPTIONS: { value: ApplicationStatus; label: string; icon: string }[] = [
+  { value: 'submitted', label: 'Submitted', icon: '📤' },
+  { value: 'in-progress', label: 'In Progress', icon: '⏳' },
+  { value: 'interview', label: 'HR Interview', icon: '💼' },
+  { value: 'technical-interview', label: 'Technical Interview', icon: '🧪' },
+  { value: 'offer', label: 'Offer', icon: '🎉' },
+  { value: 'rejected', label: 'Rejected', icon: '❌' },
+  { value: 'no-response', label: 'No Response', icon: '⏸️' },
+];
 
 interface JobApplicationFiltersProps {
   filters: FiltersState;
@@ -31,22 +41,40 @@ interface JobApplicationFiltersProps {
 export function JobApplicationFilters({ filters, onFiltersChange, onExport, companies }: JobApplicationFiltersProps) {
   const [showFilters, setShowFilters] = useState(false);
   const [companyOpen, setCompanyOpen] = useState(false);
+  const [statusOpen, setStatusOpen] = useState(false);
 
-  const handleFilterChange = (key: keyof FiltersState, value: string) => {
+  const handleFilterChange = (key: keyof FiltersState, value: string | string[]) => {
     onFiltersChange({ ...filters, [key]: value });
   };
 
   const clearFilters = () => {
-    onFiltersChange({ search: '', status: 'all', priority: 'all', company: '', dateField: 'created', dateFrom: '', dateTo: '' });
+    onFiltersChange({ search: '', status: [], priority: 'all', company: '', dateField: 'created', dateFrom: '', dateTo: '' });
   };
 
   const hasActiveFilters =
     filters.search ||
-    filters.status !== 'all' ||
+    filters.status.length > 0 ||
     filters.priority !== 'all' ||
     filters.company ||
     filters.dateFrom ||
     filters.dateTo;
+
+  const toggleStatus = (status: ApplicationStatus) => {
+    const next = filters.status.includes(status)
+      ? filters.status.filter((s) => s !== status)
+      : [...filters.status, status];
+    handleFilterChange('status', next);
+  };
+
+  const selectAllStatuses = (selected: boolean) => {
+    handleFilterChange('status', selected ? STATUS_OPTIONS.map((s) => s.value) : []);
+  };
+
+  const statusSummary = filters.status.length === 0
+    ? 'All statuses'
+    : filters.status.length === 1
+      ? STATUS_OPTIONS.find((s) => s.value === filters.status[0])?.label ?? `${filters.status.length} selected`
+      : `${filters.status.length} statuses`;
 
   return (
     <div className="space-y-4">
@@ -84,19 +112,49 @@ export function JobApplicationFilters({ filters, onFiltersChange, onExport, comp
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Status</label>
-                <Select value={filters.status} onValueChange={(value) => handleFilterChange('status', value)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All statuses</SelectItem>
-                    <SelectItem value="submitted">📤 Submitted</SelectItem>
-                    <SelectItem value="in-progress">⏳ In Progress</SelectItem>
-                    <SelectItem value="interview">💼 HR Interview</SelectItem>
-                    <SelectItem value="technical-interview">🧪 Technical Interview</SelectItem>
-                    <SelectItem value="offer">🎉 Offer</SelectItem>
-                    <SelectItem value="rejected">❌ Rejected</SelectItem>
-                    <SelectItem value="no-response">⏸️ No Response</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Popover open={statusOpen} onOpenChange={setStatusOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={statusOpen}
+                      className="w-full justify-between font-normal"
+                    >
+                      <span className={cn('truncate', filters.status.length === 0 && 'text-muted-foreground')}>
+                        {statusSummary}
+                      </span>
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search status..." />
+                      <CommandList>
+                        <CommandEmpty>No status found.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            value="all-statuses"
+                            onSelect={() => selectAllStatuses(filters.status.length < STATUS_OPTIONS.length)}
+                          >
+                            <Check className={cn('mr-2 h-4 w-4', filters.status.length === STATUS_OPTIONS.length ? 'opacity-100' : 'opacity-0')} />
+                            All statuses
+                          </CommandItem>
+                          {STATUS_OPTIONS.map((status) => (
+                            <CommandItem
+                              key={status.value}
+                              value={status.value}
+                              onSelect={() => toggleStatus(status.value)}
+                            >
+                              <Check className={cn('mr-2 h-4 w-4', filters.status.includes(status.value) ? 'opacity-100' : 'opacity-0')} />
+                              <span className="mr-2">{status.icon}</span>
+                              {status.label}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Priority</label>

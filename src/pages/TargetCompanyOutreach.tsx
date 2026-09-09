@@ -90,6 +90,17 @@ export default function TargetCompanyOutreachPage() {
   const [saving, setSaving] = useState(false);
   const [draftingId, setDraftingId] = useState<string | null>(null);
 
+  const copySearch = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      toast({ title: 'Link copied', description: 'Paste it in a new browser tab.' });
+    } catch {
+      toast({ title: 'Could not copy', description: url, variant: 'destructive' });
+    }
+  };
+
+
+
   useEffect(() => {
     if (!loading && !user) navigate('/auth');
   }, [loading, user, navigate]);
@@ -322,23 +333,34 @@ export default function TargetCompanyOutreachPage() {
                   Find people on LinkedIn
                 </CardTitle>
                 <CardDescription>
-                  Each link opens LinkedIn outside the app and searches for that title at {company.company}.
-                  Copy the profile link of anyone useful and add them below.
+                  Each link searches LinkedIn for that title at {company.company}. If the opened tab asks you
+                  to sign in, use the copy icon and paste the link into your own browser tab instead.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex flex-wrap gap-2">
                   {DEFAULT_TITLES.map((title) => (
-                    <Button key={title} variant="outline" size="sm" asChild>
-                      <a
-                        href={searchUrl(`${title} ${company.company}`)}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                    <div key={title} className="flex items-center rounded-md border">
+                      <Button variant="ghost" size="sm" asChild>
+                        <a
+                          href={searchUrl(`${title} ${company.company}`)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Linkedin className="mr-2 h-4 w-4" />
+                          {title}
+                        </a>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="px-2"
+                        aria-label={`Copy LinkedIn search link for ${title}`}
+                        onClick={() => copySearch(searchUrl(`${title} ${company.company}`))}
                       >
-                        <Linkedin className="mr-2 h-4 w-4" />
-                        {title}
-                      </a>
-                    </Button>
+                        <Copy className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
                   ))}
                 </div>
 
@@ -349,16 +371,27 @@ export default function TargetCompanyOutreachPage() {
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {founders.map((founder) => (
-                        <Button key={founder} variant="secondary" size="sm" asChild>
-                          <a
-                            href={searchUrl(`${founder} ${company.company}`)}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                        <div key={founder} className="flex items-center rounded-md border bg-secondary">
+                          <Button variant="ghost" size="sm" asChild>
+                            <a
+                              href={searchUrl(`${founder} ${company.company}`)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <Linkedin className="mr-2 h-4 w-4" />
+                              {founder}
+                            </a>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="px-2"
+                            aria-label={`Copy LinkedIn search link for ${founder}`}
+                            onClick={() => copySearch(searchUrl(`${founder} ${company.company}`))}
                           >
-                            <Linkedin className="mr-2 h-4 w-4" />
-                            {founder}
-                          </a>
-                        </Button>
+                            <Copy className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -371,16 +404,26 @@ export default function TargetCompanyOutreachPage() {
                     placeholder="Any other title, e.g. Director of Engineering"
                   />
                   {customTitle.trim() ? (
-                    <Button variant="outline" asChild>
-                      <a
-                        href={searchUrl(`${customTitle.trim()} ${company.company}`)}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" asChild>
+                        <a
+                          href={searchUrl(`${customTitle.trim()} ${company.company}`)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Search className="mr-2 h-4 w-4" />
+                          Search
+                        </a>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        aria-label="Copy LinkedIn search link"
+                        onClick={() => copySearch(searchUrl(`${customTitle.trim()} ${company.company}`))}
                       >
-                        <Search className="mr-2 h-4 w-4" />
-                        Search
-                      </a>
-                    </Button>
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
                   ) : (
                     <Button variant="outline" disabled>
                       <Search className="mr-2 h-4 w-4" />

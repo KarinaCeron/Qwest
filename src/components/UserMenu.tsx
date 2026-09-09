@@ -55,6 +55,10 @@ export const UserMenu = () => {
             <FileText className="mr-2 h-4 w-4" />
             My Qwest
           </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => navigate('/target-companies')} className="cursor-pointer">
+            <Target className="mr-2 h-4 w-4" />
+            My Target Companies
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => navigate('/')} className="cursor-pointer">
             <Briefcase className="mr-2 h-4 w-4" />
             My Job Apps
@@ -62,10 +66,6 @@ export const UserMenu = () => {
           <DropdownMenuItem onClick={() => navigate('/tasks')} className="cursor-pointer">
             <ListChecks className="mr-2 h-4 w-4" />
             My Pending Tasks
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => navigate('/target-companies')} className="cursor-pointer">
-            <Target className="mr-2 h-4 w-4" />
-            My Target Companies
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuLabel className="text-xs text-muted-foreground font-normal px-2 py-1.5">Resources</DropdownMenuLabel>

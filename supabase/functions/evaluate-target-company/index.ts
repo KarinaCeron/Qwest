@@ -33,6 +33,51 @@ function unwrap(text: string): string {
   return clean;
 }
 
+const SCORECARD_KEYS: Record<string, string> = {
+  stage: "stage_funding_runway",
+  history: "company_history_quality",
+  compensation: "compensation_non_negotiables",
+  culture: "culture_team",
+  path: "my_path",
+};
+
+const clampScore = (v: unknown): number | null => {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return null;
+  return Math.max(0, Math.min(5, Math.round(n)));
+};
+
+/** Parses the structured JSON report returned by the n8n workflow. */
+function parseStructured(text: string) {
+  let data: unknown;
+  try {
+    data = JSON.parse(text.trim());
+  } catch {
+    return null;
+  }
+  if (Array.isArray(data)) data = data[0];
+  if (!data || typeof data !== "object") return null;
+  const obj = data as Record<string, any>;
+  if (!obj.scorecard || typeof obj.scorecard !== "object") return null;
+
+  const scores: Record<string, number | null> = {};
+  const verdicts: Record<string, string> = {};
+  const confidence: Record<string, string> = {};
+  for (const [key, jsonKey] of Object.entries(SCORECARD_KEYS)) {
+    const entry = obj.scorecard[jsonKey];
+    scores[key] = entry ? clampScore(entry.score) : null;
+    if (entry && typeof entry.criteria === "string") verdicts[key] = entry.criteria;
+    if (entry && typeof entry.confidence === "string") confidence[key] = entry.confidence;
+  }
+
+  const summary = obj.summary && typeof obj.summary === "object" ? obj.summary : {};
+  const decision =
+    [summary.decision, summary.one_sentence_verdict].filter((v) => typeof v === "string").join(" — ") ||
+    null;
+
+  return { scores, confidence, verdicts, decision, evaluation: obj };
+}
+
 /** Extracts per-criterion scores, confidence and verdicts from the markdown scorecard table. */
 function parseScorecard(text: string) {
   const scores: Record<string, number | null> = {};
@@ -66,8 +111,9 @@ function parseScorecard(text: string) {
   }
 
   const decision = text.match(/DECISI[ÓO]N FINAL\s*[:\-–]\s*([^\n]+)/i)?.[1]?.trim() ?? null;
-  return { scores, confidence, verdicts, decision };
+  return { scores, confidence, verdicts, decision, evaluation: null };
 }
+
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -159,7 +205,7 @@ Deno.serve(async (req) => {
     }
 
     const clean = unwrap(text).replace(/\\n/g, "\n");
-    const parsed = parseScorecard(clean);
+    const parsed = parseStructured(clean) ?? parseScorecard(clean);
 
     return new Response(JSON.stringify({ text: clean, ...parsed }), {
       status: 200,

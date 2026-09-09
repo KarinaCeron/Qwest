@@ -20,6 +20,8 @@ import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from '@/components/ui/sheet';
 import { FormattedText } from '@/components/FormattedText';
+import { StarRating } from '@/components/StarRating';
+import { TargetCompanyReport } from '@/components/TargetCompanyReport';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -40,6 +42,7 @@ type TargetCompany = {
   verdicts: Record<string, string> | null;
   final_decision: string | null;
   analysis: string | null;
+  evaluation: Record<string, any> | null;
   evaluated_at: string | null;
   created_at: string;
 };
@@ -131,6 +134,7 @@ export default function TargetCompaniesPage() {
         verdicts: data.verdicts ?? {},
         final_decision: data.decision ?? null,
         analysis: data.text,
+        evaluation: data.evaluation ?? null,
         evaluated_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -259,9 +263,7 @@ export default function TargetCompaniesPage() {
                           const score = row[c.column] as number | null;
                           return (
                             <TableCell key={c.key} className="text-center">
-                              <Badge variant="outline" className={scoreClass(score)}>
-                                {score === null || score === undefined ? '—' : `${score}/5`}
-                              </Badge>
+                              <StarRating score={score} />
                               {row.confidence?.[c.key] && (
                                 <div className="mt-1 text-[11px] text-muted-foreground">
                                   {row.confidence[c.key]}
@@ -397,7 +399,9 @@ export default function TargetCompaniesPage() {
             </SheetDescription>
           </SheetHeader>
           <div className="mt-6">
-            {detail?.analysis && <FormattedText text={detail.analysis} />}
+            {detail && (
+              <TargetCompanyReport evaluation={detail.evaluation} analysis={detail.analysis} />
+            )}
           </div>
         </SheetContent>
       </Sheet>

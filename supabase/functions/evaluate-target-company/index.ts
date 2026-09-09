@@ -194,8 +194,6 @@ Deno.serve(async (req) => {
       role,
       job_description: jobDescription,
       candidate_profile: candidateProfile,
-      mode: "target-company-scorecard",
-      scorecard: SCORECARD_INSTRUCTIONS,
     };
 
     console.log(`evaluate-target-company: payload enviado al webhook: ${JSON.stringify(payload)}`);
@@ -215,7 +213,6 @@ Deno.serve(async (req) => {
       if (role) url.searchParams.set("role", role);
       if (candidateProfile) url.searchParams.set("candidate_profile", candidateProfile.slice(0, 2000));
       if (jobDescription) url.searchParams.set("job_description", jobDescription.slice(0, 1500));
-      url.searchParams.set("mode", payload.mode);
       console.log(
         `evaluate-target-company: GET query params: ${JSON.stringify(
           Object.fromEntries(url.searchParams.entries()),

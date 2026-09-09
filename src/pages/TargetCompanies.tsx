@@ -239,7 +239,7 @@ export default function TargetCompaniesPage() {
         subtitle="My Target Companies"
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={exportToExcel} disabled={items.length === 0}>
+            <Button variant="outline" onClick={exportToExcel} disabled={activeItems.length === 0}>
               <Download className="mr-2 h-4 w-4" />
               Export to Excel
             </Button>

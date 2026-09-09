@@ -404,16 +404,26 @@ export default function TargetCompanyOutreachPage() {
                     placeholder="Any other title, e.g. Director of Engineering"
                   />
                   {customTitle.trim() ? (
-                    <Button variant="outline" asChild>
-                      <a
-                        href={searchUrl(`${customTitle.trim()} ${company.company}`)}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" asChild>
+                        <a
+                          href={searchUrl(`${customTitle.trim()} ${company.company}`)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Search className="mr-2 h-4 w-4" />
+                          Search
+                        </a>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        aria-label="Copy LinkedIn search link"
+                        onClick={() => copySearch(searchUrl(`${customTitle.trim()} ${company.company}`))}
                       >
-                        <Search className="mr-2 h-4 w-4" />
-                        Search
-                      </a>
-                    </Button>
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
                   ) : (
                     <Button variant="outline" disabled>
                       <Search className="mr-2 h-4 w-4" />

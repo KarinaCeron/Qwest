@@ -90,6 +90,17 @@ export default function TargetCompanyOutreachPage() {
   const [saving, setSaving] = useState(false);
   const [draftingId, setDraftingId] = useState<string | null>(null);
 
+  const copySearch = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      toast({ title: 'Link copied', description: 'Paste it in a new browser tab.' });
+    } catch {
+      toast({ title: 'Could not copy', description: url, variant: 'destructive' });
+    }
+  };
+
+
+
   useEffect(() => {
     if (!loading && !user) navigate('/auth');
   }, [loading, user, navigate]);

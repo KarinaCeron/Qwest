@@ -337,36 +337,94 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     setStep(0);
     setIsResearching(true);
     setCompanyResearchText(null);
+    setCompanyEvaluation(null);
+    setCompanyScores(null);
+    setResearchSource(null);
+    const db = supabase as any;
     try {
       const companyKey = company.toLowerCase();
+      const normalized = companyKey.replace(/\s+/g, ' ').trim();
       const { data: { user } } = await supabase.auth.getUser();
 
-      // 1. Use stored research if it already exists for this company
+      // 1. Reuse insights already stored in My Target Companies
       if (user) {
-        const { data: cached } = await supabase
-          .from('company_research')
-          .select('research_text')
+        const { data: targets } = await db
+          .from('target_companies')
+          .select('company, analysis, evaluation, score_stage, score_history, score_compensation, score_culture, score_path, evaluated_at')
           .eq('user_id', user.id)
-          .eq('company_key', companyKey)
-          .maybeSingle();
+          .order('evaluated_at', { ascending: false, nullsFirst: false });
 
-        if (cached?.research_text) {
-          setCompanyResearchText(cached.research_text);
-          toast({ title: 'Loaded saved research', description: `Showing stored research for ${company}.` });
+        const match = (targets ?? []).find(
+          (t: any) => (t.company ?? '').toLowerCase().replace(/\s+/g, ' ').trim() === normalized,
+        );
+
+        if (match && (match.evaluation || match.analysis)) {
+          setCompanyEvaluation(match.evaluation ?? null);
+          setCompanyResearchText(match.analysis ?? null);
+          setCompanyScores({
+            stage: match.score_stage,
+            history: match.score_history,
+            compensation: match.score_compensation,
+            culture: match.score_culture,
+            path: match.score_path,
+          });
+          setResearchSource('target');
+          toast({ title: 'Insights already available', description: `Showing saved insights for ${company}.` });
           return;
         }
       }
 
-      // 2. Otherwise call the webhook
-      const { data, error } = await supabase.functions.invoke('research-company', {
-        body: { company, website: companyWebsite.trim() || undefined },
+      // 2. Otherwise run the same evaluation used in My Target Companies
+      const { data, error } = await supabase.functions.invoke('evaluate-target-company', {
+        body: {
+          company,
+          website: companyWebsite.trim() || undefined,
+          role: formData.role?.trim() || undefined,
+          jobDescription: formData.jobContent?.trim() || undefined,
+        },
       });
       if (error) throw error;
-      if (typeof data?.text !== 'string') throw new Error('No research data returned');
-      setCompanyResearchText(data.text);
+      if (typeof data?.text !== 'string' || !data.text.trim()) {
+        throw new Error('The research webhook returned an empty response.');
+      }
 
-      // 3. Save it for next time
-      if (user && data.text.trim()) {
+      const scores = data.scores ?? {};
+      setCompanyResearchText(data.text);
+      setCompanyEvaluation(data.evaluation ?? null);
+      setCompanyScores({
+        stage: scores.stage ?? null,
+        history: scores.history ?? null,
+        compensation: scores.compensation ?? null,
+        culture: scores.culture ?? null,
+        path: scores.path ?? null,
+      });
+      setResearchSource('new');
+
+      // 3. Save it as a target company and keep the plain-text cache
+      if (user) {
+        const { error: insertError } = await db.from('target_companies').insert({
+          user_id: user.id,
+          company,
+          website: companyWebsite.trim() || null,
+          role_title: formData.role?.trim() || null,
+          job_description: formData.jobContent?.trim() || null,
+          score_stage: scores.stage ?? null,
+          score_history: scores.history ?? null,
+          score_compensation: scores.compensation ?? null,
+          score_culture: scores.culture ?? null,
+          score_path: scores.path ?? null,
+          confidence: data.confidence ?? {},
+          verdicts: data.verdicts ?? {},
+          final_decision: data.decision ?? null,
+          analysis: data.text,
+          evaluation: data.evaluation ?? null,
+          evaluated_at: new Date().toISOString(),
+          archived: false,
+        });
+        if (!insertError) {
+          toast({ title: 'Added to My Target Companies', description: `${company} was saved with its scores.` });
+        }
+
         await supabase.from('company_research').upsert(
           {
             user_id: user.id,

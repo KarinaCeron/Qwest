@@ -13,6 +13,8 @@ import Templates from "./pages/Templates";
 import QuestionBank from "./pages/QuestionBank";
 import Tasks from "./pages/Tasks";
 import TargetCompanies from "./pages/TargetCompanies";
+import TargetCompanyOutreach from "./pages/TargetCompanyOutreach";
+
 
 import { GlobalChat } from "./components/GlobalChat";
 
@@ -34,6 +36,8 @@ const App = () => (
           <Route path="/questions" element={<QuestionBank />} />
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/target-companies" element={<TargetCompanies />} />
+          <Route path="/target-companies/:id/outreach" element={<TargetCompanyOutreach />} />
+
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

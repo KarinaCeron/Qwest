@@ -13,7 +13,7 @@ import {
 import { NotificationsBell } from '@/components/NotificationsBell';
 import { Button } from '@/components/ui/button';
 import { useLocation } from 'react-router-dom';
-import { CircleHelp, User, FileText, LogOut, Briefcase, MessageSquareText, ListChecks } from 'lucide-react';
+import { CircleHelp, User, FileText, LogOut, Briefcase, MessageSquareText, ListChecks, Target } from 'lucide-react';
 
 export const UserMenu = () => {
   const { user, signOut } = useAuth();

@@ -1,0 +1,389 @@
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { AppHeader } from '@/components/AppHeader';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from '@/components/ui/table';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
+} from '@/components/ui/dialog';
+import {
+  Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
+} from '@/components/ui/sheet';
+import { FormattedText } from '@/components/FormattedText';
+import { Plus, Loader2, RefreshCw, Trash2, FileText, Target } from 'lucide-react';
+
+type TargetCompany = {
+  id: string;
+  company: string;
+  website: string | null;
+  role_title: string | null;
+  job_description: string | null;
+  score_stage: number | null;
+  score_history: number | null;
+  score_compensation: number | null;
+  score_culture: number | null;
+  score_path: number | null;
+  confidence: Record<string, string> | null;
+  verdicts: Record<string, string> | null;
+  final_decision: string | null;
+  analysis: string | null;
+  evaluated_at: string | null;
+  created_at: string;
+};
+
+const CRITERIA = [
+  { key: 'stage', column: 'score_stage', label: 'Current stage' },
+  { key: 'history', column: 'score_history', label: 'History' },
+  { key: 'compensation', column: 'score_compensation', label: 'Compensation' },
+  { key: 'culture', column: 'score_culture', label: 'Culture & team' },
+  { key: 'path', column: 'score_path', label: 'My path to next role' },
+] as const;
+
+const db = supabase as any;
+
+const scoreClass = (score: number | null) => {
+  if (score === null || score === undefined) return 'bg-slate-50 text-slate-500 border-slate-200';
+  if (score <= 1) return 'bg-red-50 text-red-700 border-red-200';
+  if (score === 2) return 'bg-amber-50 text-amber-700 border-amber-200';
+  if (score === 3) return 'bg-sky-50 text-sky-700 border-sky-200';
+  return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+};
+
+const totalOf = (c: TargetCompany) =>
+  CRITERIA.reduce((sum, cr) => sum + (Number(c[cr.column] ?? 0) || 0), 0);
+
+const hasScores = (c: TargetCompany) =>
+  CRITERIA.some((cr) => c[cr.column] !== null && c[cr.column] !== undefined);
+
+export default function TargetCompaniesPage() {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const [items, setItems] = useState<TargetCompany[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [form, setForm] = useState({ company: '', website: '', role: '', jobDescription: '' });
+  const [saving, setSaving] = useState(false);
+  const [evaluatingId, setEvaluatingId] = useState<string | null>(null);
+  const [detail, setDetail] = useState<TargetCompany | null>(null);
+
+  useEffect(() => {
+    if (!loading && !user) navigate('/auth');
+  }, [loading, user, navigate]);
+
+  useEffect(() => {
+    if (!user) return;
+    loadItems();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  const loadItems = async () => {
+    setIsLoading(true);
+    const { data, error } = await db
+      .from('target_companies')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } else {
+      setItems((data ?? []) as TargetCompany[]);
+    }
+    setIsLoading(false);
+  };
+
+  const evaluate = async (row: TargetCompany) => {
+    setEvaluatingId(row.id);
+    try {
+      const { data, error } = await supabase.functions.invoke('evaluate-target-company', {
+        body: {
+          company: row.company,
+          website: row.website ?? undefined,
+          role: row.role_title ?? undefined,
+          jobDescription: row.job_description ?? undefined,
+        },
+      });
+      if (error) throw error;
+      if (typeof data?.text !== 'string' || !data.text.trim()) {
+        throw new Error('The evaluation webhook returned an empty response.');
+      }
+      const scores = data.scores ?? {};
+      const update = {
+        score_stage: scores.stage ?? null,
+        score_history: scores.history ?? null,
+        score_compensation: scores.compensation ?? null,
+        score_culture: scores.culture ?? null,
+        score_path: scores.path ?? null,
+        confidence: data.confidence ?? {},
+        verdicts: data.verdicts ?? {},
+        final_decision: data.decision ?? null,
+        analysis: data.text,
+        evaluated_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      const { error: upErr } = await db.from('target_companies').update(update).eq('id', row.id);
+      if (upErr) throw upErr;
+
+      setItems((prev) => prev.map((i) => (i.id === row.id ? { ...i, ...update } as TargetCompany : i)));
+      toast({ title: 'Evaluation ready', description: `${row.company} was scored.` });
+    } catch (e) {
+      toast({
+        title: 'Error',
+        description: e instanceof Error ? e.message : 'Could not evaluate this company.',
+        variant: 'destructive',
+      });
+    } finally {
+      setEvaluatingId(null);
+    }
+  };
+
+  const handleAdd = async () => {
+    const company = form.company.trim();
+    if (!company) {
+      toast({ title: 'Company required', description: 'Enter a company name.', variant: 'destructive' });
+      return;
+    }
+    setSaving(true);
+    try {
+      const { data, error } = await db
+        .from('target_companies')
+        .insert({
+          user_id: user!.id,
+          company,
+          website: form.website.trim() || null,
+          role_title: form.role.trim() || null,
+          job_description: form.jobDescription.trim() || null,
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      const row = data as TargetCompany;
+      setItems((prev) => [row, ...prev]);
+      setForm({ company: '', website: '', role: '', jobDescription: '' });
+      setDialogOpen(false);
+      evaluate(row);
+    } catch (e) {
+      toast({
+        title: 'Error',
+        description: e instanceof Error ? e.message : 'Could not add the company.',
+        variant: 'destructive',
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (row: TargetCompany) => {
+    const { error } = await db.from('target_companies').delete().eq('id', row.id);
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      return;
+    }
+    setItems((prev) => prev.filter((i) => i.id !== row.id));
+    toast({ title: 'Removed', description: `${row.company} is no longer a target company.` });
+  };
+
+  if (loading || !user) return null;
+
+  return (
+    <div className="min-h-screen bg-background">
+      <AppHeader
+        subtitle="My Target Companies"
+        actions={
+          <Button onClick={() => setDialogOpen(true)} className="bg-gradient-primary">
+            <Plus className="mr-2 h-4 w-4" />
+            Add company
+          </Button>
+        }
+      />
+
+      <main className="container mx-auto px-4 py-8">
+        <Card>
+          <CardContent className="p-0">
+            {isLoading ? (
+              <div className="flex items-center justify-center gap-2 p-12 text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" /> Loading your target companies…
+              </div>
+            ) : items.length === 0 ? (
+              <div className="flex flex-col items-center gap-3 p-12 text-center">
+                <Target className="h-10 w-10 text-muted-foreground" />
+                <p className="text-muted-foreground">
+                  No target companies yet. Add one and it will be scored automatically.
+                </p>
+                <Button onClick={() => setDialogOpen(true)} className="bg-gradient-primary">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add company
+                </Button>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="min-w-[180px]">Company</TableHead>
+                      {CRITERIA.map((c) => (
+                        <TableHead key={c.key} className="text-center">{c.label}</TableHead>
+                      ))}
+                      <TableHead className="text-center">Total</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {items.map((row) => (
+                      <TableRow key={row.id}>
+                        <TableCell>
+                          <div className="font-medium text-foreground">{row.company}</div>
+                          {row.role_title && (
+                            <div className="text-xs text-muted-foreground">{row.role_title}</div>
+                          )}
+                          {row.final_decision && (
+                            <div className="mt-1 text-xs text-muted-foreground line-clamp-2">
+                              {row.final_decision}
+                            </div>
+                          )}
+                        </TableCell>
+                        {CRITERIA.map((c) => {
+                          const score = row[c.column] as number | null;
+                          return (
+                            <TableCell key={c.key} className="text-center">
+                              <Badge variant="outline" className={scoreClass(score)}>
+                                {score === null || score === undefined ? '—' : `${score}/5`}
+                              </Badge>
+                              {row.confidence?.[c.key] && (
+                                <div className="mt-1 text-[11px] text-muted-foreground">
+                                  {row.confidence[c.key]}
+                                </div>
+                              )}
+                            </TableCell>
+                          );
+                        })}
+                        <TableCell className="text-center font-semibold">
+                          {hasScores(row) ? `${totalOf(row)}/25` : '—'}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              disabled={!row.analysis}
+                              onClick={() => setDetail(row)}
+                            >
+                              <FileText className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              disabled={evaluatingId === row.id}
+                              onClick={() => evaluate(row)}
+                            >
+                              {evaluatingId === row.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <RefreshCw className="h-4 w-4" />
+                              )}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-destructive"
+                              onClick={() => handleDelete(row)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </main>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Add a target company</DialogTitle>
+            <DialogDescription>
+              The company is evaluated with the same research webhook and scored from 0 to 5 on the five criteria.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="tc-company">Company *</Label>
+              <Input
+                id="tc-company"
+                value={form.company}
+                onChange={(e) => setForm({ ...form, company: e.target.value })}
+                placeholder="Acme Corp"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="tc-website">Website</Label>
+              <Input
+                id="tc-website"
+                value={form.website}
+                onChange={(e) => setForm({ ...form, website: e.target.value })}
+                placeholder="https://acme.com"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="tc-role">Role you are targeting</Label>
+              <Input
+                id="tc-role"
+                value={form.role}
+                onChange={(e) => setForm({ ...form, role: e.target.value })}
+                placeholder="Senior Product Manager"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="tc-jd">Job description (optional)</Label>
+              <Textarea
+                id="tc-jd"
+                rows={5}
+                value={form.jobDescription}
+                onChange={(e) => setForm({ ...form, jobDescription: e.target.value })}
+                placeholder="Paste the job description to get a sharper score on compensation and career path."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleAdd} disabled={saving} className="bg-gradient-primary">
+              {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
+              Add & evaluate
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Sheet open={detail !== null} onOpenChange={(open) => !open && setDetail(null)}>
+        <SheetContent className="w-full overflow-y-auto sm:max-w-2xl">
+          <SheetHeader>
+            <SheetTitle>{detail?.company} — evaluation</SheetTitle>
+            <SheetDescription>
+              {detail?.evaluated_at
+                ? `Evaluated on ${new Date(detail.evaluated_at).toLocaleString()}`
+                : 'Not evaluated yet'}
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-6">
+            {detail?.analysis && <FormattedText text={detail.analysis} />}
+          </div>
+        </SheetContent>
+      </Sheet>
+    </div>
+  );
+}

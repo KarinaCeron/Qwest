@@ -27,12 +27,14 @@ function buildSummary(
   const benefits = compItems.filter((c) => c.kind !== 'salary');
   const parts: string[] = [];
   if (targetRoles.length > 0) {
-    parts.push(`Candidate targeting ${targetRoles.join(' and ')} roles.`);
+    parts.push(`Candidate is chasing ${targetRoles.join(' and ')} roles.`);
   } else {
-    parts.push('Candidate currently defining their target roles.');
+    parts.push('Candidate is currently defining their target roles.');
   }
   if (skills.length > 0) {
-    parts.push(`Core skills: ${skills.join(', ')}.`);
+    parts.push(`Core skills are: ${skills.join(', ')}.`);
+  } else {
+    parts.push('Core skills are: not defined yet.');
   }
   if (salaries.length > 0) {
     const s = salaries
@@ -47,15 +49,19 @@ function buildSummary(
       .filter(Boolean)
       .join('; ');
     if (s) parts.push(`Compensation target: ${s}.`);
+  } else {
+    parts.push('Compensation target: not defined yet.');
   }
   if (benefits.length > 0) {
     const b = benefits
       .map((c) => `${c.label ?? c.value ?? ''}${c.required ? ' (required)' : ''}`.trim())
       .filter(Boolean)
       .join(', ');
-    if (b) parts.push(`Key benefits: ${b}.`);
+    if (b) parts.push(`Benefits are: ${b}.`);
+  } else {
+    parts.push('Benefits are: not defined yet.');
   }
-  return parts.join(' ');
+  return parts.join('\n');
 }
 
 export function CandidateProfile() {

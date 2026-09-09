@@ -237,6 +237,15 @@ export default function TargetCompanyOutreachPage() {
     await navigator.clipboard.writeText(text);
     toast({ title: 'Copied', description: 'The message is on your clipboard.' });
   };
+  const createLinkedInSearch = () => {
+    const role = roleInput.trim();
+    if (!role) {
+      toast({ title: 'Enter a role', description: 'Type a role to search for on LinkedIn.', variant: 'destructive' });
+      return;
+    }
+    if (!company) return;
+    setGeneratedLink(searchUrl(`${role} ${company.company}`));
+  };
 
   if (loading || !user) return null;
 

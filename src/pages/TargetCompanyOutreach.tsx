@@ -17,7 +17,7 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
 import {
-  ArrowLeft, ExternalLink, Linkedin, Loader2, Plus, Search, Sparkles, Trash2, Copy, Pencil,
+  ArrowLeft, ExternalLink, Linkedin, Loader2, Plus, Search, Trash2, Copy, Pencil,
 } from 'lucide-react';
 
 const db = supabase as any;
@@ -88,7 +88,7 @@ export default function TargetCompanyOutreachPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
-  const [draftingId, setDraftingId] = useState<string | null>(null);
+  
 
   const copySearch = async (url: string) => {
     try {
@@ -251,28 +251,8 @@ export default function TargetCompanyOutreachPage() {
     if (error) toast({ title: 'Error', description: error.message, variant: 'destructive' });
   };
 
-  const draftMessage = async (contact: Contact) => {
-    setDraftingId(contact.id);
-    try {
-      const { data, error } = await supabase.functions.invoke('draft-outreach', {
-        body: { companyId: id, contactName: contact.name, contactTitle: contact.title ?? '' },
-      });
-      if (error) throw error;
-      if (typeof data?.message !== 'string' || !data.message.trim()) {
-        throw new Error('No message was generated.');
-      }
-      await saveDraft(contact, data.message.trim());
-      toast({ title: 'Draft ready', description: `A message for ${contact.name} was generated.` });
-    } catch (e) {
-      toast({
-        title: 'Error',
-        description: e instanceof Error ? e.message : 'Could not draft the message.',
-        variant: 'destructive',
-      });
-    } finally {
-      setDraftingId(null);
-    }
-  };
+
+
 
   const copyDraft = async (text: string) => {
     await navigator.clipboard.writeText(text);
@@ -519,20 +499,8 @@ export default function TargetCompanyOutreachPage() {
                       )}
 
                       <div className="mt-4 space-y-2">
-                        <div className="flex flex-wrap gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={draftingId === contact.id}
-                            onClick={() => draftMessage(contact)}
-                          >
-                            {draftingId === contact.id ? (
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            ) : (
-                              <Sparkles className="mr-2 h-4 w-4" />
-                            )}
-                            {contact.draft_message ? 'Draft again' : 'Draft a message'}
-                          </Button>
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-medium">My message</p>
                           {contact.draft_message && (
                             <Button
                               variant="ghost"
@@ -544,22 +512,22 @@ export default function TargetCompanyOutreachPage() {
                             </Button>
                           )}
                         </div>
-                        {contact.draft_message !== null && contact.draft_message !== undefined && (
-                          <Textarea
-                            rows={6}
-                            value={contact.draft_message}
-                            onChange={(e) =>
-                              setContacts((prev) =>
-                                prev.map((c) =>
-                                  c.id === contact.id ? { ...c, draft_message: e.target.value } : c,
-                                ),
-                              )
-                            }
-                            onBlur={(e) => saveDraft(contact, e.target.value)}
-                            className="text-sm"
-                          />
-                        )}
+                        <Textarea
+                          rows={6}
+                          placeholder="Write the message you want to send to this person..."
+                          value={contact.draft_message ?? ''}
+                          onChange={(e) =>
+                            setContacts((prev) =>
+                              prev.map((c) =>
+                                c.id === contact.id ? { ...c, draft_message: e.target.value } : c,
+                              ),
+                            )
+                          }
+                          onBlur={(e) => saveDraft(contact, e.target.value)}
+                          className="text-sm"
+                        />
                       </div>
+
                     </div>
                   ))
                 )}

@@ -398,6 +398,7 @@ export type Database = {
           confidence: Json
           created_at: string
           evaluated_at: string | null
+          evaluation: Json | null
           final_decision: string | null
           id: string
           job_description: string | null
@@ -418,6 +419,7 @@ export type Database = {
           confidence?: Json
           created_at?: string
           evaluated_at?: string | null
+          evaluation?: Json | null
           final_decision?: string | null
           id?: string
           job_description?: string | null
@@ -438,6 +440,7 @@ export type Database = {
           confidence?: Json
           created_at?: string
           evaluated_at?: string | null
+          evaluation?: Json | null
           final_decision?: string | null
           id?: string
           job_description?: string | null

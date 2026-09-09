@@ -25,7 +25,7 @@ import { TargetCompanyReport } from '@/components/TargetCompanyReport';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Plus, Loader2, RefreshCw, Trash2, FileText, Target, MoreHorizontal, Send, Download, Archive, ArchiveRestore, Search } from 'lucide-react';
+import { Plus, Loader2, RefreshCw, Trash2, FileText, Target, MoreHorizontal, Send, Download, Archive, ArchiveRestore, Search, CheckCircle2, RotateCcw } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 type TargetCompany = {
@@ -46,6 +46,7 @@ type TargetCompany = {
   evaluation: Record<string, any> | null;
   evaluated_at: string | null;
   archived: boolean;
+  review_status: 'to_review' | 'reviewed' | string;
   created_at: string;
 };
 
@@ -80,6 +81,7 @@ export default function TargetCompaniesPage() {
   const [detail, setDetail] = useState<TargetCompany | null>(null);
   const [tab, setTab] = useState<'active' | 'archived'>('active');
   const [search, setSearch] = useState('');
+  const [reviewFilter, setReviewFilter] = useState<'all' | 'to_review' | 'reviewed'>('all');
 
   useEffect(() => {
     if (!loading && !user) navigate('/auth');
@@ -212,18 +214,38 @@ export default function TargetCompaniesPage() {
     toast({ title: 'Removed', description: `${row.company} is no longer a target company.` });
   };
 
+  const handleSetReviewStatus = async (row: TargetCompany, review_status: 'to_review' | 'reviewed') => {
+    const { error } = await db.from('target_companies').update({ review_status }).eq('id', row.id);
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      return;
+    }
+    setItems((prev) => prev.map((i) => (i.id === row.id ? { ...i, review_status } : i)));
+    toast({
+      title: review_status === 'reviewed' ? 'Marked as reviewed' : 'Moved to To review',
+      description: `${row.company} is now ${review_status === 'reviewed' ? 'reviewed' : 'pending review'}.`,
+    });
+  };
+
   const activeItems = items.filter((i) => !i.archived);
   const archivedItems = items.filter((i) => i.archived);
+  const toReviewCount = activeItems.filter((i) => i.review_status !== 'reviewed').length;
+  const reviewedCount = activeItems.filter((i) => i.review_status === 'reviewed').length;
   const tabItems = tab === 'active' ? activeItems : archivedItems;
   const visibleItems = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return tabItems;
-    return tabItems.filter(
-      (i) =>
+    return tabItems.filter((i) => {
+      if (tab === 'active' && reviewFilter !== 'all') {
+        const status = i.review_status === 'reviewed' ? 'reviewed' : 'to_review';
+        if (status !== reviewFilter) return false;
+      }
+      if (!q) return true;
+      return (
         i.company.toLowerCase().includes(q) ||
         (i.role_title ?? '').toLowerCase().includes(q)
-    );
-  }, [tabItems, search]);
+      );
+    });
+  }, [tabItems, search, reviewFilter, tab]);
 
   const exportToExcel = () => {
     const rows = activeItems.map((c) => {
@@ -269,15 +291,36 @@ export default function TargetCompaniesPage() {
             <TabsTrigger value="archived">Archived ({archivedItems.length})</TabsTrigger>
           </TabsList>
         </Tabs>
-        <div className="relative mb-4 max-w-sm">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by company or role…"
-            className="pl-9"
-            aria-label="Search target companies"
-          />
+        <div className="mb-4 flex flex-wrap items-center gap-3">
+          <div className="relative w-full max-w-sm">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by company or role…"
+              className="pl-9"
+              aria-label="Search target companies"
+            />
+          </div>
+          {tab === 'active' && (
+            <div className="flex items-center gap-1 rounded-md border bg-muted/40 p-1">
+              {([
+                { key: 'all', label: `All (${activeItems.length})` },
+                { key: 'to_review', label: `To review (${toReviewCount})` },
+                { key: 'reviewed', label: `Reviewed (${reviewedCount})` },
+              ] as const).map((opt) => (
+                <Button
+                  key={opt.key}
+                  size="sm"
+                  variant={reviewFilter === opt.key ? 'default' : 'ghost'}
+                  className="h-8"
+                  onClick={() => setReviewFilter(opt.key)}
+                >
+                  {opt.label}
+                </Button>
+              ))}
+            </div>
+          )}
         </div>
         <Card>
           <CardContent className="p-0">
@@ -285,7 +328,7 @@ export default function TargetCompaniesPage() {
               <div className="flex items-center justify-center gap-2 p-12 text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" /> Loading your target companies…
               </div>
-            ) : visibleItems.length === 0 && search.trim() ? (
+            ) : visibleItems.length === 0 && (search.trim() || (tab === 'active' && reviewFilter !== 'all')) ? (
               <div className="flex flex-col items-center gap-3 p-12 text-center">
                 <Search className="h-10 w-10 text-muted-foreground" />
                 <p className="text-muted-foreground">No companies match your search.</p>
@@ -327,7 +370,21 @@ export default function TargetCompaniesPage() {
                     {visibleItems.map((row) => (
                       <TableRow key={row.id}>
                         <TableCell>
-                          <div className="font-medium text-foreground">{row.company}</div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="font-medium text-foreground">{row.company}</span>
+                            {!row.archived && (
+                              <Badge
+                                variant="outline"
+                                className={
+                                  row.review_status === 'reviewed'
+                                    ? 'border-green-500/40 text-green-600 dark:text-green-400'
+                                    : 'border-amber-500/40 text-amber-600 dark:text-amber-400'
+                                }
+                              >
+                                {row.review_status === 'reviewed' ? 'Reviewed' : 'To review'}
+                              </Badge>
+                            )}
+                          </div>
                           {row.role_title && (
                             <div className="text-xs text-muted-foreground">{row.role_title}</div>
                           )}
@@ -379,6 +436,17 @@ export default function TargetCompaniesPage() {
                               </DropdownMenuItem>
                               {!row.archived && (
                                 <>
+                                  {row.review_status === 'reviewed' ? (
+                                    <DropdownMenuItem onClick={() => handleSetReviewStatus(row, 'to_review')}>
+                                      <RotateCcw className="mr-2 h-4 w-4" />
+                                      Move back to To review
+                                    </DropdownMenuItem>
+                                  ) : (
+                                    <DropdownMenuItem onClick={() => handleSetReviewStatus(row, 'reviewed')}>
+                                      <CheckCircle2 className="mr-2 h-4 w-4" />
+                                      Mark as reviewed
+                                    </DropdownMenuItem>
+                                  )}
                                   <DropdownMenuItem
                                     onClick={() => navigate(`/target-companies/${row.id}/outreach`)}
                                   >

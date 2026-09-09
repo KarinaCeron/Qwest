@@ -322,8 +322,8 @@ export default function TargetCompanyOutreachPage() {
                   Find people on LinkedIn
                 </CardTitle>
                 <CardDescription>
-                  Each link searches public LinkedIn profiles for that title at {company.company} in a new
-                  browser tab. Copy the profile link of anyone useful and add them below.
+                  Each link opens LinkedIn outside the app and searches for that title at {company.company}.
+                  Copy the profile link of anyone useful and add them below.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -332,7 +332,7 @@ export default function TargetCompanyOutreachPage() {
                     <Button key={title} variant="outline" size="sm" asChild>
                       <a
                         href={searchUrl(`${title} ${company.company}`)}
-                        target="_blank"
+                        target="_top"
                         rel="noopener noreferrer"
                       >
                         <Linkedin className="mr-2 h-4 w-4" />
@@ -352,7 +352,7 @@ export default function TargetCompanyOutreachPage() {
                         <Button key={founder} variant="secondary" size="sm" asChild>
                           <a
                             href={searchUrl(`${founder} ${company.company}`)}
-                            target="_blank"
+                            target="_top"
                             rel="noopener noreferrer"
                           >
                             <Linkedin className="mr-2 h-4 w-4" />
@@ -374,7 +374,7 @@ export default function TargetCompanyOutreachPage() {
                     <Button variant="outline" asChild>
                       <a
                         href={searchUrl(`${customTitle.trim()} ${company.company}`)}
-                        target="_blank"
+                        target="_top"
                         rel="noopener noreferrer"
                       >
                         <Search className="mr-2 h-4 w-4" />

@@ -4,79 +4,6 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 const N8N_WEBHOOK_URL =
   "https://karinaceron.app.n8n.cloud/webhook/dd564ef4-d017-43cb-bac2-e6c9efc57ac0";
 
-const SCORECARD_INSTRUCTIONS = `Evalúa esta compañía y oportunidad laboral con un scorecard de 0 a 5 en cinco criterios.
-Objetivo profesional: determinar si esta oportunidad es atractiva y, sobre todo, si aumenta de forma significativa
-la probabilidad del candidato de convertirse en Head of Product en aproximadamente 3 años.
-Sé crítico, basado en evidencia y comparable entre compañías. No describas solo la empresa: determina qué tan buena
-es la oportunidad para el candidato.
-
-Contexto del candidato (no negociables):
-- Trabajo remoto como modalidad principal, viviendo permanentemente en Cali, Colombia.
-- La compañía debe poder contratar desde Colombia (contractor o empleado con prestaciones de ley).
-- Viajes ocasionales (offsites, eventos, reuniones puntuales) son compatibles. Presencia regular en oficina,
-  mudanza o vivir cerca de una oficina rompen el no negociable.
-- Benchmark de salario base: USD 7,000/mes (USD 84,000/año de base). Bonus, equity y beneficios se analizan aparte
-  y no se usan para maquillar una base inferior.
-
-Criterios (0-5 cada uno):
-1. Etapa, financiación & runway (etapa, product-market fit, rondas, inversionistas, última ronda, headcount,
-   contratación vs. despidos, expansión de producto/mercado/geografía, ingresos o clientes). No penalices bootstrap
-   por no haber levantado capital; analiza crecimiento, clientes, rentabilidad y sostenibilidad.
-   0 señales negativas fuertes; 1 fuera del objetivo/estancamiento; 2 aceptable pero incierto; 3 post-market fit con
-   ronda verificable en 18-24 meses; 4 además crecimiento verificable; 5 expansión clara y sostenida.
-2. Historia & calidad de la empresa (founders, background, evolución de producto, pivotes, clientes, hitos,
-   reputación, layoffs). 0 señales negativas fuertes; 1 historia débil o confusa; 2 trayectoria normal;
-   3 trayectoria sólida; 4 empresa respetable; 5 referente del sector.
-3. Salario, compensación & no negociables (base mensual y anual, bonus, equity, total comp, rango publicado,
-   ubicación requerida, modalidad contractual, contratación desde Colombia, trabajo desde Cali, timezone, política
-   remota, oficina, viajes, beneficios, vacaciones, diferencias contractor vs. employee y costos asumidos).
-   0 rompe un no negociable; 1 por debajo del objetivo o riesgo claro; 2 piso (~USD 7K base, sin margen);
-   3 cumple; 4 por encima del objetivo; 5 excepcional. Si la base es USD 5K + USD 3K bonus, la base es USD 5K.
-   Si hay rango USD 6K-8K, indica que potencialmente cumple sin asumir el techo. Si no hay info salarial, márcalo
-   como incertidumbre; no inventes cifras.
-4. Cultura & equipo (cómo trabaja el equipo, equipo de Product, manager y su background, seniority, autonomía,
-   toma de decisiones, relación con Engineering/Design/Sales/founders, ritmo, micromanagement, rotación, tenure,
-   reseñas de empleados y ex-empleados, de quién podría aprender). Busca señales independientes, no solo marketing.
-   0 red flags verificadas; 1 incompatibilidad; 2 estándar; 3 compatible; 4 equipo del que aprendería;
-   5 acelerador profesional. Distingue anécdota, patrón y evidencia consistente.
-5. Trayectoria hacia Head of Product en ~3 años (scope real, ownership, outcomes, métricas, estrategia, discovery,
-   roadmap, exposición a CEO/founders y ejecutivos, autonomía, relación con Engineering/Design/GTM, pricing,
-   monetización, liderazgo de PMs, estructura y tamaño de Product, quién está por encima, promociones internas,
-   crecimiento esperado). Scope > título. 0 me aleja de Product; 1 Product muy limitado; 2 buen PM con poco
-   ownership; 3 desarrollo sólido; 4 trayectoria clara hacia liderazgo; 5 acelerador directo.
-
-FORMATO DE RESPUESTA OBLIGATORIO. Empieza exactamente con esta tabla en markdown:
-
-| Criterio | Score | Confianza | Veredicto |
-| --- | --- | --- | --- |
-| Etapa & runway | X/5 | Alta/Media/Baja | ... |
-| Historia & empresa | X/5 | Alta/Media/Baja | ... |
-| Salario & no negociables | X/5 | Alta/Media/Baja | ... |
-| Cultura & equipo | X/5 | Alta/Media/Baja | ... |
-| Head of Product en 3 años | X/5 | Alta/Media/Baja | ... |
-| TOTAL | X/25 | | ... |
-
-Después desarrolla cada criterio con esta estructura:
-"N. <Criterio> — X/5" y dentro: "Qué encontré", "Evidencia", "Qué significa", "Qué no sabemos", y "Score: X/5"
-explicando exactamente por qué recibió ese score.
-
-Luego incluye, en este orden:
-- EVIDENCIA: clasifica cada afirmación relevante como Hecho verificable / Información de terceros / Inferencia /
-  Desconocido. No conviertas rumores en hechos; si dos fuentes se contradicen, señala la contradicción y cita fuentes.
-- NIVEL DE CONFIANZA por criterio (Alta / Media / Baja).
-- GREEN FLAGS / YELLOW FLAGS / RED FLAGS.
-- RIESGOS DE ACEPTAR LA OPORTUNIDAD: 3-5 riesgos, cada uno clasificado como riesgo de compañía, financiero, del rol,
-  cultural, de compensación o para la trayectoria hacia Head of Product.
-- INFORMACIÓN QUE DEBO VALIDAR EN ENTREVISTAS: 5-10 preguntas priorizadas (runway, crecimiento, motivo de la
-  contratación, expectativas de 6-12 meses, ownership, autonomía, métricas, relación con founders/CEO, tamaño y
-  estructura de Product, liderazgo, contratación desde Colombia, trabajo desde Cali, viajes reales, compensación).
-- DECISIÓN FINAL: clasifica la oportunidad de 0 a 5 con la escala
-  (5 excepcional: perseguir agresivamente; 4 muy atractiva: avanzar; 3 interesante: investigar antes de decidir;
-  2 débil; 1 no recomendable; 0 descartar) en una línea que empiece con "DECISIÓN FINAL: X — ...", explica brevemente,
-  y responde explícitamente en una sola frase: "¿Esta compañía me acerca o me aleja de ser Head of Product en 3 años?",
-  seguida de 2-3 razones concretas.
-
-Si no existe evidencia suficiente, dilo explícitamente. No rellenes información faltante con suposiciones.`;
 
 const CRITERIA = [
   { key: "stage", patterns: [/etapa/i, /runway/i, /financiaci/i] },
@@ -194,8 +121,6 @@ Deno.serve(async (req) => {
       role,
       job_description: jobDescription,
       candidate_profile: candidateProfile,
-      mode: "target-company-scorecard",
-      scorecard: SCORECARD_INSTRUCTIONS,
     };
 
     console.log(`evaluate-target-company: payload enviado al webhook: ${JSON.stringify(payload)}`);
@@ -215,7 +140,6 @@ Deno.serve(async (req) => {
       if (role) url.searchParams.set("role", role);
       if (candidateProfile) url.searchParams.set("candidate_profile", candidateProfile.slice(0, 2000));
       if (jobDescription) url.searchParams.set("job_description", jobDescription.slice(0, 1500));
-      url.searchParams.set("mode", payload.mode);
       console.log(
         `evaluate-target-company: GET query params: ${JSON.stringify(
           Object.fromEntries(url.searchParams.entries()),

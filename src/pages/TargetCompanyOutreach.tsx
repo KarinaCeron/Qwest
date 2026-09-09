@@ -56,23 +56,10 @@ const STATUSES = [
   { value: 'no_response', label: 'No response' },
 ] as const;
 
-const DEFAULT_TITLES = [
-  'CEO', 'CTO', 'CPO', 'VP Product', 'Head of Product', 'Head of Talent', 'Founder',
-];
-
 const emptyForm = { name: '', title: '', linkedin_url: '', email: '', notes: '' };
 
 const searchUrl = (keywords: string) =>
   `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(keywords)}`;
-
-/** Case-insensitive lookup on the stored report (founders vs Founders). */
-const pick = (obj: Record<string, any> | null | undefined, key: string): string | null => {
-  if (!obj) return null;
-  const found = Object.keys(obj).find((k) => k.toLowerCase() === key.toLowerCase());
-  const value = found ? obj[found] : null;
-  if (value === null || value === undefined || value === '') return null;
-  return String(value);
-};
 
 export default function TargetCompanyOutreachPage() {
   const { id } = useParams<{ id: string }>();

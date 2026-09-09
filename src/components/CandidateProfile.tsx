@@ -73,6 +73,19 @@ export function CandidateProfile() {
     latestRef.current = summary;
   }, [summary]);
 
+  const persist = useCallback(async (value: string) => {
+    if (!user) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from('profiles')
+      .update({ candidate_profile: value.trim() || null } as any)
+      .eq('user_id', user.id);
+    setSaving(false);
+    if (error) {
+      toast({ title: '❌ Could not save your candidate profile', description: error.message, variant: 'destructive' });
+    }
+  }, [user, toast]);
+
   useEffect(() => {
     if (!user) return;
     const load = async () => {
@@ -120,19 +133,6 @@ export function CandidateProfile() {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, []);
-
-  const persist = useCallback(async (value: string) => {
-    if (!user) return;
-    setSaving(true);
-    const { error } = await supabase
-      .from('profiles')
-      .update({ candidate_profile: value.trim() || null } as any)
-      .eq('user_id', user.id);
-    setSaving(false);
-    if (error) {
-      toast({ title: '❌ Could not save your candidate profile', description: error.message, variant: 'destructive' });
-    }
-  }, [user, toast]);
 
   const handleChange = (value: string) => {
     setSummary(value);

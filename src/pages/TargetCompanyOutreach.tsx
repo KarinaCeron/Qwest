@@ -17,7 +17,7 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
 import {
-  ArrowLeft, ExternalLink, Linkedin, Loader2, Plus, Search, Sparkles, Trash2, Copy, Pencil,
+  ArrowLeft, ExternalLink, Linkedin, Loader2, Plus, Search, Trash2, Copy, Pencil,
 } from 'lucide-react';
 
 const db = supabase as any;

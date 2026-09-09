@@ -16,17 +16,11 @@ import { useToast } from '@/hooks/use-toast';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import emptyStateImage from '@/assets/empty-state.jpg';
 
+import type { FiltersState as JobApplicationFiltersState } from '@/components/JobApplicationFilters';
+
 type DateField = 'created' | 'statusChanged';
 
-interface FiltersState {
-  search: string;
-  status: ApplicationStatus | 'all';
-  priority: Priority | 'all';
-  company: string;
-  dateField: DateField;
-  dateFrom: string;
-  dateTo: string;
-}
+interface FiltersState extends JobApplicationFiltersState {}
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -40,7 +34,7 @@ const Index = () => {
   const [loadingData, setLoadingData] = useState(true);
   const [filters, setFilters] = useState<FiltersState>({
     search: '',
-    status: 'all',
+    status: [],
     priority: 'all',
     company: '',
     dateField: 'created',

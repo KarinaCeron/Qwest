@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -112,7 +112,7 @@ export function CandidateProfile() {
       }
     };
     load();
-  }, [user]);
+  }, [user, persist]);
 
   // Flush pending autosave on unmount
   useEffect(() => {

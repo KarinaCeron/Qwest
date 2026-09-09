@@ -88,7 +88,7 @@ const Index = () => {
         app.role.toLowerCase().includes(filters.search.toLowerCase()) ||
         app.recruiterName?.toLowerCase().includes(filters.search.toLowerCase());
 
-      const matchesStatus = filters.status === 'all' || app.status === filters.status;
+      const matchesStatus = filters.status.length === 0 || filters.status.includes(app.status);
       const matchesPriority = filters.priority === 'all' || app.priority === filters.priority;
       const matchesCompany = !filters.company || app.company === filters.company;
 

@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, UserRound } from 'lucide-react';
+import { Loader2, RefreshCw, UserRound } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface CompensationItem {
   kind: string;
@@ -233,9 +234,15 @@ export function CandidateProfile() {
             </div>
 
             <div className="space-y-2">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Summary {saving && <span className="normal-case">— saving…</span>}
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  Summary {saving && <span className="normal-case">— saving…</span>}
+                </p>
+                <Button type="button" variant="ghost" size="sm" onClick={handleRegenerate} className="h-7 gap-1.5 text-xs">
+                  <RefreshCw className="h-3.5 w-3.5" />
+                  Refresh from my Qwest
+                </Button>
+              </div>
               <Textarea
                 rows={6}
                 value={summary}

@@ -661,6 +661,9 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
               company={formData.company}
               isLoading={isResearching}
               text={companyResearchText}
+              evaluation={companyEvaluation}
+              scores={companyScores}
+              source={researchSource}
             />
 
             <div className="flex gap-3 pt-2">

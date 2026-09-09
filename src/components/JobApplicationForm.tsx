@@ -674,6 +674,7 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
                 id="company"
                 value={formData.company}
                 onChange={(e) => handleChange('company', e.target.value)}
+                onBlur={() => loadExistingCompanyInsights(formData.company)}
                 placeholder="e.g. Google, Microsoft..."
                 required
                 maxLength={120}

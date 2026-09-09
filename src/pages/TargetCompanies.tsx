@@ -528,12 +528,20 @@ export default function TargetCompaniesPage() {
         </Card>
       </main>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog
+        open={dialogOpen}
+        onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (!open) setEditingId(null);
+        }}
+      >
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Add a target company</DialogTitle>
+            <DialogTitle>{editingId ? 'Edit target company' : 'Add a target company'}</DialogTitle>
             <DialogDescription>
-              The company is evaluated with the same research webhook and scored from 0 to 5 on the five criteria.
+              {editingId
+                ? 'Update the company details. Scores stay as they are until you run Update evaluation.'
+                : 'The company is evaluated with the same research webhook and scored from 0 to 5 on the five criteria.'}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">

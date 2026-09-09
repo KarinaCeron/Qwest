@@ -90,17 +90,8 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     void loadSkills();
   }, [user?.id]);
 
-  // Auto-load saved company insights whenever the company name settles.
-  useEffect(() => {
-    if (!user) return;
-    const name = (formData?.company ?? '').trim();
-    if (!name) return;
-    const t = setTimeout(() => {
-      void loadExistingCompanyInsights(name);
-    }, 400);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, formData?.company]);
+
+
 
 
   const normalizeCompanyKey = (value: string) =>

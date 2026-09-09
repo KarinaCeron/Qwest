@@ -146,12 +146,28 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
       setCompanyScores(match.scores);
       setResearchSource(match.source);
     } else {
+      // Fall back to previously cached plain-text research for this company.
+      const db = supabase as any;
+      const { data: cached } = await db
+        .from('company_research')
+        .select('research_text')
+        .eq('user_id', user?.id ?? '')
+        .eq('company_key', normalizeCompanyKey(trimmed))
+        .maybeSingle();
+      if (cached?.research_text) {
+        setCompanyResearchText(cached.research_text);
+        setCompanyEvaluation(null);
+        setCompanyScores(null);
+        setResearchSource('cache');
+        return;
+      }
       setCompanyResearchText(null);
       setCompanyEvaluation(null);
       setCompanyScores(null);
       setResearchSource(null);
     }
   };
+
 
   const [formData, setFormData] = useState<JobApplicationFormData>({
 

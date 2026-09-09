@@ -585,10 +585,11 @@ export default function TargetCompaniesPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleAdd} disabled={saving} className="bg-gradient-primary">
+            <Button onClick={handleSave} disabled={saving} className="bg-gradient-primary">
               {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-              Add & evaluate
+              {editingId ? 'Save changes' : 'Add & evaluate'}
             </Button>
+
           </DialogFooter>
         </DialogContent>
       </Dialog>

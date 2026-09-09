@@ -310,7 +310,7 @@ export default function TargetCompaniesPage() {
               <Download className="mr-2 h-4 w-4" />
               Export to Excel
             </Button>
-            <Button onClick={() => setDialogOpen(true)} className="bg-gradient-primary">
+            <Button onClick={openAddDialog} className="bg-gradient-primary">
               <Plus className="mr-2 h-4 w-4" />
               Add company
             </Button>
@@ -376,7 +376,7 @@ export default function TargetCompaniesPage() {
                     <p className="text-muted-foreground">
                       No target companies yet. Add one and it will be scored automatically.
                     </p>
-                    <Button onClick={() => setDialogOpen(true)} className="bg-gradient-primary">
+                    <Button onClick={openAddDialog} className="bg-gradient-primary">
                       <Plus className="mr-2 h-4 w-4" />
                       Add company
                     </Button>

@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { ProfileHero } from '@/components/ProfileHero';
 import { CoreSkills } from '@/components/CoreSkills';
+import { CandidateProfile } from '@/components/CandidateProfile';
 
 interface CVDocument {
   id: string;
@@ -147,12 +148,17 @@ const CV = () => {
       <main className="container mx-auto px-4 py-8 max-w-2xl space-y-6">
         <ProfileHero />
 
-        <Tabs defaultValue="skills" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+        <Tabs defaultValue="profile" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="profile">Candidate Profile</TabsTrigger>
             <TabsTrigger value="skills">Core Skills</TabsTrigger>
             <TabsTrigger value="compensation">Compensation</TabsTrigger>
             <TabsTrigger value="cvs">My CVs</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="profile">
+            <CandidateProfile />
+          </TabsContent>
 
           <TabsContent value="skills">
             <CoreSkills />

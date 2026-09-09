@@ -97,6 +97,8 @@ export function CandidateProfile() {
     }
   }, [user, toast]);
 
+  const manualKey = user ? `qwest_candidate_profile_manual_${user.id}` : '';
+
   useEffect(() => {
     if (!user) return;
     const load = async () => {
@@ -122,8 +124,6 @@ export function CandidateProfile() {
       const loadedCompItems = (comp ?? []) as CompensationItem[];
       const loadedSummary = ((cp as any)?.candidate_profile as string) ?? '';
       const generated = buildSummary(loadedTargetRoles, loadedSkills, loadedCompItems);
-      // Baseline for detecting hand edits: if the summary matches the generated
-      // text (or is empty), it's safe to regenerate later.
       lastGeneratedRef.current = generated;
 
       setTargetRoles(loadedTargetRoles);
@@ -132,7 +132,11 @@ export function CandidateProfile() {
       setLoading(false);
       loadedRef.current = true;
 
-      if (!loadedSummary.trim()) {
+      // The user keeps their own text only if they explicitly edited the summary.
+      const edited = localStorage.getItem(manualKey) === '1';
+      if (edited && loadedSummary.trim()) {
+        setSummary(loadedSummary);
+      } else if (loadedSummary.trim() !== generated) {
         setSummary(generated);
         persist(generated);
       } else {
@@ -140,11 +144,10 @@ export function CandidateProfile() {
       }
     };
     load();
-  }, [user, persist]);
+  }, [user, persist, manualKey]);
 
   // Keep the summary in sync with core skills / compensation / benefits, but
-  // never overwrite text the user has edited themselves. If the summary is
-  // empty or still matches the last auto-generated version, regenerate it.
+  // never overwrite text the user has edited themselves.
   useEffect(() => {
     if (!loadedRef.current) return;
     const generated = buildSummary(targetRoles, skills, compItems);
@@ -161,10 +164,12 @@ export function CandidateProfile() {
   const handleRegenerate = () => {
     const generated = buildSummary(targetRoles, skills, compItems);
     lastGeneratedRef.current = generated;
+    if (manualKey) localStorage.removeItem(manualKey);
     setSummary(generated);
     persist(generated);
     toast({ title: '✨ Summary regenerated from your Qwest' });
   };
+
 
   // Flush pending autosave on unmount
   useEffect(() => {
@@ -175,6 +180,13 @@ export function CandidateProfile() {
 
   const handleChange = (value: string) => {
     setSummary(value);
+    if (manualKey) {
+      if (value.trim() && value !== (lastGeneratedRef.current ?? '')) {
+        localStorage.setItem(manualKey, '1');
+      } else {
+        localStorage.removeItem(manualKey);
+      }
+    }
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => persist(value), 1200);
   };

@@ -186,6 +186,21 @@ export default function TargetCompaniesPage() {
     }
   };
 
+  const handleSetArchived = async (row: TargetCompany, archived: boolean) => {
+    const { error } = await db.from('target_companies').update({ archived }).eq('id', row.id);
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      return;
+    }
+    setItems((prev) => prev.map((i) => (i.id === row.id ? { ...i, archived } : i)));
+    toast({
+      title: archived ? 'Archived' : 'Restored',
+      description: archived
+        ? `${row.company} was moved to Archived.`
+        : `${row.company} is active again.`,
+    });
+  };
+
   const handleDelete = async (row: TargetCompany) => {
     const { error } = await db.from('target_companies').delete().eq('id', row.id);
     if (error) {
@@ -196,8 +211,12 @@ export default function TargetCompaniesPage() {
     toast({ title: 'Removed', description: `${row.company} is no longer a target company.` });
   };
 
+  const activeItems = items.filter((i) => !i.archived);
+  const archivedItems = items.filter((i) => i.archived);
+  const visibleItems = tab === 'active' ? activeItems : archivedItems;
+
   const exportToExcel = () => {
-    const rows = items.map((c) => {
+    const rows = activeItems.map((c) => {
       const row: Record<string, string | number> = { Company: c.company };
       CRITERIA.forEach((cr) => {
         const v = c[cr.column];

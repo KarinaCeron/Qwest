@@ -20,7 +20,10 @@ import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from '@/components/ui/sheet';
 import { FormattedText } from '@/components/FormattedText';
-import { Plus, Loader2, RefreshCw, Trash2, FileText, Target } from 'lucide-react';
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Plus, Loader2, RefreshCw, Trash2, FileText, Target, MoreHorizontal, Send } from 'lucide-react';
 
 type TargetCompany = {
   id: string;
@@ -271,36 +274,50 @@ export default function TargetCompaniesPage() {
                           {hasScores(row) ? `${totalOf(row)}/25` : '—'}
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="flex justify-end gap-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              disabled={!row.analysis}
-                              onClick={() => setDetail(row)}
-                            >
-                              <FileText className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              disabled={evaluatingId === row.id}
-                              onClick={() => evaluate(row)}
-                            >
-                              {evaluatingId === row.id ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : (
-                                <RefreshCw className="h-4 w-4" />
-                              )}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-destructive"
-                              onClick={() => handleDelete(row)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                disabled={evaluatingId === row.id}
+                                aria-label={`Actions for ${row.company}`}
+                              >
+                                {evaluatingId === row.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <MoreHorizontal className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                disabled={!row.analysis}
+                                onClick={() => setDetail(row)}
+                              >
+                                <FileText className="mr-2 h-4 w-4" />
+                                View insights
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => navigate('/templates')}>
+                                <Send className="mr-2 h-4 w-4" />
+                                Prepare outreach
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                disabled={evaluatingId === row.id}
+                                onClick={() => evaluate(row)}
+                              >
+                                <RefreshCw className="mr-2 h-4 w-4" />
+                                Update evaluation
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="text-destructive focus:text-destructive"
+                                onClick={() => handleDelete(row)}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </TableCell>
                       </TableRow>
                     ))}

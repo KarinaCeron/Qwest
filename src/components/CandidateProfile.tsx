@@ -247,7 +247,7 @@ export function CandidateProfile() {
                 maxLength={2000}
               />
               <p className="text-xs text-muted-foreground">
-                This summary is generated from your Qwest and saves automatically. You can edit it at any time.
+                This summary is regenerated automatically whenever your core skills, compensation, or benefits change. Manual edits are kept until the next change in your Qwest.
               </p>
             </div>
           </>

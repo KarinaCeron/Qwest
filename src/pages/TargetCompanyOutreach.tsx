@@ -332,7 +332,7 @@ export default function TargetCompanyOutreachPage() {
                     <Button key={title} variant="outline" size="sm" asChild>
                       <a
                         href={searchUrl(`${title} ${company.company}`)}
-                        target="_top"
+                        target="_blank"
                         rel="noopener noreferrer"
                       >
                         <Linkedin className="mr-2 h-4 w-4" />
@@ -352,7 +352,7 @@ export default function TargetCompanyOutreachPage() {
                         <Button key={founder} variant="secondary" size="sm" asChild>
                           <a
                             href={searchUrl(`${founder} ${company.company}`)}
-                            target="_top"
+                            target="_blank"
                             rel="noopener noreferrer"
                           >
                             <Linkedin className="mr-2 h-4 w-4" />
@@ -374,7 +374,7 @@ export default function TargetCompanyOutreachPage() {
                     <Button variant="outline" asChild>
                       <a
                         href={searchUrl(`${customTitle.trim()} ${company.company}`)}
-                        target="_top"
+                        target="_blank"
                         rel="noopener noreferrer"
                       >
                         <Search className="mr-2 h-4 w-4" />

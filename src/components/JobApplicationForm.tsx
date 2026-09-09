@@ -69,6 +69,9 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
   const [isResearching, setIsResearching] = useState(false);
   const [companyWebsite, setCompanyWebsite] = useState('');
   const [companyResearchText, setCompanyResearchText] = useState<string | null>(null);
+  const [companyEvaluation, setCompanyEvaluation] = useState<Record<string, any> | null>(null);
+  const [companyScores, setCompanyScores] = useState<Record<string, number | null> | null>(null);
+  const [researchSource, setResearchSource] = useState<'target' | 'new' | 'cache' | null>(null);
   const [salaryTargets, setSalaryTargets] = useState<Array<{ value?: string | null; min_value?: string | null; currency: string; period: string }>>([]);
 
 

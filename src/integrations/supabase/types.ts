@@ -388,6 +388,69 @@ export type Database = {
         }
         Relationships: []
       }
+      target_companies: {
+        Row: {
+          analysis: string | null
+          company: string
+          confidence: Json
+          created_at: string
+          evaluated_at: string | null
+          final_decision: string | null
+          id: string
+          job_description: string | null
+          role_title: string | null
+          score_compensation: number | null
+          score_culture: number | null
+          score_history: number | null
+          score_path: number | null
+          score_stage: number | null
+          updated_at: string
+          user_id: string
+          verdicts: Json
+          website: string | null
+        }
+        Insert: {
+          analysis?: string | null
+          company: string
+          confidence?: Json
+          created_at?: string
+          evaluated_at?: string | null
+          final_decision?: string | null
+          id?: string
+          job_description?: string | null
+          role_title?: string | null
+          score_compensation?: number | null
+          score_culture?: number | null
+          score_history?: number | null
+          score_path?: number | null
+          score_stage?: number | null
+          updated_at?: string
+          user_id: string
+          verdicts?: Json
+          website?: string | null
+        }
+        Update: {
+          analysis?: string | null
+          company?: string
+          confidence?: Json
+          created_at?: string
+          evaluated_at?: string | null
+          final_decision?: string | null
+          id?: string
+          job_description?: string | null
+          role_title?: string | null
+          score_compensation?: number | null
+          score_culture?: number | null
+          score_history?: number | null
+          score_path?: number | null
+          score_stage?: number | null
+          updated_at?: string
+          user_id?: string
+          verdicts?: Json
+          website?: string | null
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           application_id: string | null

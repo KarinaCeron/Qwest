@@ -40,6 +40,7 @@ type TargetCompany = {
   verdicts: Record<string, string> | null;
   final_decision: string | null;
   analysis: string | null;
+  evaluation: Record<string, any> | null;
   evaluated_at: string | null;
   created_at: string;
 };

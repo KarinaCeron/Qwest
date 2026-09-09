@@ -90,13 +90,9 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     void loadSkills();
   }, [user?.id]);
 
-  // Auto-load existing company insights when editing an application.
-  useEffect(() => {
-    if (editingApplication?.company) {
-      void loadExistingCompanyInsights(editingApplication.company);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
+
+
 
   const normalizeCompanyKey = (value: string) =>
     value.toLowerCase().replace(/\s+/g, ' ').trim();
@@ -150,12 +146,28 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
       setCompanyScores(match.scores);
       setResearchSource(match.source);
     } else {
+      // Fall back to previously cached plain-text research for this company.
+      const db = supabase as any;
+      const { data: cached } = await db
+        .from('company_research')
+        .select('research_text')
+        .eq('user_id', user?.id ?? '')
+        .eq('company_key', normalizeCompanyKey(trimmed))
+        .maybeSingle();
+      if (cached?.research_text) {
+        setCompanyResearchText(cached.research_text);
+        setCompanyEvaluation(null);
+        setCompanyScores(null);
+        setResearchSource('cache');
+        return;
+      }
       setCompanyResearchText(null);
       setCompanyEvaluation(null);
       setCompanyScores(null);
       setResearchSource(null);
     }
   };
+
 
   const [formData, setFormData] = useState<JobApplicationFormData>({
 
@@ -177,6 +189,20 @@ export function JobApplicationForm({ onSubmit, onCancel, editingApplication }: J
     jobContent: editingApplication?.jobContent || '',
     coverLetter: editingApplication?.coverLetter || '',
   });
+
+  // Auto-load saved company insights whenever the company name settles.
+  useEffect(() => {
+    if (!user) return;
+    const name = (formData.company ?? '').trim();
+    if (!name) return;
+    const t = setTimeout(() => {
+      void loadExistingCompanyInsights(name);
+    }, 400);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, formData.company]);
+
+
 
 
   const handleSubmit = (e: React.FormEvent) => {

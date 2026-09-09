@@ -180,6 +180,13 @@ export function CandidateProfile() {
 
   const handleChange = (value: string) => {
     setSummary(value);
+    if (manualKey) {
+      if (value.trim() && value !== (lastGeneratedRef.current ?? '')) {
+        localStorage.setItem(manualKey, '1');
+      } else {
+        localStorage.removeItem(manualKey);
+      }
+    }
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => persist(value), 1200);
   };

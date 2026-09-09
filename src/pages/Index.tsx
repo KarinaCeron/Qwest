@@ -360,7 +360,7 @@ const Index = () => {
                     <TooltipTrigger asChild>
                       <Card
                         className={`bg-gradient-card cursor-pointer transition-all hover:shadow-lg ${
-                          filters.status === key ? `ring-2 ${ringColor} shadow-lg` : ''
+                          filters.status.includes(key) ? `ring-2 ${ringColor} shadow-lg` : ''
                         }`}
                         onClick={() => handleStatusFilter(key)}
                         onDrop={(e) => handleDrop(e, key)}

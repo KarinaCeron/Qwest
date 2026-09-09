@@ -154,7 +154,24 @@ export default function TargetCompaniesPage() {
     }
   };
 
-  const handleAdd = async () => {
+  const openAddDialog = () => {
+    setEditingId(null);
+    setForm({ company: '', website: '', role: '', jobDescription: '' });
+    setDialogOpen(true);
+  };
+
+  const openEditDialog = (row: TargetCompany) => {
+    setEditingId(row.id);
+    setForm({
+      company: row.company,
+      website: row.website ?? '',
+      role: row.role_title ?? '',
+      jobDescription: row.job_description ?? '',
+    });
+    setDialogOpen(true);
+  };
+
+  const handleSave = async () => {
     const company = form.company.trim();
     if (!company) {
       toast({ title: 'Company required', description: 'Enter a company name.', variant: 'destructive' });
@@ -162,15 +179,30 @@ export default function TargetCompaniesPage() {
     }
     setSaving(true);
     try {
+      const payload = {
+        company,
+        website: form.website.trim() || null,
+        role_title: form.role.trim() || null,
+        job_description: form.jobDescription.trim() || null,
+      };
+
+      if (editingId) {
+        const { error } = await db
+          .from('target_companies')
+          .update({ ...payload, updated_at: new Date().toISOString() })
+          .eq('id', editingId);
+        if (error) throw error;
+        setItems((prev) => prev.map((i) => (i.id === editingId ? { ...i, ...payload } : i)));
+        setDialogOpen(false);
+        setEditingId(null);
+        setForm({ company: '', website: '', role: '', jobDescription: '' });
+        toast({ title: 'Saved', description: `${company} was updated.` });
+        return;
+      }
+
       const { data, error } = await db
         .from('target_companies')
-        .insert({
-          user_id: user!.id,
-          company,
-          website: form.website.trim() || null,
-          role_title: form.role.trim() || null,
-          job_description: form.jobDescription.trim() || null,
-        })
+        .insert({ user_id: user!.id, ...payload })
         .select()
         .single();
       if (error) throw error;
@@ -182,13 +214,15 @@ export default function TargetCompaniesPage() {
     } catch (e) {
       toast({
         title: 'Error',
-        description: e instanceof Error ? e.message : 'Could not add the company.',
+        description:
+          e instanceof Error ? e.message : editingId ? 'Could not save the changes.' : 'Could not add the company.',
         variant: 'destructive',
       });
     } finally {
       setSaving(false);
     }
   };
+
 
   const handleSetArchived = async (row: TargetCompany, archived: boolean) => {
     const { error } = await db.from('target_companies').update({ archived }).eq('id', row.id);

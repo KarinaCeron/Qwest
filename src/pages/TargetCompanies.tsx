@@ -75,6 +75,7 @@ export default function TargetCompaniesPage() {
   const [items, setItems] = useState<TargetCompany[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({ company: '', website: '', role: '', jobDescription: '' });
   const [saving, setSaving] = useState(false);
   const [evaluatingId, setEvaluatingId] = useState<string | null>(null);

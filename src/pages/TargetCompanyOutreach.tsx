@@ -80,6 +80,24 @@ export default function TargetCompanyOutreachPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const openSearch = (keywords: string) => {
+    const url = searchUrl(keywords);
+    let opened: Window | null = null;
+    try {
+      opened = window.open(url, '_blank', 'noopener,noreferrer');
+    } catch {
+      opened = null;
+    }
+    if (!opened) {
+      navigator.clipboard?.writeText(url);
+      toast({
+        title: 'Search address copied',
+        description: 'Your browser blocked the new tab. Paste the address in a new browser tab.',
+      });
+    }
+  };
+
+
   const [company, setCompany] = useState<TargetCompany | null>(null);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [isLoading, setIsLoading] = useState(true);

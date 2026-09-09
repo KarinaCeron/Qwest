@@ -115,34 +115,41 @@ export function CandidateProfile() {
       const loadedSkills = (profile?.skills ?? []).filter(Boolean);
       const loadedCompItems = (comp ?? []) as CompensationItem[];
       const loadedSummary = ((cp as any)?.candidate_profile as string) ?? '';
+      const generated = buildSummary(loadedTargetRoles, loadedSkills, loadedCompItems);
+      // Baseline for detecting hand edits: if the summary matches the generated
+      // text (or is empty), it's safe to regenerate later.
+      lastGeneratedRef.current = generated;
 
       setTargetRoles(loadedTargetRoles);
       setSkills(loadedSkills);
       setCompItems(loadedCompItems);
-      setSummary(loadedSummary);
       setLoading(false);
       loadedRef.current = true;
 
       if (!loadedSummary.trim()) {
-        const generated = buildSummary(loadedTargetRoles, loadedSkills, loadedCompItems);
-        lastGeneratedRef.current = generated;
         setSummary(generated);
         persist(generated);
-        toast({ title: '✨ Summary generated from your Qwest' });
+      } else {
+        setSummary(loadedSummary);
       }
     };
     load();
   }, [user, persist]);
 
-  // Always keep the summary in sync with core skills / compensation / benefits:
-  // whenever the source data changes, regenerate and persist the summary.
+  // Keep the summary in sync with core skills / compensation / benefits, but
+  // never overwrite text the user has edited themselves. If the summary is
+  // empty or still matches the last auto-generated version, regenerate it.
   useEffect(() => {
     if (!loadedRef.current) return;
     const generated = buildSummary(targetRoles, skills, compItems);
     if (generated === lastGeneratedRef.current) return;
+    const current = latestRef.current.trim();
+    const untouched = !current || current === (lastGeneratedRef.current ?? '').trim();
     lastGeneratedRef.current = generated;
-    setSummary(generated);
-    persist(generated);
+    if (untouched) {
+      setSummary(generated);
+      persist(generated);
+    }
   }, [targetRoles, skills, compItems, persist]);
 
   const handleRegenerate = () => {

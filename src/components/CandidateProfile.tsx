@@ -40,7 +40,7 @@ export function CandidateProfile() {
       const [{ data: profile }, { data: comp }] = await Promise.all([
         supabase
           .from('profiles')
-          .select('target_roles, skills, candidate_profile')
+          .select('target_roles, skills')
           .eq('user_id', user.id)
           .maybeSingle(),
         supabase
@@ -49,9 +49,14 @@ export function CandidateProfile() {
           .eq('user_id', user.id)
           .order('sort_order', { ascending: true }),
       ]);
+      const { data: cp } = await supabase
+        .from('profiles')
+        .select('candidate_profile')
+        .eq('user_id', user.id)
+        .maybeSingle();
       setTargetRoles((profile?.target_roles ?? []).filter(Boolean));
       setSkills((profile?.skills ?? []).filter(Boolean));
-      setSummary((profile as any)?.candidate_profile ?? '');
+      setSummary(((cp as any)?.candidate_profile as string) ?? '');
       setCompItems((comp ?? []) as CompensationItem[]);
       setLoading(false);
     };

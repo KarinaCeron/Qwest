@@ -160,10 +160,13 @@ const Index = () => {
     { key: 'no-response', label: 'No Response', description: 'No news for over a month. Applications land here automatically after 30 days without a status change.', icon: FileX, iconColor: 'text-gray-500', ringColor: 'ring-gray-500', count: statusStats.noResponse },
   ];
 
-  const handleStatusFilter = (status: ApplicationStatus | 'all') => {
+  const handleStatusFilter = (status: ApplicationStatus) => {
+    const next = filters.status.includes(status)
+      ? filters.status.filter((s) => s !== status)
+      : [...filters.status, status];
     setFilters({
       search: '',
-      status: filters.status === status ? 'all' : status,
+      status: next,
       priority: 'all',
       company: '',
       dateField: filters.dateField,

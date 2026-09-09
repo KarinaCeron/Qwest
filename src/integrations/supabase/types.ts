@@ -403,6 +403,7 @@ export type Database = {
           final_decision: string | null
           id: string
           job_description: string | null
+          review_status: string
           role_title: string | null
           score_compensation: number | null
           score_culture: number | null
@@ -425,6 +426,7 @@ export type Database = {
           final_decision?: string | null
           id?: string
           job_description?: string | null
+          review_status?: string
           role_title?: string | null
           score_compensation?: number | null
           score_culture?: number | null
@@ -447,6 +449,7 @@ export type Database = {
           final_decision?: string | null
           id?: string
           job_description?: string | null
+          review_status?: string
           role_title?: string | null
           score_compensation?: number | null
           score_culture?: number | null

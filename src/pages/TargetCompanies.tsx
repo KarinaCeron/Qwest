@@ -25,7 +25,7 @@ import { TargetCompanyReport } from '@/components/TargetCompanyReport';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Plus, Loader2, RefreshCw, Trash2, FileText, Target, MoreHorizontal, Send, Download, Archive, ArchiveRestore, Search, CheckCircle2, RotateCcw } from 'lucide-react';
+import { Plus, Loader2, RefreshCw, Trash2, FileText, Target, MoreHorizontal, Send, Download, Archive, ArchiveRestore, Search, CheckCircle2, RotateCcw, Pencil } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 type TargetCompany = {
@@ -75,6 +75,7 @@ export default function TargetCompaniesPage() {
   const [items, setItems] = useState<TargetCompany[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({ company: '', website: '', role: '', jobDescription: '' });
   const [saving, setSaving] = useState(false);
   const [evaluatingId, setEvaluatingId] = useState<string | null>(null);
@@ -153,7 +154,24 @@ export default function TargetCompaniesPage() {
     }
   };
 
-  const handleAdd = async () => {
+  const openAddDialog = () => {
+    setEditingId(null);
+    setForm({ company: '', website: '', role: '', jobDescription: '' });
+    setDialogOpen(true);
+  };
+
+  const openEditDialog = (row: TargetCompany) => {
+    setEditingId(row.id);
+    setForm({
+      company: row.company,
+      website: row.website ?? '',
+      role: row.role_title ?? '',
+      jobDescription: row.job_description ?? '',
+    });
+    setDialogOpen(true);
+  };
+
+  const handleSave = async () => {
     const company = form.company.trim();
     if (!company) {
       toast({ title: 'Company required', description: 'Enter a company name.', variant: 'destructive' });
@@ -161,15 +179,30 @@ export default function TargetCompaniesPage() {
     }
     setSaving(true);
     try {
+      const payload = {
+        company,
+        website: form.website.trim() || null,
+        role_title: form.role.trim() || null,
+        job_description: form.jobDescription.trim() || null,
+      };
+
+      if (editingId) {
+        const { error } = await db
+          .from('target_companies')
+          .update({ ...payload, updated_at: new Date().toISOString() })
+          .eq('id', editingId);
+        if (error) throw error;
+        setItems((prev) => prev.map((i) => (i.id === editingId ? { ...i, ...payload } : i)));
+        setDialogOpen(false);
+        setEditingId(null);
+        setForm({ company: '', website: '', role: '', jobDescription: '' });
+        toast({ title: 'Saved', description: `${company} was updated.` });
+        return;
+      }
+
       const { data, error } = await db
         .from('target_companies')
-        .insert({
-          user_id: user!.id,
-          company,
-          website: form.website.trim() || null,
-          role_title: form.role.trim() || null,
-          job_description: form.jobDescription.trim() || null,
-        })
+        .insert({ user_id: user!.id, ...payload })
         .select()
         .single();
       if (error) throw error;
@@ -181,13 +214,15 @@ export default function TargetCompaniesPage() {
     } catch (e) {
       toast({
         title: 'Error',
-        description: e instanceof Error ? e.message : 'Could not add the company.',
+        description:
+          e instanceof Error ? e.message : editingId ? 'Could not save the changes.' : 'Could not add the company.',
         variant: 'destructive',
       });
     } finally {
       setSaving(false);
     }
   };
+
 
   const handleSetArchived = async (row: TargetCompany, archived: boolean) => {
     const { error } = await db.from('target_companies').update({ archived }).eq('id', row.id);
@@ -275,7 +310,7 @@ export default function TargetCompaniesPage() {
               <Download className="mr-2 h-4 w-4" />
               Export to Excel
             </Button>
-            <Button onClick={() => setDialogOpen(true)} className="bg-gradient-primary">
+            <Button onClick={openAddDialog} className="bg-gradient-primary">
               <Plus className="mr-2 h-4 w-4" />
               Add company
             </Button>
@@ -341,7 +376,7 @@ export default function TargetCompaniesPage() {
                     <p className="text-muted-foreground">
                       No target companies yet. Add one and it will be scored automatically.
                     </p>
-                    <Button onClick={() => setDialogOpen(true)} className="bg-gradient-primary">
+                    <Button onClick={openAddDialog} className="bg-gradient-primary">
                       <Plus className="mr-2 h-4 w-4" />
                       Add company
                     </Button>
@@ -434,6 +469,10 @@ export default function TargetCompaniesPage() {
                                 <FileText className="mr-2 h-4 w-4" />
                                 View insights
                               </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => openEditDialog(row)}>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Edit details
+                              </DropdownMenuItem>
                               {!row.archived && (
                                 <>
                                   {row.review_status === 'reviewed' ? (
@@ -493,12 +532,20 @@ export default function TargetCompaniesPage() {
         </Card>
       </main>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog
+        open={dialogOpen}
+        onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (!open) setEditingId(null);
+        }}
+      >
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Add a target company</DialogTitle>
+            <DialogTitle>{editingId ? 'Edit target company' : 'Add a target company'}</DialogTitle>
             <DialogDescription>
-              The company is evaluated with the same research webhook and scored from 0 to 5 on the five criteria.
+              {editingId
+                ? 'Update the company details. Scores stay as they are until you run Update evaluation.'
+                : 'The company is evaluated with the same research webhook and scored from 0 to 5 on the five criteria.'}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -542,10 +589,11 @@ export default function TargetCompaniesPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleAdd} disabled={saving} className="bg-gradient-primary">
+            <Button onClick={handleSave} disabled={saving} className="bg-gradient-primary">
               {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-              Add & evaluate
+              {editingId ? 'Save changes' : 'Add & evaluate'}
             </Button>
+
           </DialogFooter>
         </DialogContent>
       </Dialog>

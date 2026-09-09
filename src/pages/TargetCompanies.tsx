@@ -370,7 +370,21 @@ export default function TargetCompaniesPage() {
                     {visibleItems.map((row) => (
                       <TableRow key={row.id}>
                         <TableCell>
-                          <div className="font-medium text-foreground">{row.company}</div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="font-medium text-foreground">{row.company}</span>
+                            {!row.archived && (
+                              <Badge
+                                variant="outline"
+                                className={
+                                  row.review_status === 'reviewed'
+                                    ? 'border-green-500/40 text-green-600 dark:text-green-400'
+                                    : 'border-amber-500/40 text-amber-600 dark:text-amber-400'
+                                }
+                              >
+                                {row.review_status === 'reviewed' ? 'Reviewed' : 'To review'}
+                              </Badge>
+                            )}
+                          </div>
                           {row.role_title && (
                             <div className="text-xs text-muted-foreground">{row.role_title}</div>
                           )}

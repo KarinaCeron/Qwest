@@ -63,7 +63,7 @@ const DEFAULT_TITLES = [
 const emptyForm = { name: '', title: '', linkedin_url: '', email: '', notes: '' };
 
 const searchUrl = (keywords: string) =>
-  `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(keywords)}`;
+  `https://www.google.com/search?q=${encodeURIComponent(`site:linkedin.com/in ${keywords}`)}`;
 
 /** Case-insensitive lookup on the stored report (founders vs Founders). */
 const pick = (obj: Record<string, any> | null | undefined, key: string): string | null => {
@@ -322,7 +322,7 @@ export default function TargetCompanyOutreachPage() {
                   Find people on LinkedIn
                 </CardTitle>
                 <CardDescription>
-                  Each link opens a LinkedIn people search for that title at {company.company} in a new
+                  Each link searches public LinkedIn profiles for that title at {company.company} in a new
                   browser tab. Copy the profile link of anyone useful and add them below.
                 </CardDescription>
               </CardHeader>

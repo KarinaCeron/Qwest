@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,7 +25,7 @@ import { TargetCompanyReport } from '@/components/TargetCompanyReport';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Plus, Loader2, RefreshCw, Trash2, FileText, Target, MoreHorizontal, Send, Download, Archive, ArchiveRestore } from 'lucide-react';
+import { Plus, Loader2, RefreshCw, Trash2, FileText, Target, MoreHorizontal, Send, Download, Archive, ArchiveRestore, Search } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 type TargetCompany = {
@@ -79,6 +79,7 @@ export default function TargetCompaniesPage() {
   const [evaluatingId, setEvaluatingId] = useState<string | null>(null);
   const [detail, setDetail] = useState<TargetCompany | null>(null);
   const [tab, setTab] = useState<'active' | 'archived'>('active');
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     if (!loading && !user) navigate('/auth');
@@ -213,7 +214,16 @@ export default function TargetCompaniesPage() {
 
   const activeItems = items.filter((i) => !i.archived);
   const archivedItems = items.filter((i) => i.archived);
-  const visibleItems = tab === 'active' ? activeItems : archivedItems;
+  const tabItems = tab === 'active' ? activeItems : archivedItems;
+  const visibleItems = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return tabItems;
+    return tabItems.filter(
+      (i) =>
+        i.company.toLowerCase().includes(q) ||
+        (i.role_title ?? '').toLowerCase().includes(q)
+    );
+  }, [tabItems, search]);
 
   const exportToExcel = () => {
     const rows = activeItems.map((c) => {
@@ -259,11 +269,26 @@ export default function TargetCompaniesPage() {
             <TabsTrigger value="archived">Archived ({archivedItems.length})</TabsTrigger>
           </TabsList>
         </Tabs>
+        <div className="relative mb-4 max-w-sm">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by company or role…"
+            className="pl-9"
+            aria-label="Search target companies"
+          />
+        </div>
         <Card>
           <CardContent className="p-0">
             {isLoading ? (
               <div className="flex items-center justify-center gap-2 p-12 text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" /> Loading your target companies…
+              </div>
+            ) : visibleItems.length === 0 && search.trim() ? (
+              <div className="flex flex-col items-center gap-3 p-12 text-center">
+                <Search className="h-10 w-10 text-muted-foreground" />
+                <p className="text-muted-foreground">No companies match your search.</p>
               </div>
             ) : visibleItems.length === 0 ? (
               <div className="flex flex-col items-center gap-3 p-12 text-center">

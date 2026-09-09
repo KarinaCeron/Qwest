@@ -519,20 +519,8 @@ export default function TargetCompanyOutreachPage() {
                       )}
 
                       <div className="mt-4 space-y-2">
-                        <div className="flex flex-wrap gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={draftingId === contact.id}
-                            onClick={() => draftMessage(contact)}
-                          >
-                            {draftingId === contact.id ? (
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            ) : (
-                              <Sparkles className="mr-2 h-4 w-4" />
-                            )}
-                            {contact.draft_message ? 'Draft again' : 'Draft a message'}
-                          </Button>
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-medium">My message</p>
                           {contact.draft_message && (
                             <Button
                               variant="ghost"
@@ -544,22 +532,22 @@ export default function TargetCompanyOutreachPage() {
                             </Button>
                           )}
                         </div>
-                        {contact.draft_message !== null && contact.draft_message !== undefined && (
-                          <Textarea
-                            rows={6}
-                            value={contact.draft_message}
-                            onChange={(e) =>
-                              setContacts((prev) =>
-                                prev.map((c) =>
-                                  c.id === contact.id ? { ...c, draft_message: e.target.value } : c,
-                                ),
-                              )
-                            }
-                            onBlur={(e) => saveDraft(contact, e.target.value)}
-                            className="text-sm"
-                          />
-                        )}
+                        <Textarea
+                          rows={6}
+                          placeholder="Write the message you want to send to this person..."
+                          value={contact.draft_message ?? ''}
+                          onChange={(e) =>
+                            setContacts((prev) =>
+                              prev.map((c) =>
+                                c.id === contact.id ? { ...c, draft_message: e.target.value } : c,
+                              ),
+                            )
+                          }
+                          onBlur={(e) => saveDraft(contact, e.target.value)}
+                          className="text-sm"
+                        />
                       </div>
+
                     </div>
                   ))
                 )}

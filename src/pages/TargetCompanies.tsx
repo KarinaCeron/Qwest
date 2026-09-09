@@ -399,7 +399,9 @@ export default function TargetCompaniesPage() {
             </SheetDescription>
           </SheetHeader>
           <div className="mt-6">
-            {detail?.analysis && <FormattedText text={detail.analysis} />}
+            {detail && (
+              <TargetCompanyReport evaluation={detail.evaluation} analysis={detail.analysis} />
+            )}
           </div>
         </SheetContent>
       </Sheet>

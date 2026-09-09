@@ -1,4 +1,5 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const N8N_WEBHOOK_URL =
   "https://karinaceron.app.n8n.cloud/webhook/dd564ef4-d017-43cb-bac2-e6c9efc57ac0";
@@ -21,12 +22,44 @@ Deno.serve(async (req) => {
     const websiteInput =
       typeof website === "string" && website.trim() ? website.trim().slice(0, 300) : "";
 
+    // Identify the caller and fetch their Qwest candidate profile summary.
+    let candidateProfile = "";
+    const token = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
+    if (token) {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+      const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+      if (supabaseUrl && serviceKey) {
+        const admin = createClient(supabaseUrl, serviceKey);
+        const { data: userData, error: userError } = await admin.auth.getUser(token);
+        if (userError) {
+          console.warn(`research-company: auth.getUser failed: ${userError.message}`);
+        } else if (userData?.user) {
+          const { data: profile, error: profileError } = await admin
+            .from("profiles")
+            .select("candidate_profile")
+            .eq("user_id", userData.user.id)
+            .maybeSingle();
+          if (profileError) {
+            console.warn(`research-company: profile fetch failed: ${profileError.message}`);
+          } else if (typeof profile?.candidate_profile === "string") {
+            candidateProfile = profile.candidate_profile.trim().slice(0, 4000);
+          }
+        }
+      }
+    }
+
     const url = new URL(N8N_WEBHOOK_URL);
     url.searchParams.set("company", companyInput);
     if (websiteInput) url.searchParams.set("website", websiteInput);
+    if (candidateProfile) url.searchParams.set("candidate_profile", candidateProfile.slice(0, 1500));
 
-    const requestPayload = { company: companyInput, website: websiteInput };
+    const requestPayload = {
+      company: companyInput,
+      website: websiteInput,
+      candidate_profile: candidateProfile,
+    };
     console.log("research-company: sending to n8n:", JSON.stringify(requestPayload));
+
 
     let res = await fetch(url.toString(), { method: "GET" });
     let text = await res.text();

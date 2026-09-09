@@ -63,7 +63,7 @@ const DEFAULT_TITLES = [
 const emptyForm = { name: '', title: '', linkedin_url: '', email: '', notes: '' };
 
 const searchUrl = (keywords: string) =>
-  `https://www.google.com/search?q=${encodeURIComponent(`site:linkedin.com/in ${keywords}`)}`;
+  `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(keywords)}`;
 
 /** Case-insensitive lookup on the stored report (founders vs Founders). */
 const pick = (obj: Record<string, any> | null | undefined, key: string): string | null => {

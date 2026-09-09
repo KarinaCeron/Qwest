@@ -229,26 +229,34 @@ export function CandidateProfile() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Summary {saving && <span className="normal-case">— saving…</span>}
-                </p>
-                <Button type="button" variant="ghost" size="sm" onClick={handleRegenerate} className="h-7 gap-1.5 text-xs">
+            <div className="space-y-3">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    Summary {saving && <span className="normal-case">— saving…</span>}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Auto-generated from your Qwest. Edits are allowed, but will be replaced when your roles, skills, compensation, or benefits change.
+                  </p>
+                </div>
+                <Button type="button" variant="ghost" size="sm" onClick={handleRegenerate} className="h-7 gap-1.5 text-xs shrink-0">
                   <RefreshCw className="h-3.5 w-3.5" />
-                  Refresh from my Qwest
+                  Refresh
                 </Button>
               </div>
-              <Textarea
-                rows={6}
-                value={summary}
-                onChange={(e) => handleChange(e.target.value)}
-                placeholder="Summarize who you are as a candidate: the roles you're aiming for, your compensation expectations, and the benefits that matter to you."
-                maxLength={2000}
-              />
-              <p className="text-xs text-muted-foreground">
-                This summary is regenerated automatically whenever your core skills, compensation, or benefits change. Manual edits are kept until the next change in your Qwest.
-              </p>
+              <div className="relative">
+                <Textarea
+                  rows={6}
+                  value={summary}
+                  onChange={(e) => handleChange(e.target.value)}
+                  placeholder="Summarize who you are as a candidate: the roles you're aiming for, your compensation expectations, and the benefits that matter to you."
+                  maxLength={2000}
+                  className="min-h-[140px] resize-none bg-background/50 border-muted leading-relaxed pr-12"
+                />
+                <div className="absolute bottom-2 right-2 text-[10px] text-muted-foreground bg-background/80 px-1.5 py-0.5 rounded">
+                  {summary.length}/2000
+                </div>
+              </div>
             </div>
           </>
         )}

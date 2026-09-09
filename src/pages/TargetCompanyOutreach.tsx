@@ -322,23 +322,34 @@ export default function TargetCompanyOutreachPage() {
                   Find people on LinkedIn
                 </CardTitle>
                 <CardDescription>
-                  Each link opens LinkedIn outside the app and searches for that title at {company.company}.
-                  Copy the profile link of anyone useful and add them below.
+                  Each link searches LinkedIn for that title at {company.company}. If the opened tab asks you
+                  to sign in, use the copy icon and paste the link into your own browser tab instead.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex flex-wrap gap-2">
                   {DEFAULT_TITLES.map((title) => (
-                    <Button key={title} variant="outline" size="sm" asChild>
-                      <a
-                        href={searchUrl(`${title} ${company.company}`)}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                    <div key={title} className="flex items-center rounded-md border">
+                      <Button variant="ghost" size="sm" asChild>
+                        <a
+                          href={searchUrl(`${title} ${company.company}`)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Linkedin className="mr-2 h-4 w-4" />
+                          {title}
+                        </a>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="px-2"
+                        aria-label={`Copy LinkedIn search link for ${title}`}
+                        onClick={() => copySearch(searchUrl(`${title} ${company.company}`))}
                       >
-                        <Linkedin className="mr-2 h-4 w-4" />
-                        {title}
-                      </a>
-                    </Button>
+                        <Copy className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
                   ))}
                 </div>
 

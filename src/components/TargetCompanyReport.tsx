@@ -92,14 +92,37 @@ export function TargetCompanyReport({
         </Card>
       )}
 
-      {(company.industry || company.stage || company.location) && (
+      {(pick(company, 'industry') ||
+        pick(company, 'stage') ||
+        pick(company, 'location') ||
+        pick(company, 'founders') ||
+        pick(company, 'website')) && (
         <div className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
-          <Field label="Industry" value={company.industry} />
-          <Field label="Stage" value={company.stage} />
-          <Field label="Location" value={company.location} />
-          <Field label="Founded" value={company.founded ? String(company.founded) : null} />
+          <Field label="Industry" value={pick(company, 'industry')} />
+          <Field label="Stage" value={pick(company, 'stage')} />
+          <Field label="Location" value={pick(company, 'location')} />
+          <Field label="Founded" value={pick(company, 'founded')} />
+          <Field label="Founders" value={pick(company, 'founders')} />
+          {pick(company, 'website') && (
+            <div className="space-y-1">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                Website
+              </p>
+              <a
+                href={pick(company, 'website')!.startsWith('http')
+                  ? pick(company, 'website')!
+                  : `https://${pick(company, 'website')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="break-words text-sm text-primary underline underline-offset-2 hover:opacity-80"
+              >
+                {pick(company, 'website')}
+              </a>
+            </div>
+          )}
         </div>
       )}
+
 
       <div className="space-y-4">
         <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Scorecard</h3>

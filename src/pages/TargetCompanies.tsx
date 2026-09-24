@@ -290,6 +290,7 @@ export default function TargetCompaniesPage() {
         row[cr.label] = v === null || v === undefined ? '' : Number(v);
       });
       row.Total = totalOf(c);
+      row['Total %'] = hasScores(c) ? Math.round((totalOf(c) / 25) * 100) + '%' : '';
       return row;
     });
     const sheet = XLSX.utils.json_to_sheet(rows);

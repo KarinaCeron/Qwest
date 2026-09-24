@@ -67,6 +67,13 @@ const totalOf = (c: TargetCompany) =>
 const hasScores = (c: TargetCompany) =>
   CRITERIA.some((cr) => c[cr.column] !== null && c[cr.column] !== undefined);
 
+type TagStatus = 'to_review' | 'scored' | 'reviewed';
+
+const statusOf = (c: TargetCompany): TagStatus => {
+  if (c.review_status === 'reviewed') return 'reviewed';
+  return hasScores(c) ? 'scored' : 'to_review';
+};
+
 export default function TargetCompaniesPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -82,7 +89,7 @@ export default function TargetCompaniesPage() {
   const [detail, setDetail] = useState<TargetCompany | null>(null);
   const [tab, setTab] = useState<'active' | 'archived'>('active');
   const [search, setSearch] = useState('');
-  const [reviewFilter, setReviewFilter] = useState<'all' | 'to_review' | 'reviewed'>('all');
+  const [reviewFilter, setReviewFilter] = useState<'all' | TagStatus>('all');
 
   useEffect(() => {
     if (!loading && !user) navigate('/auth');
@@ -264,15 +271,15 @@ export default function TargetCompaniesPage() {
 
   const activeItems = items.filter((i) => !i.archived);
   const archivedItems = items.filter((i) => i.archived);
-  const toReviewCount = activeItems.filter((i) => i.review_status !== 'reviewed').length;
-  const reviewedCount = activeItems.filter((i) => i.review_status === 'reviewed').length;
+  const toReviewCount = activeItems.filter((i) => statusOf(i) === 'to_review').length;
+  const scoredCount = activeItems.filter((i) => statusOf(i) === 'scored').length;
+  const reviewedCount = activeItems.filter((i) => statusOf(i) === 'reviewed').length;
   const tabItems = tab === 'active' ? activeItems : archivedItems;
   const visibleItems = useMemo(() => {
     const q = search.trim().toLowerCase();
     return tabItems.filter((i) => {
       if (tab === 'active' && reviewFilter !== 'all') {
-        const status = i.review_status === 'reviewed' ? 'reviewed' : 'to_review';
-        if (status !== reviewFilter) return false;
+        if (statusOf(i) !== reviewFilter) return false;
       }
       if (!q) return true;
       return (
@@ -340,11 +347,12 @@ export default function TargetCompaniesPage() {
           </div>
           {tab === 'active' && (
             <div className="flex items-center gap-1 rounded-md border bg-muted/40 p-1">
-              {([
-                { key: 'all', label: `All (${activeItems.length})` },
-                { key: 'to_review', label: `To review (${toReviewCount})` },
-                { key: 'reviewed', label: `Reviewed (${reviewedCount})` },
-              ] as const).map((opt) => (
+                {([
+                  { key: 'all', label: `All (${activeItems.length})` },
+                  { key: 'to_review', label: `To review (${toReviewCount})` },
+                  { key: 'scored', label: `Scored (${scoredCount})` },
+                  { key: 'reviewed', label: `Reviewed (${reviewedCount})` },
+                ] as const).map((opt) => (
                 <Button
                   key={opt.key}
                   size="sm"
@@ -412,12 +420,18 @@ export default function TargetCompaniesPage() {
                               <Badge
                                 variant="outline"
                                 className={
-                                  row.review_status === 'reviewed'
+                                  statusOf(row) === 'reviewed'
                                     ? 'border-green-500/40 text-green-600 dark:text-green-400'
-                                    : 'border-amber-500/40 text-amber-600 dark:text-amber-400'
+                                    : statusOf(row) === 'scored'
+                                      ? 'border-blue-500/40 text-blue-600 dark:text-blue-400'
+                                      : 'border-amber-500/40 text-amber-600 dark:text-amber-400'
                                 }
                               >
-                                {row.review_status === 'reviewed' ? 'Reviewed' : 'To review'}
+                                {statusOf(row) === 'reviewed'
+                                  ? 'Reviewed'
+                                  : statusOf(row) === 'scored'
+                                    ? 'Scored'
+                                    : 'To review'}
                               </Badge>
                             )}
                           </div>

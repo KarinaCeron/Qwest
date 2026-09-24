@@ -443,7 +443,16 @@ export default function TargetCompaniesPage() {
                           );
                         })}
                         <TableCell className="text-center font-semibold">
-                          {hasScores(row) ? `${totalOf(row)}/25` : '—'}
+                          {hasScores(row) ? (
+                            <div className="flex flex-col items-center gap-0.5">
+                              <span>{totalOf(row)}/25</span>
+                              <span className="text-[11px] font-normal tabular-nums text-muted-foreground">
+                                {Math.round((totalOf(row) / 25) * 100)}%
+                              </span>
+                            </div>
+                          ) : (
+                            '—'
+                          )}
                         </TableCell>
                         <TableCell className="text-right">
                           <DropdownMenu>
